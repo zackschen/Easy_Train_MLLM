@@ -2,16 +2,16 @@
 export CUDA_DEVICE_MAX_CONNECTIONS=1
 DIR=`pwd`
 
-GPUS_PER_NODE=8
+GPUS_PER_NODE=7
 NNODES=1
 NODE_RANK=0
 MASTER_ADDR=localhost
 MASTER_PORT=6001
 
-MODEL="./checkpoints/Qwen/Qwen-VL-Chat" # Set the path if you do not want to load from huggingface directly
+MODEL="./checkpoints/Qwen/Qwen-VL" # Set the path if you do not want to load from huggingface directly
 # ATTENTION: specify the path to your training data, which should be a json file consisting of a list of conversations.
 # See the section for finetuning in README for more information.
-OUTPUT_MODEL_PATH="./checkpoints/Qwen/CoIN_Chatv2/Multitask"
+OUTPUT_MODEL_PATH="./checkpoints/Qwen/CoIN_VL/Multitask"
 DATA="playground/Instructions_Qwen/Multitask/train.json"
 DS_CONFIG_PATH="scripts/zero3_offload.json"
 
@@ -22,14 +22,14 @@ DISTRIBUTED_ARGS="
     --master_addr $MASTER_ADDR \
     --master_port $MASTER_PORT
 "
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun $DISTRIBUTED_ARGS ETrain/Train/Qwen/train.py \
+CUDA_VISIBLE_DEVICES=0,2,3,4,5,6,7 torchrun $DISTRIBUTED_ARGS ETrain/Train/Qwen/train.py \
     --model_name_or_path $MODEL \
     --data_path $DATA \
     --bf16 True \
     --fix_vit True \
     --output_dir $OUTPUT_MODEL_PATH \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 4 \
+    --per_device_train_batch_size 5 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
@@ -49,5 +49,5 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun $DISTRIBUTED_ARGS ETrain/Train/Qwe
     --deepspeed ${DS_CONFIG_PATH}
 
 
-bash ./scripts/Qwen/Eval/eval_Multitask.sh
-bash ./scripts/Eval_GeneralKnowledge/eval_prompt_slim.sh
+# bash ./scripts/Qwen/Eval/eval_Multitask.sh
+# bash ./scripts/Eval_GeneralKnowledge/eval_prompt_slim.sh

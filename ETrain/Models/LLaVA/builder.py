@@ -76,7 +76,10 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
             # from peft import PeftModel
             sys.path.append('/home/chencheng/Code/Slim_Train/')
             from CoIN.peft import PeftModel, TaskType, get_peft_model, CoINMOELoraConfig, WEIGHTS_NAME, set_peft_model_state_dict
+<<<<<<< HEAD
             
+=======
+>>>>>>> aa77c0569e0888415820a676fd218fa14b7d8142
             print('Loading LoRA weights...')
             model = PeftModel.from_pretrained(model, model_path)
             print('Merging LoRA weights...')

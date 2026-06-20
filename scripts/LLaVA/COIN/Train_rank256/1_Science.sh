@@ -1,6 +1,6 @@
 ################## VICUNA ##################
 PROMPT_VERSION=v1
-MODEL_VERSION="vicuna-13b-v1.5"
+MODEL_VERSION="vicuna-7b-v1.5"
 ################## VICUNA ##################
 
 

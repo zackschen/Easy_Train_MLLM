@@ -15,7 +15,7 @@ from transformers.trainer_pt_utils import LabelSmoother
 from peft import prepare_model_for_kbit_training
 from accelerate.utils import DistributedType
 from peft import LoraConfig, prepare_model_for_kbit_training
-# from peft import get_peft_model
+from peft import get_peft_model
 from ETrain.Train.Base_trainer import *
 from ETrain.Models.Qwen.modeling_qwen import QWenLMHeadModel
 from ETrain.Models.Qwen.tokenization_qwen import *
@@ -23,8 +23,8 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from transformers.generation import GenerationConfig
 
 import sys
-sys.path.append('/home/chencheng/Code/Slim_Train')
-from CoIN.peft import PeftModel, TaskType, get_peft_model, CoINMOELoraConfig, WEIGHTS_NAME, set_peft_model_state_dict
+# sys.path.append('/home/chencheng/Code/Slim_Train')
+# from CoIN.peft import PeftModel, TaskType, get_peft_model, CoINMOELoraConfig, WEIGHTS_NAME, set_peft_model_state_dict
 
 def create_Qwen_model(training_args, model_args, data_args, lora_args):
     bnb_model_from_pretrained_args = {}
@@ -81,25 +81,25 @@ def create_Qwen_model(training_args, model_args, data_args, lora_args):
         else:
             # modules_to_save = None
             modules_to_save = ["wte", "lm_head"]
-        lora_config = CoINMOELoraConfig(
-            r=lora_args.lora_r,
-            lora_alpha=lora_args.lora_alpha,
-            target_modules=lora_args.lora_target_modules,
-            lora_dropout=lora_args.lora_dropout,
-            bias=lora_args.lora_bias,
-            task_type=TaskType.CAUSAL_LM_CoIN,
-            # modules_to_save=modules_to_save  # This argument serves for adding new tokens.
-            **kwargs
-        )
-        # lora_config = LoraConfig(
+        # lora_config = CoINMOELoraConfig(
         #     r=lora_args.lora_r,
         #     lora_alpha=lora_args.lora_alpha,
         #     target_modules=lora_args.lora_target_modules,
         #     lora_dropout=lora_args.lora_dropout,
         #     bias=lora_args.lora_bias,
-        #     task_type="CAUSAL_LM",
-        #     modules_to_save=modules_to_save  # This argument serves for adding new tokens.
+        #     task_type=TaskType.CAUSAL_LM_CoIN,
+        #     # modules_to_save=modules_to_save  # This argument serves for adding new tokens.
+        #     **kwargs
         # )
+        lora_config = LoraConfig(
+            r=lora_args.lora_r,
+            lora_alpha=lora_args.lora_alpha,
+            target_modules=lora_args.lora_target_modules,
+            lora_dropout=lora_args.lora_dropout,
+            bias=lora_args.lora_bias,
+            task_type="CAUSAL_LM",
+            modules_to_save=None  # This argument serves for adding new tokens.
+        )
         if lora_args.q_lora:
             model = prepare_model_for_kbit_training(
                 model, use_gradient_checkpointing=training_args.gradient_checkpointing
@@ -119,25 +119,31 @@ def create_Qwen_model(training_args, model_args, data_args, lora_args):
 def load_pretrained_model(model_path, model_base):
     model = AutoModelForCausalLM.from_pretrained(model_base, device_map="cuda", trust_remote_code=True).eval()
     
-    print('Loading additional weights...')
-    if os.path.exists(os.path.join(model_path, 'non_lora_trainables.bin')):
-        non_lora_trainables = torch.load(os.path.join(model_path, 'non_lora_trainables.bin'), map_location='cpu')
-    else:
-        assert False, 'non_lora_trainables.bin not found'
-    non_lora_trainables = {(k[11:] if k.startswith('base_model.') else k): v for k, v in non_lora_trainables.items()}
-    if any(k.startswith('model.model.') for k in non_lora_trainables):
-        non_lora_trainables = {(k[6:] if k.startswith('model.') else k): v for k, v in non_lora_trainables.items()}
-    model.load_state_dict(non_lora_trainables, strict=False)
+    if not model_base == model_path:
+        print('Loading additional weights...')
+        if os.path.exists(os.path.join(model_path, 'non_lora_trainables.bin')):
+            non_lora_trainables = torch.load(os.path.join(model_path, 'non_lora_trainables.bin'), map_location='cpu')
+        else:
+            assert False, 'non_lora_trainables.bin not found'
+        non_lora_trainables = {(k[11:] if k.startswith('base_model.') else k): v for k, v in non_lora_trainables.items()}
+        if any(k.startswith('model.model.') for k in non_lora_trainables):
+            non_lora_trainables = {(k[6:] if k.startswith('model.') else k): v for k, v in non_lora_trainables.items()}
+        model.load_state_dict(non_lora_trainables, strict=False)
 
-    # from peft import PeftModel
-    print('Loading LoRA weights...')
-    model = PeftModel.from_pretrained(model, model_path)
-    print('Merging LoRA weights...')
-    model = model.merge_and_unload()
-    print('Model is loaded...')
+        from peft import PeftModel
+        print('Loading LoRA weights...')
+        model = PeftModel.from_pretrained(model, model_path)
+        print('Merging LoRA weights...')
+        model = model.merge_and_unload()
+        print('Model is loaded...')
 
-    tokenizer = AutoTokenizer.from_pretrained(model_base,trust_remote_code=True)
-    tokenizer.padding_side = 'left'
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_base,
+        model_max_length=1024,
+        padding_side="right",
+        use_fast=False,
+        trust_remote_code=True,
+    )
     tokenizer.pad_token_id = tokenizer.eod_id
 
     return model, tokenizer

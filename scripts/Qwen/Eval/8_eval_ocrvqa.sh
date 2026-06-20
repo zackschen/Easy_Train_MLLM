@@ -17,12 +17,12 @@ else
     MODELPATH=$2
 fi
 
-RESULT_DIR="./results/CoIN_Chatv2/Qwen/OCRVQA"
+RESULT_DIR="./results/CoIN/Qwen_VL_Chat_Final2/OCRVQA"
 
 for IDX in $(seq 0 $((CHUNKS-1))); do
     CUDA_VISIBLE_DEVICES=${GPULIST[$IDX]} python -m ETrain.Eval.Qwen.model_vqa \
         --model-path $MODELPATH \
-        --model-base ./checkpoints/Qwen/Qwen-VL \
+        --model-base ./checkpoints/Qwen/Qwen-VL-Chat  \
         --question-file ./playground/Instructions_slim/OCRVQA/test_1.json \
         --image-folder ./cl_dataset \
         --answers-file $RESULT_DIR/$STAGE/${CHUNKS}_${IDX}.jsonl \

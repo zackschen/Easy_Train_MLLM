@@ -44,9 +44,9 @@ def eval_model(args):
             if '.jpg.jpg' in image_file:
                 image_file = image_file.replace('.jpg.jpg', '.jpg')
             image_file = os.path.join(args.image_folder, image_file.replace('./',''))
-            prompt = 'System:You are a helpful assistant.\n\n<img>{}</img>{} Assistant:'.format(image_file, qs)
+            prompt = 'user: <img>{}</img>{} assistant:'.format(image_file, qs)
         else:
-            prompt = 'System:You are a helpful assistant.\n\n{} Assistant:'.format(qs)
+            prompt = 'user: {} assistant:'.format(qs)
 
         inputs = tokenizer(prompt, return_tensors='pt')
         inputs = inputs.to(model.device)
@@ -56,16 +56,14 @@ def eval_model(args):
         pred = model.generate(**inputs,
                               do_sample=False,
                               num_beams=1,
-                              max_new_tokens=30,
-                              use_cache=True,
-                              pad_token_id=tokenizer.eod_id,
-                              eos_token_id=tokenizer.eod_id,)
+                              max_new_tokens=150,
+                              use_cache=True)
         outputs = [tokenizer.decode(_[input_ids_size:].cpu(),skip_special_tokens=True) for _ in pred]
         # print(outputs)
         ans_id = shortuuid.uuid()
         ans_file.write(json.dumps({"question_id": idx,
                                    "prompt": prompt,
-                                   "text": outputs[0][1:],
+                                   "text": outputs[0],
                                    "answer_id": ans_id}) + "\n")
         ans_file.flush()
     ans_file.close()

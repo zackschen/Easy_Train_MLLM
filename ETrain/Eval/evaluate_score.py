@@ -2,7 +2,7 @@ import json, os, argparse, re
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dir', type=str, default="./results/CoIN/Qwen_Chat/ScienceQA/Finetune")
+    parser.add_argument('--dir', type=str, default="./results/LLaVA/To_Eval_GPT4/TextVQA/Finetune")
     return parser.parse_args()
 
 def is_last_layer_folder(path):

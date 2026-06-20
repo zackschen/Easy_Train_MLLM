@@ -15,7 +15,7 @@ deepspeed --include localhost:0,1,2,3,4,5,6,7 --master_port 29600 ETrain/Train/L
     --model_name_or_path ./checkpoints/LLaVA/Vicuna/vicuna-7b-v1.5 \
     --previous_task_model_path ./checkpoints/LLaVA/Instruction/CoIN_rank192/GQA_llava_lora \
     --version $PROMPT_VERSION \
-    --data_path ./playground/Instructions_10type/VizWiz/train.json \
+    --data_path ./playground/Instructions_slim_0.4/VizWiz/train.json \
     --image_folder ./cl_dataset \
     --vision_tower ./checkpoints/LLaVA/clip-vit-large-patch14-336 \
     --mm_projector_type mlp2x_gelu \

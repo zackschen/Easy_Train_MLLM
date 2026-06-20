@@ -9,7 +9,7 @@ from tqdm import tqdm
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--test-file', type=str, default='playground/Instructions_slim/Grounding/test.json')
-    parser.add_argument('--result-file', type=str, default='results/CoIN_normaltrain_testslim/Grounding/OCRVQA/merge.jsonl')
+    parser.add_argument('--result-file', type=str, default='results/CoIN/Qwen_VL_Chat_Final2/Grounding/Finetune/merge.jsonl')
     parser.add_argument('--output-dir', type=str)
     return parser.parse_args()
 
@@ -66,6 +66,7 @@ def eval_single(test_file, result_file):
         size = grounding_gt['size']
 
         pred_bbox = result['text']
+        pred_bbox = pred_bbox[1:] if len(pred_bbox) > 0 and pred_bbox[0] == ' ' else pred_bbox
         try:
             pred_bbox = pred_bbox.replace('[', '').replace(']', '')
             bbox_pred = [float(x) for x in pred_bbox[1:-1].split(',')]

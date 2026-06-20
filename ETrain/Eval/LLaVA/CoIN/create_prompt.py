@@ -3,10 +3,10 @@ import json, os, argparse
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--results', type=str, default="./results/CoIN/Qwen_New/ScienceQA/GQA/merge.jsonl")
-    parser.add_argument('--questions', type=str, default='./playground/Instructions_slim/ScienceQA/test.json')
+    parser.add_argument('--results', type=str, default="./results/LLaVA/CLIT_normaltrain_testslim/Grounding/Zero_shot/merge.jsonl")
+    parser.add_argument('--questions', type=str, default='./playground/Instructions_Type1/Grounding/test.json')
     parser.add_argument('--rule', default='./ETrain/Eval/LLaVA/CoIN/rule.json')
-    parser.add_argument('--rule_temp', default='CoIN')
+    parser.add_argument('--rule_temp', default='CoIN_Grounding')
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     for i, ans_js in enumerate(answers):
         ans = json.loads(ans_js)
         question_id = ans['question_id']
-        question = question_dict[str(question_id)]
+        question = question_dict[question_id if isinstance(question_id,str) else str(question_id)]
 
         
         if args.rule_temp == 'CoIN':

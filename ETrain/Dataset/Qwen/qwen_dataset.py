@@ -155,7 +155,6 @@ class DataCollatorForSupervisedDataset(object):
                 image = image[ : image.index(self.config.visual['image_start_id'] + 2)]
                 image_paths.append(bytes(image).decode('utf-8'))
             
-            
             for image_path in image_paths:
                 if image_path.startswith("http://") or image_path.startswith("https://"):
                     image = Image.open(requests.get(image_path, stream=True).raw)

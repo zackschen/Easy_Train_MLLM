@@ -220,7 +220,7 @@ def preprocess_v1(
         input_ids = tokenizer(
             conversations,
             return_tensors="pt",
-            padding="longest",
+            padding="max_length",
             max_length=tokenizer.model_max_length,
             truncation=True,
         ).input_ids
@@ -445,6 +445,11 @@ class LazySupervisedDataset(Dataset):
 
     def __getitem__(self, i) -> Dict[str, torch.Tensor]:
         sources = self.list_data_dict[i]
+        if 'question_id' in sources:
+            question_id = sources['question_id']
+        else:
+            question_id = sources['id']
+
         if isinstance(i, int):
             sources = [sources]
         assert len(sources) == 1, "Don't know why it is wrapped to a list"  # FIXME
@@ -490,6 +495,8 @@ class LazySupervisedDataset(Dataset):
             # image does not exist in the data, but the model is multimodal
             crop_size = self.data_args.image_processor.crop_size
             data_dict['image'] = torch.zeros(3, crop_size['height'], crop_size['width'])
+        
+        data_dict['question_id'] = question_id
         return data_dict
 
 
@@ -502,8 +509,8 @@ class DataCollatorForSupervisedDataset(object):
     tokenizer: transformers.PreTrainedTokenizer
 
     def __call__(self, instances: Sequence[Dict]) -> Dict[str, torch.Tensor]:
-        input_ids, labels = tuple([instance[key] for instance in instances]
-                                  for key in ("input_ids", "labels"))
+        input_ids, labels, question_ids = tuple([instance[key] for instance in instances]
+                                  for key in ("input_ids", "labels", "question_id"))
         input_ids = torch.nn.utils.rnn.pad_sequence(
             input_ids,
             batch_first=True,
@@ -517,6 +524,7 @@ class DataCollatorForSupervisedDataset(object):
             input_ids=input_ids,
             labels=labels,
             attention_mask=input_ids.ne(self.tokenizer.pad_token_id),
+            question_ids = question_ids
         )
 
         if 'image' in instances[0]:

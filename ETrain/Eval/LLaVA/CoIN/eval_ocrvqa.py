@@ -26,7 +26,9 @@ def eval_single(annotation_file, result_file):
         ground_truth = annotation['answer']
         if 'Unanswerable' in result['text'] :
             continue
-        if result['text'].lower() == ground_truth.lower():
+        pred = result['text']
+        pred = pred[1:] if len(pred) > 0 and pred[0] == ' ' else pred
+        if pred.lower() == ground_truth.lower():
             right += 1
 
     print('Samples: {}\nAccuracy: {:.2f}%\n'.format(len(pred_list), 100. * right / total))

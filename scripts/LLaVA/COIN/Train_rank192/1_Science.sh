@@ -11,11 +11,11 @@ MODEL_VERSION="vicuna-7b-v1.5"
 
 deepspeed --include localhost:0,1,2,3,4,5,6,7 --master_port 29600 ETrain/Train/LLaVA/train_mem.py \
     --deepspeed ./scripts/zero3_offload.json \
-    --lora_enable True --lora_r 128 --lora_alpha 256 --mm_projector_lr 2e-5 \
+    --lora_enable True --lora_r 192 --lora_alpha 256 --mm_projector_lr 2e-5 \
     --model_name_or_path ./checkpoints/LLaVA/Vicuna/vicuna-7b-v1.5 \
-    --pretrain_mm_mlp_adapter ./checkpoints/LLaVA/llava-vicuna-2-7b-chat-pretrain/mm_projector.bin \
+    --pretrain_mm_mlp_adapter ./checkpoints/LLaVA/Vicuna/vicuna-7b-v1.5-projector/mm_projector.bin \
     --version $PROMPT_VERSION \
-    --data_path ./playground/Instructions_10type/ScienceQA/train.json \
+    --data_path ./playground/Instructions_slim_0.4/ScienceQA/train.json \
     --image_folder ./cl_dataset \
     --vision_tower ./checkpoints/LLaVA/clip-vit-large-patch14-336 \
     --mm_projector_type mlp2x_gelu \
