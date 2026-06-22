@@ -8,7 +8,6 @@ Default paths assume this file is run from your project root:
 Commands:
   python factor1_coin_meta.py inventory
   python factor1_coin_meta.py build --max-samples-per-dataset 1000
-  python factor1_coin_meta.py refine-skills --datasets vqav2 --limit 200
   python factor1_coin_meta.py gaps --split all
 """
 
@@ -20,13 +19,9 @@ import csv
 import hashlib
 import json
 import math
-import os
 import random
 import re
 import sys
-import time
-import urllib.error
-import urllib.request
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Iterable, Iterator
@@ -65,76 +60,6 @@ ATTRIBUTES = COLORS | {"large", "small", "big", "tiny", "round", "square", "rect
 TEXT_SPAN_DATASETS = {"docvqa", "infographicvqa"}
 KNOWLEDGE_DATASETS = {"okvqa", "aokvqa", "scienceqa", "mmmu", "slake", "vqarad", "pathvqa"}
 
-PRIMARY_SKILLS = {
-    "recognition",
-    "attribute",
-    "counting",
-    "relation",
-    "comparison",
-    "text_reading",
-    "chart_reasoning",
-    "document_reasoning",
-    "diagram_reasoning",
-    "knowledge_reasoning",
-    "medical_reasoning",
-    "remote_sensing_reasoning",
-}
-SECONDARY_SKILLS = PRIMARY_SKILLS | {"table_reading", "spatial_grounding", "visual_grounding"}
-SKILL_ALIASES = {
-    "object_recognition": "recognition",
-    "scene_recognition": "recognition",
-    "scene_understanding": "recognition",
-    "visual_recognition": "recognition",
-    "object": "recognition",
-    "yes_no_recognition": "recognition",
-    "color": "attribute",
-    "shape": "attribute",
-    "size": "attribute",
-    "material": "attribute",
-    "spatial_relation": "relation",
-    "spatial_reasoning": "relation",
-    "visual_relation": "relation",
-    "ocr": "text_reading",
-    "ocr_reading": "text_reading",
-    "reading": "text_reading",
-    "text": "text_reading",
-    "chart": "chart_reasoning",
-    "document": "document_reasoning",
-    "diagram": "diagram_reasoning",
-    "knowledge": "knowledge_reasoning",
-    "medical": "medical_reasoning",
-    "remote_sensing": "remote_sensing_reasoning",
-}
-QUESTION_INSTRUCTION_PATTERNS = [
-    r"\s*answer the question using a single word or phrase\.?\s*$",
-    r"\s*answer with a single word or phrase\.?\s*$",
-    r"\s*answer using a single word or phrase\.?\s*$",
-    r"\s*give a short answer\.?\s*$",
-    r"\s*respond with a short answer\.?\s*$",
-]
-LLM_SKILL_SYSTEM_PROMPT = """You label the visual skill needed to answer VQA samples.
-
-Use only the supplied dataset, visual substrate, question, answer, and choices.
-
-Primary skill taxonomy:
-- recognition: identify an object, scene, action, event, affordance, or visible entity.
-- attribute: identify color, shape, size, material, state, age, gender, or another visible attribute.
-- counting: count visible objects or determine an explicit quantity.
-- relation: determine a spatial or semantic relation, including location, containment, support, interaction, or viewpoint.
-- comparison: compare attributes or quantities across visible entities.
-- text_reading: read visible text, letters, numbers, signs, labels, captions, or printed words. Do not select this because an answer instruction contains "word" or "phrase".
-- chart_reasoning: reason over bars, lines, axes, legends, plotted values, or charts.
-- document_reasoning: read or reason over forms, receipts, tables, documents, infographics, or dense layouts.
-- diagram_reasoning: reason over diagrams, arrows, parts, flows, scientific illustrations, or schematics.
-- knowledge_reasoning: external or common knowledge beyond direct visual evidence is necessary.
-- medical_reasoning: medical image interpretation or clinical knowledge is necessary.
-- remote_sensing_reasoning: satellite, aerial, or remote-sensing interpretation is necessary.
-
-Return only JSON:
-{"labels":[{"id":"...","skill_type_primary":"...","skill_type_secondary":null,"requires_external_knowledge":false,"confidence":0.0}]}
-
-confidence is between 0 and 1."""
-
 
 def norm_key(x: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", str(x).lower()).strip("_")
@@ -154,14 +79,6 @@ def compact(x: Any) -> str:
             if k in x:
                 return compact(x[k])
     return str(x)
-
-
-def question_for_label(question: str) -> str:
-    """Remove answer-format instructions that must not affect semantic labels."""
-    q = compact(question)
-    for pattern in QUESTION_INSTRUCTION_PATTERNS:
-        q = re.sub(pattern, "", q, flags=re.IGNORECASE)
-    return compact(q)
 
 
 def safe_json(x: Any, max_len: int = 1000) -> Any:
@@ -393,7 +310,7 @@ def answer_type(s: dict[str, Any]) -> tuple[str, float, str]:
 
 
 def skill_type(s: dict[str, Any], cfg: dict[str, Any]) -> tuple[str, str | None, float, str]:
-    q = question_for_label(s["question"]).lower()
+    q = s["question"].lower()
     meta = " ".join(compact(v).lower() for v in s["raw_metadata"].values())
     text = f"{q} {meta}"
     d = s["_dataset"]
@@ -426,7 +343,7 @@ def skill_type(s: dict[str, Any], cfg: dict[str, Any]) -> tuple[str, str | None,
 
 
 def evidence_type(s: dict[str, Any], primary: str, secondary: str | None, cfg: dict[str, Any]) -> tuple[str, str | None, float, str]:
-    q = question_for_label(s["question"]).lower()
+    q = s["question"].lower()
     d = s["_dataset"]
     if d in {"chartqa", "chartqa_eval"} or primary == "chart_reasoning":
         sec = "cross_region" if secondary == "comparison" or has(q, r"\b(trend|compare|highest|lowest|increase|decrease|difference)\b") else None
@@ -458,8 +375,7 @@ def label(s: dict[str, Any]) -> dict[str, Any]:
     ep, es, ec, esrc = evidence_type(s, sp, ss, cfg)
     protocol = "multiple_choice" if s["choices"] else ("answer_with_rationale" if s["rationale"] else ("free_form_answer" if tok_count(s["answer"]) > 12 else "short_answer"))
     pconf = 0.95 if s["choices"] else (0.90 if s["rationale"] or protocol == "short_answer" else 0.72)
-    label_q = question_for_label(s["question"])
-    k = bool(cfg["knowledge"] or sp == "knowledge_reasoning" or has(label_q, r"\b(why|used for|purpose|cause|likely|infer|reason)\b"))
+    k = bool(cfg["knowledge"] or sp == "knowledge_reasoning" or has(s["question"], r"\b(why|used for|purpose|cause|likely|infer|reason)\b"))
     kconf = 0.85 if cfg["knowledge"] else (0.72 if k else 0.82)
     conf = {
         "visual_substrate": 1.0,
@@ -479,7 +395,6 @@ def label(s: dict[str, Any]) -> dict[str, Any]:
         "source_index": s["_source_index"],
         "image": s["image"],
         "question": s["question"],
-        "question_for_label": label_q,
         "answer": s["answer"],
         "answers": s["answers"],
         "choices": s["choices"] or None,
@@ -789,332 +704,6 @@ def cmd_gaps(args: argparse.Namespace) -> int:
     return 0
 
 
-def normalize_skill_name(value: Any, allowed: set[str]) -> str | None:
-    if value is None:
-        return None
-    key = norm_key(compact(value))
-    if not key or key in {"none", "null", "na", "n_a", "unknown"}:
-        return None
-    key = SKILL_ALIASES.get(key, key)
-    return key if key in allowed else None
-
-
-def parse_json_object(text: str) -> dict[str, Any]:
-    content = text.strip()
-    if content.startswith("```"):
-        content = re.sub(r"^```(?:json)?\s*", "", content, flags=re.IGNORECASE)
-        content = re.sub(r"\s*```$", "", content)
-    try:
-        obj = json.loads(content)
-    except json.JSONDecodeError:
-        match = re.search(r"\{.*\}", content, flags=re.DOTALL)
-        if not match:
-            raise
-        obj = json.loads(match.group(0))
-    if not isinstance(obj, dict):
-        raise ValueError("LLM response is not a JSON object")
-    return obj
-
-
-def llm_sample_view(row: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "id": row["id"],
-        "dataset": row.get("dataset"),
-        "visual_substrate": row.get("visual_substrate"),
-        "question": question_for_label(row.get("question_for_label") or row.get("question", "")),
-        "answer": row.get("answer"),
-        "choices": row.get("choices"),
-    }
-
-
-def llm_skill_cache_key(row: dict[str, Any], model: str) -> str:
-    payload = {"model": model, **llm_sample_view(row)}
-    payload.pop("id", None)
-    return hashlib.sha1(json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
-
-
-def load_cache(path: Path | None) -> dict[str, dict[str, Any]]:
-    cache: dict[str, dict[str, Any]] = {}
-    if path is None or not path.exists():
-        return cache
-    with path.open("r", encoding="utf-8") as file:
-        for line in file:
-            if not line.strip():
-                continue
-            row = json.loads(line)
-            if row.get("cache_key"):
-                cache[row["cache_key"]] = row
-    return cache
-
-
-def append_cache(path: Path | None, row: dict[str, Any]) -> None:
-    if path is None:
-        return
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as file:
-        file.write(json.dumps(row, ensure_ascii=False) + "\n")
-
-
-def call_openai_compatible(
-    api_base: str,
-    api_key: str | None,
-    model: str,
-    messages: list[dict[str, str]],
-    temperature: float,
-    max_tokens: int,
-    timeout: int,
-) -> str:
-    url = api_base.rstrip("/") + "/chat/completions"
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-    }
-    headers = {"Content-Type": "application/json"}
-    if api_key:
-        headers["Authorization"] = f"Bearer {api_key}"
-    request = urllib.request.Request(
-        url,
-        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-        headers=headers,
-        method="POST",
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        obj = json.loads(response.read().decode("utf-8"))
-    content = obj["choices"][0]["message"]["content"]
-    if isinstance(content, list):
-        return "".join(compact(part.get("text")) for part in content if isinstance(part, dict))
-    return compact(content)
-
-
-def request_llm_skill_labels(rows: list[dict[str, Any]], args: argparse.Namespace) -> dict[str, dict[str, Any]]:
-    user_payload = {
-        "task": "Label each sample independently. Answer-format instruction words are not visual evidence.",
-        "allowed_primary_skills": sorted(PRIMARY_SKILLS),
-        "allowed_secondary_skills": sorted(SECONDARY_SKILLS),
-        "samples": [llm_sample_view(row) for row in rows],
-    }
-    messages = [
-        {"role": "system", "content": LLM_SKILL_SYSTEM_PROMPT},
-        {"role": "user", "content": json.dumps(user_payload, ensure_ascii=False)},
-    ]
-    last_error: Exception | None = None
-    for attempt in range(args.retries + 1):
-        try:
-            content = call_openai_compatible(
-                args.api_base,
-                args.api_key,
-                args.model,
-                messages,
-                args.temperature,
-                args.max_tokens,
-                args.timeout,
-            )
-            labels = parse_json_object(content).get("labels")
-            if not isinstance(labels, list):
-                raise ValueError("LLM JSON must contain a labels list")
-            return {
-                str(item["id"]): item
-                for item in labels
-                if isinstance(item, dict) and item.get("id")
-            }
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError, ValueError) as error:
-            last_error = error
-            if attempt < args.retries:
-                time.sleep(args.retry_sleep * (attempt + 1))
-    raise RuntimeError(f"LLM skill labeling failed after {args.retries + 1} attempts: {last_error}")
-
-
-def apply_skill_refinement(
-    row: dict[str, Any],
-    item: dict[str, Any],
-    model: str,
-    cache_key: str,
-) -> dict[str, Any]:
-    old_primary = row.get("skill_type_primary")
-    old_secondary = row.get("skill_type_secondary")
-    new_primary = normalize_skill_name(item.get("skill_type_primary"), PRIMARY_SKILLS) or old_primary or "recognition"
-    new_secondary = normalize_skill_name(item.get("skill_type_secondary"), SECONDARY_SKILLS)
-    if new_secondary == new_primary:
-        new_secondary = None
-    try:
-        confidence = max(0.0, min(1.0, float(item.get("confidence", 0.75))))
-    except (TypeError, ValueError):
-        confidence = 0.75
-
-    refined = dict(row)
-    refined.setdefault("question_for_label", question_for_label(refined.get("question", "")))
-    refined["skill_type_primary_rule"] = old_primary
-    refined["skill_type_secondary_rule"] = old_secondary
-    refined["skill_type_primary"] = new_primary
-    refined["skill_type_secondary"] = new_secondary
-    if isinstance(item.get("requires_external_knowledge"), bool):
-        refined["requires_external_knowledge"] = item["requires_external_knowledge"]
-    elif new_primary in {"knowledge_reasoning", "medical_reasoning", "remote_sensing_reasoning"}:
-        refined["requires_external_knowledge"] = True
-
-    dataset = refined.get("dataset")
-    evidence_confidence = 0.70
-    if dataset in DATASETS:
-        sample = {
-            "_dataset": dataset,
-            "question": refined.get("question", ""),
-            "raw_metadata": refined.get("raw_metadata", {}),
-        }
-        ep, es, evidence_confidence, _ = evidence_type(
-            sample,
-            new_primary,
-            new_secondary,
-            DATASETS[dataset],
-        )
-        refined["evidence_type_primary"] = ep
-        refined["evidence_type_secondary"] = es
-
-    sources = dict(refined.get("label_source") or {})
-    sources["skill_type"] = "llm_question"
-    sources["evidence_type"] = "llm_skill+rule"
-    refined["label_source"] = sources
-
-    confidences = dict(refined.get("label_confidence") or {})
-    confidences["skill_type"] = confidence
-    confidences["evidence_type"] = min(evidence_confidence, confidence)
-    if "requires_external_knowledge" in item:
-        confidences["requires_external_knowledge"] = confidence
-    refined["label_confidence"] = confidences
-    refined["overall_label_confidence"] = min(float(value) for value in confidences.values()) if confidences else confidence
-    refined["llm_skill_judgment"] = {
-        "model": model,
-        "cache_key": cache_key,
-        "previous_primary": old_primary,
-        "previous_secondary": old_secondary,
-        "raw_label": safe_json(item),
-    }
-    return refined
-
-
-def refine_skill_batch(
-    rows: list[dict[str, Any]],
-    args: argparse.Namespace,
-    cache: dict[str, dict[str, Any]],
-) -> list[dict[str, Any]]:
-    labels: dict[str, dict[str, Any]] = {}
-    keys: dict[str, str] = {}
-    uncached: list[dict[str, Any]] = []
-    for row in rows:
-        key = llm_skill_cache_key(row, args.model)
-        keys[row["id"]] = key
-        if key in cache:
-            labels[row["id"]] = cache[key]["label"]
-        else:
-            uncached.append(row)
-
-    if uncached:
-        returned = request_llm_skill_labels(uncached, args)
-        for row in uncached:
-            item = returned.get(row["id"])
-            if item is None:
-                if args.fail_on_error:
-                    raise RuntimeError(f"LLM did not return label for {row['id']}")
-                item = {
-                    "id": row["id"],
-                    "skill_type_primary": row.get("skill_type_primary"),
-                    "skill_type_secondary": row.get("skill_type_secondary"),
-                    "requires_external_knowledge": row.get("requires_external_knowledge"),
-                    "confidence": row.get("label_confidence", {}).get("skill_type", 0.50),
-                    "error": "missing_llm_label",
-                }
-            labels[row["id"]] = item
-            cache_row = {
-                "cache_key": keys[row["id"]],
-                "id": row["id"],
-                "model": args.model,
-                "label": item,
-            }
-            cache[keys[row["id"]]] = cache_row
-            append_cache(args.cache, cache_row)
-
-    return [
-        apply_skill_refinement(row, labels[row["id"]], args.model, keys[row["id"]])
-        for row in rows
-    ]
-
-
-def cmd_refine_skills(args: argparse.Namespace) -> int:
-    args.api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
-    args.api_base = (
-        args.api_base
-        or os.environ.get("OPENAI_BASE_URL")
-        or os.environ.get("OPENAI_API_BASE")
-        or "http://127.0.0.1:8000/v1"
-    )
-    if args.metadata.resolve() == args.output.resolve():
-        raise SystemExit("--output must differ from --metadata; the source metadata is never overwritten")
-    if args.cache is None and not args.no_cache:
-        args.cache = args.output.with_suffix(".cache.jsonl")
-
-    dataset_filter = set(args.datasets or [])
-    split_filter = set(args.splits or [])
-    cache = load_cache(None if args.no_cache else args.cache)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    pending: list[dict[str, Any]] = []
-    total = refined_count = unchanged = errors = 0
-
-    def should_refine(row: dict[str, Any]) -> bool:
-        if dataset_filter and row.get("dataset") not in dataset_filter:
-            return False
-        if split_filter and row.get("split") not in split_filter:
-            return False
-        if args.only_rule_source and "llm" in compact((row.get("label_source") or {}).get("skill_type")).lower():
-            return False
-        if args.limit is not None and refined_count + len(pending) >= args.limit:
-            return False
-        return True
-
-    def flush(output_file) -> None:
-        nonlocal pending, refined_count, errors
-        if not pending:
-            return
-        try:
-            output_rows = refine_skill_batch(pending, args, cache)
-        except Exception as error:
-            if args.fail_on_error:
-                raise
-            print(f"[warn] skill refinement batch failed: {error}", file=sys.stderr)
-            output_rows = []
-            for row in pending:
-                fallback = dict(row)
-                fallback["llm_skill_error"] = repr(error)
-                output_rows.append(fallback)
-                errors += 1
-        for row in output_rows:
-            output_file.write(json.dumps(row, ensure_ascii=False) + "\n")
-        refined_count += len(pending)
-        print(f"[refine-skills] processed={refined_count}", file=sys.stderr)
-        pending = []
-
-    with args.metadata.open("r", encoding="utf-8") as source, args.output.open("w", encoding="utf-8") as output:
-        for line in source:
-            if not line.strip():
-                continue
-            total += 1
-            row = json.loads(line)
-            if should_refine(row):
-                pending.append(row)
-                if len(pending) >= args.batch_size:
-                    flush(output)
-            else:
-                output.write(json.dumps(row, ensure_ascii=False) + "\n")
-                unchanged += 1
-        flush(output)
-
-    print(f"Wrote LLM-refined metadata: {args.output}")
-    print(f"total={total}, refined={refined_count}, unchanged={unchanged}, errors={errors}")
-    if args.cache and not args.no_cache:
-        print(f"Wrote/used cache: {args.cache}")
-    return 0
-
-
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="CoIN Factor-1 metadata tool.")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -1142,29 +731,6 @@ def parser() -> argparse.ArgumentParser:
     g.add_argument("--transitions", type=Path, default=None)
     g.add_argument("--min-confidence", type=float, default=0.70)
     g.add_argument("--split", default="train")
-
-    rs = sub.add_parser(
-        "refine-skills",
-        help="Relabel skill_type fields through an OpenAI-compatible LLM API.",
-    )
-    rs.add_argument("--metadata", type=Path, default=Path("./cl_dataset/coin_factor1_meta/metadata/sample_metadata.jsonl"))
-    rs.add_argument("--output", type=Path, default=Path("./cl_dataset/coin_factor1_meta/metadata/sample_metadata.llm_skill.jsonl"))
-    rs.add_argument("--cache", type=Path, default=None)
-    rs.add_argument("--no-cache", action="store_true")
-    rs.add_argument("--datasets", nargs="+", default=None)
-    rs.add_argument("--splits", nargs="+", default=None)
-    rs.add_argument("--limit", type=int, default=None)
-    rs.add_argument("--batch-size", type=int, default=20)
-    rs.add_argument("--model", default=os.environ.get("OPENAI_MODEL", "Qwen/Qwen2.5-72B-Instruct"))
-    rs.add_argument("--api-base", default=None)
-    rs.add_argument("--api-key", default=None)
-    rs.add_argument("--temperature", type=float, default=0.0)
-    rs.add_argument("--max-tokens", type=int, default=4096)
-    rs.add_argument("--timeout", type=int, default=120)
-    rs.add_argument("--retries", type=int, default=2)
-    rs.add_argument("--retry-sleep", type=float, default=2.0)
-    rs.add_argument("--only-rule-source", action="store_true")
-    rs.add_argument("--fail-on-error", action="store_true")
     return p
 
 
@@ -1180,8 +746,6 @@ def main() -> int:
         return cmd_build(args)
     if args.cmd == "gaps":
         return cmd_gaps(args)
-    if args.cmd == "refine-skills":
-        return cmd_refine_skills(args)
     raise SystemExit(args.cmd)
 
 
