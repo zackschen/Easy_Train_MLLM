@@ -9,6 +9,7 @@ Commands:
   python factor1_coin_meta.py inventory
   python factor1_coin_meta.py build --max-samples-per-dataset 1000
   python factor1_coin_meta.py refine-skills --datasets vqav2 --limit 200
+  python factor1_coin_meta.py refine-metadata --datasets vqav2 --limit 100
   python factor1_coin_meta.py gaps --split all
 """
 
@@ -16,10 +17,12 @@ from __future__ import annotations
 
 import argparse
 import ast
+import base64
 import csv
 import hashlib
 import json
 import math
+import mimetypes
 import os
 import random
 import re
@@ -80,6 +83,84 @@ PRIMARY_SKILLS = {
     "remote_sensing_reasoning",
 }
 SECONDARY_SKILLS = PRIMARY_SKILLS | {"table_reading", "spatial_grounding", "visual_grounding"}
+VISUAL_SUBSTRATES = {
+    "natural_photo",
+    "document",
+    "infographic",
+    "chart",
+    "diagram",
+    "science_diagram",
+    "academic_figure",
+    "medical",
+    "remote_sensing",
+    "screenshot",
+    "map",
+    "synthetic",
+    "other",
+}
+VISUAL_SUBSTRATE_ALIASES = {
+    "photo": "natural_photo",
+    "natural_image": "natural_photo",
+    "natural_scene": "natural_photo",
+    "document_image": "document",
+    "scientific_diagram": "science_diagram",
+    "academic_plot": "academic_figure",
+    "medical_image": "medical",
+    "radiology": "medical",
+    "satellite": "remote_sensing",
+    "aerial": "remote_sensing",
+    "remote_sensing_image": "remote_sensing",
+    "screen": "screenshot",
+}
+EVIDENCE_SOURCES = {
+    "object",
+    "attribute",
+    "scene",
+    "action",
+    "spatial_relation",
+    "text",
+    "table",
+    "chart",
+    "diagram",
+    "medical_region",
+    "remote_sensing_region",
+    "map",
+    "external_knowledge",
+    "other",
+}
+EVIDENCE_SOURCE_ALIASES = {
+    "object_region": "object",
+    "visual_object": "object",
+    "visual_attribute": "attribute",
+    "global_scene": "scene",
+    "ocr": "text",
+    "text_span": "text",
+    "table_cell": "table",
+    "chart_element": "chart",
+    "diagram_region": "diagram",
+    "knowledge": "external_knowledge",
+    "image_plus_knowledge": "external_knowledge",
+}
+EVIDENCE_SCOPES = {
+    "single_region",
+    "global_image",
+    "multi_region",
+    "cross_region",
+    "cross_page",
+    "image_plus_knowledge",
+}
+EVIDENCE_SCOPE_ALIASES = {
+    "single": "single_region",
+    "one_region": "single_region",
+    "global": "global_image",
+    "whole_image": "global_image",
+    "multiple_regions": "multi_region",
+    "multi_evidence": "multi_region",
+    "cross_modal": "image_plus_knowledge",
+    "external_knowledge": "image_plus_knowledge",
+}
+ANSWER_TYPES = {"yes_no", "number", "option", "text_span", "attribute", "object", "free_form"}
+VLM_METADATA_SCHEMA_VERSION = "factor1-vlm-metadata-v1"
 SKILL_ALIASES = {
     "object_recognition": "recognition",
     "scene_recognition": "recognition",
@@ -134,6 +215,37 @@ Return only JSON:
 {"labels":[{"id":"...","skill_type_primary":"...","skill_type_secondary":null,"requires_external_knowledge":false,"confidence":0.0}]}
 
 confidence is between 0 and 1."""
+
+VLM_METADATA_SYSTEM_PROMPT = """You annotate multimodal VQA samples for a continual-learning benchmark.
+
+Inspect each supplied image together with its question and reference answer. Do not solve a different task and do not use answer-format instructions such as "single word" as evidence.
+
+Return one label per sample using only these taxonomies.
+
+visual_substrate:
+natural_photo, document, infographic, chart, diagram, science_diagram, academic_figure, medical, remote_sensing, screenshot, map, synthetic, other
+
+skill_type_primary:
+recognition, attribute, counting, relation, comparison, text_reading, chart_reasoning, document_reasoning, diagram_reasoning, knowledge_reasoning, medical_reasoning, remote_sensing_reasoning
+
+evidence_source_primary and evidence_source_secondary:
+object, attribute, scene, action, spatial_relation, text, table, chart, diagram, medical_region, remote_sensing_region, map, external_knowledge, other
+
+evidence_scope:
+- single_region: one localized region/span/cell is sufficient.
+- global_image: the whole scene is sufficient without combining distinct evidence.
+- multi_region: two or more distinct regions/items/spans must be collected.
+- cross_region: evidence from distinct regions must be related or composed.
+- cross_page: evidence crosses pages, panels, frames, or separate images.
+- image_plus_knowledge: visual evidence must be combined with external knowledge.
+
+evidence_count is the minimum number of distinct visual regions, objects, text spans, cells, or panels needed. Use 1 for direct global recognition. reasoning_hops is 0 for direct perception/readout, 1 for one relation/comparison/operation, 2 for two-step composition, and 3 for three or more steps.
+
+answer_type:
+yes_no, number, option, text_span, attribute, object, free_form
+
+Return only JSON:
+{"labels":[{"id":"...","visual_substrate":"...","skill_type_primary":"...","skill_type_secondary":null,"evidence_source_primary":"...","evidence_source_secondary":null,"evidence_scope":"...","evidence_count":1,"reasoning_hops":0,"requires_external_knowledge":false,"answer_type":"...","confidence":{"visual_substrate":0.0,"skill_type":0.0,"evidence":0.0,"requires_external_knowledge":0.0,"answer_type":0.0}}]}"""
 
 
 def norm_key(x: str) -> str:
@@ -617,6 +729,11 @@ def write_stats(meta: Path, out_dir: Path, threshold: float, review_n: int, seed
                 "skill_type_secondary": r.get("skill_type_secondary"),
                 "evidence_type_primary": r.get("evidence_type_primary"),
                 "evidence_type_secondary": r.get("evidence_type_secondary"),
+                "evidence_source_primary": r.get("evidence_source_primary"),
+                "evidence_scope": r.get("evidence_scope"),
+                "evidence_complexity": r.get("evidence_complexity"),
+                "evidence_complexity_level": r.get("evidence_complexity_level"),
+                "reasoning_hops": r.get("reasoning_hops"),
                 "answer_type": r.get("answer_type"),
                 "protocol_type": r.get("protocol_type"),
                 "requires_external_knowledge": str(r.get("requires_external_knowledge")),
@@ -745,9 +862,10 @@ def cmd_gaps(args: argparse.Namespace) -> int:
         "visual_gap": "visual_substrate",
         "skill_gap": "skill_type_primary",
         "evidence_gap": "evidence_type_primary",
+        "evidence_complexity_gap": "evidence_complexity",
         "answer_distribution_gap": "answer_type",
     }
-    fields = ["transition_id", "old_regime", "new_regime", "old_n", "new_n", "visual_gap", "skill_gap", "evidence_gap", "answer_distribution_gap", "answer_vocab_overlap", "metadata_overlap_score", "old_visual_top", "new_visual_top", "old_skill_top", "new_skill_top", "old_evidence_top", "new_evidence_top", "old_answer_type_top", "new_answer_type_top"]
+    fields = ["transition_id", "old_regime", "new_regime", "old_n", "new_n", "visual_gap", "skill_gap", "evidence_gap", "evidence_complexity_gap", "answer_distribution_gap", "answer_vocab_overlap", "metadata_overlap_score", "old_visual_top", "new_visual_top", "old_skill_top", "new_skill_top", "old_evidence_top", "new_evidence_top", "old_complexity_top", "new_complexity_top", "old_answer_type_top", "new_answer_type_top"]
     with args.output.open("w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
@@ -773,6 +891,7 @@ def cmd_gaps(args: argparse.Namespace) -> int:
                 "visual_gap": round(gaps["visual_gap"], 6),
                 "skill_gap": round(gaps["skill_gap"], 6),
                 "evidence_gap": round(gaps["evidence_gap"], 6),
+                "evidence_complexity_gap": round(gaps["evidence_complexity_gap"], 6),
                 "answer_distribution_gap": round(gaps["answer_distribution_gap"], 6),
                 "answer_vocab_overlap": round(ans_overlap, 6),
                 "metadata_overlap_score": round(sum(sims) / len(sims), 6),
@@ -782,6 +901,8 @@ def cmd_gaps(args: argparse.Namespace) -> int:
                 "new_skill_top": tops["new_skill_type_primary"],
                 "old_evidence_top": tops["old_evidence_type_primary"],
                 "new_evidence_top": tops["new_evidence_type_primary"],
+                "old_complexity_top": tops["old_evidence_complexity"],
+                "new_complexity_top": tops["new_evidence_complexity"],
                 "old_answer_type_top": tops["old_answer_type"],
                 "new_answer_type_top": tops["new_answer_type"],
             })
@@ -854,6 +975,186 @@ def parse_json_object(text: str) -> dict[str, Any]:
     raise ValueError(f"No valid labels JSON found in LLM response; prefix={prefix!r}, suffix={suffix!r}")
 
 
+_PARQUET_FILE_CACHE: dict[str, Any] = {}
+
+
+def normalize_taxonomy_name(value: Any, allowed: set[str], aliases: dict[str, str]) -> str | None:
+    if value is None:
+        return None
+    key = norm_key(compact(value))
+    if not key or key in {"none", "null", "na", "n_a", "unknown"}:
+        return None
+    key = aliases.get(key, key)
+    return key if key in allowed else None
+
+
+def image_mime(data: bytes, path_hint: str | None = None) -> str:
+    if data.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if data.startswith((b"GIF87a", b"GIF89a")):
+        return "image/gif"
+    if data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+        return "image/webp"
+    guessed = mimetypes.guess_type(path_hint or "")[0]
+    return guessed if guessed and guessed.startswith("image/") else "image/jpeg"
+
+
+def image_search_roots(row: dict[str, Any], args: argparse.Namespace) -> list[Path]:
+    roots: list[Path] = []
+    for root in args.image_roots or []:
+        roots.append(Path(root).expanduser())
+    roots.extend([Path.cwd(), args.raw_root])
+    source = Path(compact(row.get("source_file"))).expanduser()
+    if source:
+        roots.extend(list(source.parents)[:6])
+    unique: list[Path] = []
+    seen: set[str] = set()
+    for root in roots:
+        key = str(root)
+        if key not in seen:
+            seen.add(key)
+            unique.append(root)
+    return unique
+
+
+def resolve_image_path(reference: str, roots: list[Path]) -> Path | None:
+    ref = reference.strip()
+    if not ref or ref.startswith("<embedded_image_bytes:"):
+        return None
+    path = Path(ref).expanduser()
+    if path.is_absolute() and path.is_file():
+        return path
+    relative = Path(ref[2:] if ref.startswith("./") else ref)
+    for root in roots:
+        candidate = root / relative
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def image_bytes_from_value(value: Any, roots: list[Path]) -> tuple[bytes, str, str] | None:
+    if value is None:
+        return None
+    if isinstance(value, memoryview):
+        value = value.tobytes()
+    if isinstance(value, bytearray):
+        value = bytes(value)
+    if isinstance(value, bytes):
+        return value, image_mime(value), "embedded_bytes"
+    if isinstance(value, str):
+        path = resolve_image_path(value, roots)
+        if path:
+            data = path.read_bytes()
+            return data, image_mime(data, str(path)), str(path)
+        return None
+    if isinstance(value, dict):
+        if value.get("bytes") is not None:
+            result = image_bytes_from_value(value["bytes"], roots)
+            if result:
+                return result
+        for key in ("path", "url", "image", "file_name", "filename"):
+            if value.get(key):
+                result = image_bytes_from_value(value[key], roots)
+                if result:
+                    return result
+        return None
+    if isinstance(value, (list, tuple)):
+        for item in value:
+            result = image_bytes_from_value(item, roots)
+            if result:
+                return result
+    return None
+
+
+def parquet_image_value(source_file: Path, source_index: int) -> Any:
+    try:
+        import pyarrow.parquet as pq  # type: ignore
+    except Exception as error:
+        raise RuntimeError("Reading embedded Parquet images requires pyarrow: pip install pyarrow") from error
+
+    cache_key = str(source_file)
+    parquet_file = _PARQUET_FILE_CACHE.get(cache_key)
+    if parquet_file is None:
+        parquet_file = pq.ParquetFile(source_file)
+        _PARQUET_FILE_CACHE[cache_key] = parquet_file
+    names = list(parquet_file.schema_arrow.names)
+    normalized = {norm_key(name): name for name in names}
+    image_column = next((normalized[norm_key(name)] for name in I_FIELDS if norm_key(name) in normalized), None)
+    if image_column is None:
+        raise KeyError(f"No image column found in {source_file}; columns={names}")
+
+    remaining = source_index
+    for row_group in range(parquet_file.num_row_groups):
+        row_count = parquet_file.metadata.row_group(row_group).num_rows
+        if remaining < row_count:
+            table = parquet_file.read_row_group(row_group, columns=[image_column])
+            return table.slice(remaining, 1).to_pylist()[0][image_column]
+        remaining -= row_count
+    raise IndexError(f"source_index={source_index} is outside {source_file}")
+
+
+def image_url_for_row(row: dict[str, Any], args: argparse.Namespace) -> tuple[str | None, str]:
+    reference = row.get("image")
+    if isinstance(reference, str) and reference.startswith(("http://", "https://", "data:image/")):
+        return reference, reference[:200]
+
+    roots = image_search_roots(row, args)
+    result = image_bytes_from_value(reference, roots)
+    source_file = Path(compact(row.get("source_file"))).expanduser()
+    if result is None and source_file.is_file() and source_file.suffix.lower() == ".parquet":
+        value = parquet_image_value(source_file, int(row.get("source_index", 0)))
+        result = image_bytes_from_value(value, roots)
+    if result is None:
+        if args.allow_text_only:
+            return None, "text_only_missing_image"
+        raise FileNotFoundError(
+            f"Cannot resolve image for id={row.get('id')}, image={reference!r}, source_file={source_file}"
+        )
+
+    data, mime, source = result
+    encoded = base64.b64encode(data).decode("ascii")
+    return f"data:{mime};base64,{encoded}", source
+
+
+def compute_evidence_complexity(
+    evidence_scope: str,
+    evidence_count: int,
+    reasoning_hops: int,
+    requires_external_knowledge: bool,
+) -> dict[str, Any]:
+    scope_level = {
+        "single_region": 1,
+        "global_image": 1,
+        "multi_region": 2,
+        "cross_region": 3,
+        "cross_page": 4,
+        "image_plus_knowledge": 4,
+    }.get(evidence_scope, 1)
+    count_level = 1 if evidence_count <= 1 else (2 if evidence_count <= 3 else 3)
+    hop_level = 1 if reasoning_hops <= 0 else (2 if reasoning_hops == 1 else (3 if reasoning_hops == 2 else 4))
+    knowledge_level = 4 if requires_external_knowledge else 1
+    level = max(scope_level, count_level, hop_level, knowledge_level)
+    labels = {
+        1: "single_evidence",
+        2: "multi_evidence",
+        3: "cross_region_or_multihop",
+        4: "cross_context",
+    }
+    score = (
+        scope_level
+        + min(max(evidence_count - 1, 0), 2)
+        + min(max(reasoning_hops, 0), 3)
+        + int(requires_external_knowledge)
+    )
+    return {
+        "evidence_complexity": labels[level],
+        "evidence_complexity_level": level,
+        "evidence_complexity_score": score,
+    }
+
+
 def llm_sample_view(row: dict[str, Any]) -> dict[str, Any]:
     return {
         "id": row["id"],
@@ -897,11 +1198,12 @@ def call_openai_compatible(
     api_base: str,
     api_key: str | None,
     model: str,
-    messages: list[dict[str, str]],
+    messages: list[dict[str, Any]],
     temperature: float,
     max_tokens: int,
     timeout: int,
     enable_thinking: bool | None,
+    json_mode: bool = False,
 ) -> str:
     url = api_base.rstrip("/") + "/chat/completions"
     payload = {
@@ -912,6 +1214,8 @@ def call_openai_compatible(
     }
     if enable_thinking is not None:
         payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
+    if json_mode:
+        payload["response_format"] = {"type": "json_object"}
     headers = {"Content-Type": "application/json"}
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
@@ -1083,7 +1387,7 @@ def refine_skill_batch(
 
 
 def cmd_refine_skills(args: argparse.Namespace) -> int:
-    args.api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
+    args.api_key = args.api_key or os.environ.get("OPENAI_API_KEY") or os.environ.get("VLLM_API_KEY") or "EMPTY"
     args.api_base = (
         args.api_base
         or os.environ.get("OPENAI_BASE_URL")
@@ -1157,6 +1461,359 @@ def cmd_refine_skills(args: argparse.Namespace) -> int:
     return 0
 
 
+def vlm_metadata_cache_key(row: dict[str, Any], model: str) -> str:
+    payload = {
+        "schema": VLM_METADATA_SCHEMA_VERSION,
+        "model": model,
+        "id": row.get("id"),
+        "dataset": row.get("dataset"),
+        "question": question_for_label(row.get("question_for_label") or row.get("question", "")),
+        "answer": row.get("answer"),
+        "choices": row.get("choices"),
+        "image": row.get("image"),
+        "source_file": row.get("source_file"),
+        "source_index": row.get("source_index"),
+    }
+    return hashlib.sha1(json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+
+
+def vlm_messages(
+    prepared_rows: list[tuple[dict[str, Any], str | None, str]],
+) -> list[dict[str, Any]]:
+    content: list[dict[str, Any]] = [
+        {
+            "type": "text",
+            "text": (
+                f"Schema version: {VLM_METADATA_SCHEMA_VERSION}. "
+                f"Annotate exactly {len(prepared_rows)} samples. Each image belongs only to the sample marker immediately before it."
+            ),
+        }
+    ]
+    for index, (row, image_url, _) in enumerate(prepared_rows, 1):
+        content.append({"type": "text", "text": f"BEGIN SAMPLE {index}; id={row['id']}"})
+        if image_url:
+            content.append({"type": "image_url", "image_url": {"url": image_url}})
+        sample_text = {
+            "id": row["id"],
+            "dataset": row.get("dataset"),
+            "question": question_for_label(row.get("question_for_label") or row.get("question", "")),
+            "reference_answer": row.get("answer"),
+            "choices": row.get("choices"),
+            "image_available": bool(image_url),
+        }
+        content.append({"type": "text", "text": json.dumps(sample_text, ensure_ascii=False)})
+        content.append({"type": "text", "text": f"END SAMPLE {index}; id={row['id']}"})
+    return [
+        {"role": "system", "content": VLM_METADATA_SYSTEM_PROMPT},
+        {"role": "user", "content": content},
+    ]
+
+
+def request_vlm_metadata_labels(
+    prepared_rows: list[tuple[dict[str, Any], str | None, str]],
+    args: argparse.Namespace,
+) -> dict[str, dict[str, Any]]:
+    messages = vlm_messages(prepared_rows)
+    last_error: Exception | None = None
+    for attempt in range(args.retries + 1):
+        try:
+            content = call_openai_compatible(
+                args.api_base,
+                args.api_key,
+                args.model,
+                messages,
+                args.temperature,
+                args.max_tokens,
+                args.timeout,
+                args.enable_thinking if "qwen" in args.model.lower() else None,
+                args.json_mode,
+            )
+            labels = parse_json_object(content).get("labels")
+            if not isinstance(labels, list):
+                raise ValueError("VLM JSON must contain a labels list")
+            returned = {
+                str(item["id"]): item
+                for item in labels
+                if isinstance(item, dict) and item.get("id")
+            }
+            expected = {row["id"] for row, _, _ in prepared_rows}
+            missing = expected - set(returned)
+            if missing:
+                raise ValueError(f"VLM omitted {len(missing)} ids: {sorted(missing)[:5]}")
+            return returned
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError, ValueError) as error:
+            last_error = error
+            if attempt < args.retries:
+                time.sleep(args.retry_sleep * (attempt + 1))
+    raise RuntimeError(f"VLM metadata labeling failed after {args.retries + 1} attempts: {last_error}")
+
+
+def confidence_value(confidence: Any, field: str, default: float = 0.75) -> float:
+    value = confidence.get(field, default) if isinstance(confidence, dict) else confidence
+    try:
+        return max(0.0, min(1.0, float(value)))
+    except (TypeError, ValueError):
+        return default
+
+
+def apply_vlm_metadata_refinement(
+    row: dict[str, Any],
+    item: dict[str, Any],
+    model: str,
+    cache_key: str,
+    media_source: str,
+) -> dict[str, Any]:
+    refined = dict(row)
+    refined.setdefault("question_for_label", question_for_label(refined.get("question", "")))
+
+    visual = normalize_taxonomy_name(
+        item.get("visual_substrate"),
+        VISUAL_SUBSTRATES,
+        VISUAL_SUBSTRATE_ALIASES,
+    ) or refined.get("visual_substrate") or "other"
+    skill_primary = normalize_skill_name(item.get("skill_type_primary"), PRIMARY_SKILLS) or refined.get("skill_type_primary") or "recognition"
+    skill_secondary = normalize_skill_name(item.get("skill_type_secondary"), SECONDARY_SKILLS)
+    if skill_secondary == skill_primary:
+        skill_secondary = None
+    evidence_source_primary = normalize_taxonomy_name(
+        item.get("evidence_source_primary"),
+        EVIDENCE_SOURCES,
+        EVIDENCE_SOURCE_ALIASES,
+    ) or "other"
+    evidence_source_secondary = normalize_taxonomy_name(
+        item.get("evidence_source_secondary"),
+        EVIDENCE_SOURCES,
+        EVIDENCE_SOURCE_ALIASES,
+    )
+    if evidence_source_secondary == evidence_source_primary:
+        evidence_source_secondary = None
+    evidence_scope = normalize_taxonomy_name(
+        item.get("evidence_scope"),
+        EVIDENCE_SCOPES,
+        EVIDENCE_SCOPE_ALIASES,
+    ) or "single_region"
+    try:
+        evidence_count = max(0, min(99, int(item.get("evidence_count", 1))))
+    except (TypeError, ValueError):
+        evidence_count = 1
+    try:
+        reasoning_hops = max(0, min(9, int(item.get("reasoning_hops", 0))))
+    except (TypeError, ValueError):
+        reasoning_hops = 0
+    requires_knowledge = item.get("requires_external_knowledge")
+    if not isinstance(requires_knowledge, bool):
+        requires_knowledge = skill_primary in {
+            "knowledge_reasoning",
+            "medical_reasoning",
+            "remote_sensing_reasoning",
+        }
+    if requires_knowledge and evidence_scope not in {"cross_page", "image_plus_knowledge"}:
+        evidence_scope = "image_plus_knowledge"
+    answer_type_vlm = normalize_taxonomy_name(item.get("answer_type"), ANSWER_TYPES, {})
+
+    refined.setdefault("visual_substrate_rule", refined.get("visual_substrate"))
+    refined.setdefault("skill_type_primary_rule", refined.get("skill_type_primary"))
+    refined.setdefault("skill_type_secondary_rule", refined.get("skill_type_secondary"))
+    refined.setdefault("evidence_type_primary_rule", refined.get("evidence_type_primary"))
+    refined.setdefault("evidence_type_secondary_rule", refined.get("evidence_type_secondary"))
+    refined.setdefault("answer_type_rule", refined.get("answer_type"))
+
+    refined["visual_substrate"] = visual
+    refined["visual_substrate_vlm"] = visual
+    refined["skill_type_primary"] = skill_primary
+    refined["skill_type_secondary"] = skill_secondary
+    refined["evidence_source_primary"] = evidence_source_primary
+    refined["evidence_source_secondary"] = evidence_source_secondary
+    refined["evidence_scope"] = evidence_scope
+    refined["evidence_count"] = evidence_count
+    refined["reasoning_hops"] = reasoning_hops
+    refined["evidence_type_primary"] = evidence_scope
+    refined["evidence_type_secondary"] = evidence_source_primary
+    refined["requires_external_knowledge"] = requires_knowledge
+    refined["answer_type_vlm"] = answer_type_vlm
+    refined.update(
+        compute_evidence_complexity(
+            evidence_scope,
+            evidence_count,
+            reasoning_hops,
+            requires_knowledge,
+        )
+    )
+
+    confidence = item.get("confidence", 0.75)
+    sources = dict(refined.get("label_source") or {})
+    sources.update(
+        {
+            "visual_substrate": "vlm_image_question",
+            "skill_type": "vlm_image_question",
+            "evidence_type": "vlm_image_question",
+            "requires_external_knowledge": "vlm_image_question",
+            "answer_type_vlm": "vlm_image_question",
+            "evidence_complexity": "deterministic_from_vlm_factors",
+        }
+    )
+    refined["label_source"] = sources
+    confidences = dict(refined.get("label_confidence") or {})
+    confidences.update(
+        {
+            "visual_substrate": confidence_value(confidence, "visual_substrate"),
+            "skill_type": confidence_value(confidence, "skill_type"),
+            "evidence_type": confidence_value(confidence, "evidence"),
+            "requires_external_knowledge": confidence_value(confidence, "requires_external_knowledge"),
+            "answer_type_vlm": confidence_value(confidence, "answer_type"),
+        }
+    )
+    refined["label_confidence"] = confidences
+    refined["overall_label_confidence"] = min(float(value) for value in confidences.values())
+    refined["vlm_metadata_judgment"] = {
+        "schema_version": VLM_METADATA_SCHEMA_VERSION,
+        "model": model,
+        "cache_key": cache_key,
+        "media_source": media_source,
+        "raw_label": safe_json(item),
+    }
+    return refined
+
+
+def refine_metadata_batch(
+    rows: list[dict[str, Any]],
+    args: argparse.Namespace,
+    cache: dict[str, dict[str, Any]],
+) -> list[dict[str, Any]]:
+    keys: dict[str, str] = {}
+    labels: dict[str, dict[str, Any]] = {}
+    media_sources: dict[str, str] = {}
+    prepared: list[tuple[dict[str, Any], str | None, str]] = []
+    failed: dict[str, str] = {}
+
+    for row in rows:
+        key = vlm_metadata_cache_key(row, args.model)
+        keys[row["id"]] = key
+        if key in cache:
+            labels[row["id"]] = cache[key]["label"]
+            media_sources[row["id"]] = cache[key].get("media_source", "cache")
+            continue
+        try:
+            image_url, media_source = image_url_for_row(row, args)
+            prepared.append((row, image_url, media_source))
+            media_sources[row["id"]] = media_source
+        except Exception as error:
+            if args.fail_on_error:
+                raise
+            failed[row["id"]] = repr(error)
+
+    if prepared:
+        returned = request_vlm_metadata_labels(prepared, args)
+        for row, _, media_source in prepared:
+            item = returned[row["id"]]
+            labels[row["id"]] = item
+            cache_row = {
+                "cache_key": keys[row["id"]],
+                "id": row["id"],
+                "model": args.model,
+                "schema_version": VLM_METADATA_SCHEMA_VERSION,
+                "media_source": media_source,
+                "label": item,
+            }
+            cache[keys[row["id"]]] = cache_row
+            append_cache(args.cache, cache_row)
+
+    output: list[dict[str, Any]] = []
+    for row in rows:
+        if row["id"] in failed:
+            fallback = dict(row)
+            fallback["vlm_metadata_error"] = failed[row["id"]]
+            output.append(fallback)
+        else:
+            output.append(
+                apply_vlm_metadata_refinement(
+                    row,
+                    labels[row["id"]],
+                    args.model,
+                    keys[row["id"]],
+                    media_sources[row["id"]],
+                )
+            )
+    return output
+
+
+def cmd_refine_metadata(args: argparse.Namespace) -> int:
+    args.api_key = args.api_key or os.environ.get("OPENAI_API_KEY") or os.environ.get("VLLM_API_KEY") or "EMPTY"
+    args.api_base = (
+        args.api_base
+        or os.environ.get("OPENAI_BASE_URL")
+        or os.environ.get("OPENAI_API_BASE")
+        or "http://127.0.0.1:8000/v1"
+    )
+    args.raw_root = args.raw_root.expanduser().resolve()
+    args.image_roots = [root.expanduser().resolve() for root in args.image_roots or []]
+    if args.metadata.resolve() == args.output.resolve():
+        raise SystemExit("--output must differ from --metadata")
+    if args.cache is None and not args.no_cache:
+        args.cache = args.output.with_suffix(".cache.jsonl")
+
+    dataset_filter = set(args.datasets or [])
+    split_filter = set(args.splits or [])
+    cache = load_cache(None if args.no_cache else args.cache)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    pending: list[dict[str, Any]] = []
+    total = refined_count = unchanged = errors = 0
+
+    def should_refine(row: dict[str, Any]) -> bool:
+        if dataset_filter and row.get("dataset") not in dataset_filter:
+            return False
+        if split_filter and row.get("split") not in split_filter:
+            return False
+        if args.only_unlabeled and "vlm" in compact((row.get("label_source") or {}).get("visual_substrate")).lower():
+            return False
+        if args.limit is not None and refined_count + len(pending) >= args.limit:
+            return False
+        return True
+
+    def flush(output_file) -> None:
+        nonlocal pending, refined_count, errors
+        if not pending:
+            return
+        try:
+            output_rows = refine_metadata_batch(pending, args, cache)
+        except Exception as error:
+            if args.fail_on_error:
+                raise
+            print(f"[warn] VLM metadata batch failed: {error}", file=sys.stderr)
+            output_rows = []
+            for row in pending:
+                fallback = dict(row)
+                fallback["vlm_metadata_error"] = repr(error)
+                output_rows.append(fallback)
+        for row in output_rows:
+            errors += int("vlm_metadata_error" in row)
+            output_file.write(json.dumps(row, ensure_ascii=False) + "\n")
+        refined_count += len(pending)
+        print(f"[refine-metadata] processed={refined_count}, errors={errors}", file=sys.stderr)
+        pending = []
+
+    with args.metadata.open("r", encoding="utf-8") as source, args.output.open("w", encoding="utf-8") as output:
+        for line in source:
+            if not line.strip():
+                continue
+            total += 1
+            row = json.loads(line)
+            if should_refine(row):
+                pending.append(row)
+                if len(pending) >= args.batch_size:
+                    flush(output)
+            else:
+                output.write(json.dumps(row, ensure_ascii=False) + "\n")
+                unchanged += 1
+        flush(output)
+
+    print(f"Wrote VLM-refined metadata: {args.output}")
+    print(f"total={total}, refined={refined_count}, unchanged={unchanged}, errors={errors}")
+    if args.cache and not args.no_cache:
+        print(f"Wrote/used cache: {args.cache}")
+    return 0
+
+
 def parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="CoIN Factor-1 metadata tool.")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -1212,6 +1869,40 @@ def parser() -> argparse.ArgumentParser:
     )
     rs.add_argument("--only-rule-source", action="store_true")
     rs.add_argument("--fail-on-error", action="store_true")
+
+    rm = sub.add_parser(
+        "refine-metadata",
+        help="Use a multimodal Qwen-compatible API to jointly label visual, skill, and evidence metadata.",
+    )
+    rm.add_argument("--metadata", type=Path, default=Path("./cl_dataset/coin_factor1_meta/metadata/sample_metadata.jsonl"))
+    rm.add_argument("--output", type=Path, default=Path("./cl_dataset/coin_factor1_meta/metadata/sample_metadata.vlm.jsonl"))
+    rm.add_argument("--raw-root", type=Path, default=Path("./cl_dataset/coin"))
+    rm.add_argument("--image-root", dest="image_roots", action="append", type=Path, default=None)
+    rm.add_argument("--cache", type=Path, default=None)
+    rm.add_argument("--no-cache", action="store_true")
+    rm.add_argument("--datasets", nargs="+", default=None)
+    rm.add_argument("--splits", nargs="+", default=None)
+    rm.add_argument("--limit", type=int, default=None)
+    rm.add_argument(
+        "--batch-size",
+        type=int,
+        default=1,
+        help="Samples/images per API call. Keep 1 unless vLLM was launched with a larger multimodal limit.",
+    )
+    rm.add_argument("--model", default=os.environ.get("OPENAI_MODEL", "qwen3.6"))
+    rm.add_argument("--api-base", default=None)
+    rm.add_argument("--api-key", default=None)
+    rm.add_argument("--temperature", type=float, default=0.0)
+    rm.add_argument("--max-tokens", type=int, default=4096)
+    rm.add_argument("--timeout", type=int, default=300)
+    rm.add_argument("--retries", type=int, default=2)
+    rm.add_argument("--retry-sleep", type=float, default=2.0)
+    rm.add_argument("--enable-thinking", action="store_true")
+    rm.add_argument("--no-json-mode", dest="json_mode", action="store_false")
+    rm.add_argument("--allow-text-only", action="store_true")
+    rm.add_argument("--only-unlabeled", action="store_true")
+    rm.add_argument("--fail-on-error", action="store_true")
+    rm.set_defaults(json_mode=True)
     return p
 
 
@@ -1229,6 +1920,8 @@ def main() -> int:
         return cmd_gaps(args)
     if args.cmd == "refine-skills":
         return cmd_refine_skills(args)
+    if args.cmd == "refine-metadata":
+        return cmd_refine_metadata(args)
     raise SystemExit(args.cmd)
 
 
