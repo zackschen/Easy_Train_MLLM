@@ -801,19 +801,57 @@ def normalize_skill_name(value: Any, allowed: set[str]) -> str | None:
 
 def parse_json_object(text: str) -> dict[str, Any]:
     content = text.strip()
+
+    # Logs often contain repr(content), including outer quotes and escaped text.
+    if len(content) >= 2 and content[0] == content[-1] and content[0] in {"'", '"'}:
+        try:
+            decoded = ast.literal_eval(content)
+            if isinstance(decoded, str):
+                content = decoded.strip()
+        except (SyntaxError, ValueError):
+            pass
+
+    # Qwen thinking models may put long reasoning and JSON examples before the
+    # final answer. Only the text after the last closing tag is authoritative.
+    if "</think>" in content:
+        content = content.rsplit("</think>", 1)[1].strip()
+    content = re.sub(r"<think>.*?</think>", "", content, flags=re.DOTALL | re.IGNORECASE).strip()
+
     if content.startswith("```"):
         content = re.sub(r"^```(?:json)?\s*", "", content, flags=re.IGNORECASE)
         content = re.sub(r"\s*```$", "", content)
     try:
         obj = json.loads(content)
+        if isinstance(obj, dict):
+            return obj
+        if isinstance(obj, list):
+            return {"labels": obj}
     except json.JSONDecodeError:
-        match = re.search(r"\{.*\}", content, flags=re.DOTALL)
-        if not match:
-            raise
-        obj = json.loads(match.group(0))
-    if not isinstance(obj, dict):
-        raise ValueError("LLM response is not a JSON object")
-    return obj
+        pass
+
+    # Scan every possible JSON start. This avoids greedy regex matching across
+    # multiple examples in chain-of-thought text and prefers the final answer.
+    decoder = json.JSONDecoder()
+    candidates: list[dict[str, Any]] = []
+    for index, char in enumerate(content):
+        if char not in "[{":
+            continue
+        try:
+            obj, _ = decoder.raw_decode(content[index:])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, dict) and isinstance(obj.get("labels"), list):
+            candidates.append(obj)
+        elif isinstance(obj, list) and all(isinstance(item, dict) for item in obj):
+            candidates.append({"labels": obj})
+        elif isinstance(obj, dict) and obj.get("id"):
+            candidates.append({"labels": [obj]})
+    if candidates:
+        return candidates[-1]
+
+    prefix = content[:200].replace("\n", "\\n")
+    suffix = content[-200:].replace("\n", "\\n")
+    raise ValueError(f"No valid labels JSON found in LLM response; prefix={prefix!r}, suffix={suffix!r}")
 
 
 def llm_sample_view(row: dict[str, Any]) -> dict[str, Any]:
@@ -863,6 +901,7 @@ def call_openai_compatible(
     temperature: float,
     max_tokens: int,
     timeout: int,
+    enable_thinking: bool | None,
 ) -> str:
     url = api_base.rstrip("/") + "/chat/completions"
     payload = {
@@ -871,6 +910,8 @@ def call_openai_compatible(
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
+    if enable_thinking is not None:
+        payload["chat_template_kwargs"] = {"enable_thinking": enable_thinking}
     headers = {"Content-Type": "application/json"}
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
@@ -910,6 +951,7 @@ def request_llm_skill_labels(rows: list[dict[str, Any]], args: argparse.Namespac
                 args.temperature,
                 args.max_tokens,
                 args.timeout,
+                args.enable_thinking if "qwen" in args.model.lower() else None,
             )
             labels = parse_json_object(content).get("labels")
             if not isinstance(labels, list):
@@ -1163,6 +1205,11 @@ def parser() -> argparse.ArgumentParser:
     rs.add_argument("--timeout", type=int, default=120)
     rs.add_argument("--retries", type=int, default=2)
     rs.add_argument("--retry-sleep", type=float, default=2.0)
+    rs.add_argument(
+        "--enable-thinking",
+        action="store_true",
+        help="Enable Qwen thinking output. Disabled by default for deterministic classification.",
+    )
     rs.add_argument("--only-rule-source", action="store_true")
     rs.add_argument("--fail-on-error", action="store_true")
     return p
