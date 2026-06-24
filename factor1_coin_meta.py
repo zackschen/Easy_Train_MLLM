@@ -67,6 +67,13 @@ COLORS = {"red", "blue", "green", "yellow", "black", "white", "gray", "grey", "b
 ATTRIBUTES = COLORS | {"large", "small", "big", "tiny", "round", "square", "rectangular", "wooden", "metal", "metallic", "plastic", "open", "closed", "empty", "full"}
 TEXT_SPAN_DATASETS = {"docvqa", "infographicvqa"}
 KNOWLEDGE_DATASETS = {"okvqa", "aokvqa", "scienceqa", "mmmu", "slake", "vqarad", "pathvqa"}
+REGIME_DIR_HINTS = {
+    "natural_photo_qa": "natural",
+    "structured_visual_qa": "structured",
+    "knowledge_intensive_qa": "knowledge",
+    "expert_medical_qa": "expert_medical",
+    "expert_remote_sensing_qa": "expert_remote_sensing",
+}
 
 PRIMARY_SKILLS = {
     "recognition",
@@ -403,8 +410,19 @@ def dataset_dir(raw_root: Path, dataset: str) -> Path | None:
             matches.append(p)
     if not matches:
         return None
-    dataful = [p for p in matches if any(data_files(p))]
-    return sorted(dataful or matches, key=lambda x: (len(str(x)), str(x)))[0]
+    files_by_root = {path: list(data_files(path)) for path in matches}
+    dataful = [path for path, files in files_by_root.items() if files]
+    preferred_group = REGIME_DIR_HINTS.get(DATASETS[dataset]["regime"], "")
+
+    def rank(path: Path) -> tuple[int, int, int, int, str]:
+        normalized_parts = {norm_key(part) for part in path.parts}
+        files = files_by_root.get(path, [])
+        legacy_penalty = int(bool({"playground", "checkpoints", "results"} & normalized_parts))
+        group_penalty = int(preferred_group not in normalized_parts)
+        parquet_penalty = int(not any(file.suffix.lower() == ".parquet" for file in files))
+        return legacy_penalty, group_penalty, parquet_penalty, len(str(path)), str(path)
+
+    return sorted(dataful or matches, key=rank)[0]
 
 
 def rows_from(path: Path, batch_size: int = 2048) -> Iterator[dict[str, Any]]:
@@ -976,6 +994,8 @@ def parse_json_object(text: str) -> dict[str, Any]:
 
 
 _PARQUET_FILE_CACHE: dict[str, Any] = {}
+_PARQUET_IMAGE_GROUP_CACHE_KEY: tuple[str, int, str] | None = None
+_PARQUET_IMAGE_GROUP_CACHE_VALUES: list[Any] | None = None
 
 
 def normalize_taxonomy_name(value: Any, allowed: set[str], aliases: dict[str, str]) -> str | None:
@@ -1069,6 +1089,7 @@ def image_bytes_from_value(value: Any, roots: list[Path]) -> tuple[bytes, str, s
 
 
 def parquet_image_value(source_file: Path, source_index: int) -> Any:
+    global _PARQUET_IMAGE_GROUP_CACHE_KEY, _PARQUET_IMAGE_GROUP_CACHE_VALUES
     try:
         import pyarrow.parquet as pq  # type: ignore
     except Exception as error:
@@ -1089,8 +1110,15 @@ def parquet_image_value(source_file: Path, source_index: int) -> Any:
     for row_group in range(parquet_file.num_row_groups):
         row_count = parquet_file.metadata.row_group(row_group).num_rows
         if remaining < row_count:
-            table = parquet_file.read_row_group(row_group, columns=[image_column])
-            return table.slice(remaining, 1).to_pylist()[0][image_column]
+            group_key = (cache_key, row_group, image_column)
+            if _PARQUET_IMAGE_GROUP_CACHE_KEY != group_key:
+                table = parquet_file.read_row_group(row_group, columns=[image_column])
+                _PARQUET_IMAGE_GROUP_CACHE_VALUES = [
+                    row[image_column] for row in table.to_pylist()
+                ]
+                _PARQUET_IMAGE_GROUP_CACHE_KEY = group_key
+            assert _PARQUET_IMAGE_GROUP_CACHE_VALUES is not None
+            return _PARQUET_IMAGE_GROUP_CACHE_VALUES[remaining]
         remaining -= row_count
     raise IndexError(f"source_index={source_index} is outside {source_file}")
 
