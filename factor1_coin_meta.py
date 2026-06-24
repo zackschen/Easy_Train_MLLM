@@ -56,9 +56,9 @@ DATASETS: dict[str, dict[str, Any]] = {
     "lrs_vqa": {"regime": "expert_remote_sensing_qa", "visual": "remote_sensing", "knowledge": True, "skill_hint": "remote_sensing_reasoning", "aliases": ["lrs_vqa", "lrs-vqa", "lrs_vqa"]},
 }
 
-Q_FIELDS = ["question", "query", "prompt", "instruction", "problem", "text", "Question"]
-A_FIELDS = ["answer", "answers", "label", "response", "target", "final_answer", "multiple_choice_answer", "direct_answer", "Answer"]
-C_FIELDS = ["choices", "options", "candidates", "multiple_choices"]
+Q_FIELDS = ["question", "query", "prompt", "instruction", "problem", "question_text", "input", "user", "human", "text", "Question"]
+A_FIELDS = ["answer", "answers", "direct_answer", "direct_answers", "correct_answer", "answer_text", "response", "output", "assistant", "gpt", "target", "final_answer", "multiple_choice_answer", "label", "Answer"]
+C_FIELDS = ["choices", "options", "candidates", "multiple_choices", "choice_list"]
 R_FIELDS = ["rationale", "rationales", "explanation", "solution", "reasoning"]
 I_FIELDS = ["image", "images", "image_path", "img_path", "image_file", "filename", "file_name", "path", "image_id", "img_id"]
 
@@ -333,7 +333,7 @@ def first(row: dict[str, Any], names: list[str]) -> Any:
 
 
 def conv_qa(row: dict[str, Any]) -> tuple[str, str]:
-    conv = first(row, ["conversations", "conversation", "messages", "dialog", "chat"])
+    conv = first(row, ["conversations", "conversation", "messages", "dialog", "chat", "texts"])
     if conv is None:
         return "", ""
     if isinstance(conv, str):
@@ -341,12 +341,23 @@ def conv_qa(row: dict[str, Any]) -> tuple[str, str]:
             conv = json.loads(conv)
         except Exception:
             return compact(conv), ""
+    if isinstance(conv, dict):
+        for key in ("messages", "conversations", "texts", "dialog"):
+            if isinstance(conv.get(key), list):
+                conv = conv[key]
+                break
+        else:
+            conv = [conv]
     if not isinstance(conv, list):
         return "", ""
     q, a = "", ""
     for msg in conv:
         if not isinstance(msg, dict):
             continue
+        direct_q = compact(first(msg, ["user", "human", "question", "prompt", "input"]))
+        direct_a = compact(first(msg, ["assistant", "gpt", "answer", "response", "output"]))
+        if direct_q and direct_a:
+            return direct_q, direct_a
         role = compact(msg.get("role") or msg.get("from")).lower()
         text = compact(msg.get("content") or msg.get("value") or msg.get("text"))
         if not text:
@@ -391,7 +402,7 @@ def infer_split(path: Path) -> str:
 
 def data_files(root: Path) -> Iterator[Path]:
     for p in sorted(root.rglob("*")):
-        if p.is_file() and p.suffix.lower() in {".parquet", ".jsonl", ".json"} and not p.name.startswith("."):
+        if p.is_file() and p.suffix.lower() in {".parquet", ".jsonl", ".json", ".csv"} and not p.name.startswith("."):
             yield p
 
 
@@ -442,6 +453,10 @@ def rows_from(path: Path, batch_size: int = 2048) -> Iterator[dict[str, Any]]:
                 if line:
                     yield json.loads(line)
         return
+    if path.suffix.lower() == ".csv":
+        with path.open("r", encoding="utf-8-sig", newline="") as f:
+            yield from csv.DictReader(f)
+        return
     with path.open("r", encoding="utf-8") as f:
         obj = json.load(f)
     if isinstance(obj, list):
@@ -474,17 +489,54 @@ def has(q: str, pat: str) -> bool:
     return re.search(pat, q.lower()) is not None
 
 
+def representative_answer(value: Any) -> tuple[str, list[str]]:
+    answers = as_list(value)
+    if not answers:
+        return "", []
+    grouped: dict[str, list[str]] = defaultdict(list)
+    for answer in answers:
+        grouped[normalize_answer(answer)].append(answer)
+    best = max(grouped.values(), key=lambda values: (len(values), -answers.index(values[0])))
+    return best[0], answers
+
+
+def indexed_choice_answer(row: dict[str, Any], choices: list[str], answer_value: Any) -> str | None:
+    if not choices:
+        return None
+    index_value = first(
+        row,
+        ["correct_choice_idx", "correct_choice_index", "answer_idx", "answer_index", "correct_index"],
+    )
+    if index_value is None and isinstance(answer_value, (int, float)):
+        index_value = answer_value
+    if index_value is None and isinstance(answer_value, str):
+        stripped = answer_value.strip()
+        if re.fullmatch(r"[A-Za-z]", stripped):
+            index_value = ord(stripped.upper()) - ord("A")
+        elif re.fullmatch(r"\d+", stripped):
+            index_value = int(stripped)
+    try:
+        index = int(index_value)
+    except (TypeError, ValueError):
+        return None
+    return choices[index] if 0 <= index < len(choices) else None
+
+
 def canonical(dataset: str, split: str, file: Path, idx: int, row: dict[str, Any]) -> dict[str, Any] | None:
     q = compact(first(row, Q_FIELDS))
+    choices = as_list(first(row, C_FIELDS))
     ans_val = first(row, A_FIELDS)
-    a = compact(ans_val)
+    choice_answer = indexed_choice_answer(row, choices, ans_val)
+    if choice_answer is not None:
+        ans_val = choice_answer
+    a, answers = representative_answer(ans_val)
     if not q or not a:
         cq, ca = conv_qa(row)
         q = q or cq
-        a = a or ca
+        if not a and ca:
+            a, answers = ca, [ca]
     if not q or not a:
         return None
-    choices = as_list(first(row, C_FIELDS))
     raw_meta = {}
     for k in ["question_type", "answer_type", "semantic", "semantic_type", "category", "subject", "type", "task", "source", "id", "question_id", "image_id"]:
         v = first(row, [k])
@@ -497,7 +549,7 @@ def canonical(dataset: str, split: str, file: Path, idx: int, row: dict[str, Any
         "_source_index": idx,
         "question": q,
         "answer": a,
-        "answers": as_list(ans_val) or [a],
+        "answers": answers or [a],
         "choices": choices,
         "rationale": compact(first(row, R_FIELDS)) or None,
         "image": img_ref(first(row, I_FIELDS)),
