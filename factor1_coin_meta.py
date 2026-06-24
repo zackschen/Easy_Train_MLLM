@@ -1743,7 +1743,7 @@ def cmd_refine_metadata(args: argparse.Namespace) -> int:
         args.api_base
         or os.environ.get("OPENAI_BASE_URL")
         or os.environ.get("OPENAI_API_BASE")
-        or "http://127.0.0.1:8000/v1"
+        or "http://127.0.0.1:8001/v1"
     )
     args.raw_root = args.raw_root.expanduser().resolve()
     args.image_roots = [root.expanduser().resolve() for root in args.image_roots or []]
