@@ -11,7 +11,7 @@ set -euo pipefail
 # Extra vLLM arguments can be appended after "--":
 #   bash scripts/Qwen_server/serve_vllm_qwen.sh -- --max-num-seqs 8
 
-MODEL_PATH="${MODEL_PATH:-./data/coin/checkpoints/Qwen3.6-35B-A3B}"
+MODEL_PATH="${MODEL_PATH:-./cl_dataset/coin/checkpoints/Qwen3.6-35B-A3B}"
 SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-qwen3.6}"
 HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-8001}"

@@ -1046,7 +1046,7 @@ def cmd_refine_skills(args: argparse.Namespace) -> int:
         args.api_base
         or os.environ.get("OPENAI_BASE_URL")
         or os.environ.get("OPENAI_API_BASE")
-        or "http://127.0.0.1:8000/v1"
+        or "http://127.0.0.1:8001/v1"
     )
     if args.metadata.resolve() == args.output.resolve():
         raise SystemExit("--output must differ from --metadata; the source metadata is never overwritten")
@@ -1153,11 +1153,11 @@ def parser() -> argparse.ArgumentParser:
     rs.add_argument("--no-cache", action="store_true")
     rs.add_argument("--datasets", nargs="+", default=None)
     rs.add_argument("--splits", nargs="+", default=None)
-    rs.add_argument("--limit", type=int, default=None)
+    rs.add_argument("--limit", type=int, default=20)
     rs.add_argument("--batch-size", type=int, default=20)
-    rs.add_argument("--model", default=os.environ.get("OPENAI_MODEL", "Qwen/Qwen2.5-72B-Instruct"))
+    rs.add_argument("--model", default=os.environ.get("OPENAI_MODEL", "qwen3.6"))
     rs.add_argument("--api-base", default=None)
-    rs.add_argument("--api-key", default=None)
+    rs.add_argument("--api-key", default="EMPTY")
     rs.add_argument("--temperature", type=float, default=0.0)
     rs.add_argument("--max-tokens", type=int, default=4096)
     rs.add_argument("--timeout", type=int, default=120)
