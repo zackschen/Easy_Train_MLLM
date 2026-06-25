@@ -22,7 +22,7 @@ REFINED_PATH="${REFINED_PATH:-$OUTPUT_ROOT/metadata/sample_metadata.vlm.jsonl}"
 CACHE_PATH="${CACHE_PATH:-$OUTPUT_ROOT/metadata/sample_metadata.vlm.cache.jsonl}"
 GAP_PATH="${GAP_PATH:-$OUTPUT_ROOT/metadata/transition_gap_table.vlm.csv}"
 
-API_BASE="${API_BASE:-http://127.0.0.1:8000/v1}"
+API_BASE="${API_BASE:-http://127.0.0.1:8001/v1}"
 API_KEY="${API_KEY:-EMPTY}"
 MODEL="${MODEL:-qwen3.6}"
 BATCH_SIZE="${BATCH_SIZE:-1}"
@@ -30,7 +30,7 @@ MAX_TOKENS="${MAX_TOKENS:-4096}"
 TIMEOUT="${TIMEOUT:-300}"
 RETRIES="${RETRIES:-2}"
 
-MAX_SAMPLES_PER_DATASET="${MAX_SAMPLES_PER_DATASET:-}"
+MAX_SAMPLES_PER_DATASET="${MAX_SAMPLES_PER_DATASET:-10000}"
 REFINE_LIMIT="${REFINE_LIMIT:-}"
 REVIEW_PER_DATASET="${REVIEW_PER_DATASET:-200}"
 LOW_CONFIDENCE_THRESHOLD="${LOW_CONFIDENCE_THRESHOLD:-0.70}"
@@ -41,6 +41,7 @@ BUILD_ONLY="${BUILD_ONLY:-0}"
 REFINE_ONLY="${REFINE_ONLY:-0}"
 RUN_GAPS="${RUN_GAPS:-0}"
 FAIL_ON_ERROR="${FAIL_ON_ERROR:-1}"
+FAIL_ON_EMPTY="${FAIL_ON_EMPTY:-0}"
 ALLOW_TEXT_ONLY="${ALLOW_TEXT_ONLY:-0}"
 ENABLE_THINKING="${ENABLE_THINKING:-0}"
 JSON_MODE="${JSON_MODE:-1}"
@@ -95,8 +96,10 @@ if [[ "$REFINE_ONLY" != "1" ]]; then
     --datasets "${DATASETS[@]}"
     --review-per-dataset "$REVIEW_PER_DATASET"
     --low-confidence-threshold "$LOW_CONFIDENCE_THRESHOLD"
-    --fail-on-empty
   )
+  if [[ "$FAIL_ON_EMPTY" == "1" ]]; then
+    build_args+=(--fail-on-empty)
+  fi
   if [[ -n "$MAX_SAMPLES_PER_DATASET" ]]; then
     build_args+=(--max-samples-per-dataset "$MAX_SAMPLES_PER_DATASET")
   fi
