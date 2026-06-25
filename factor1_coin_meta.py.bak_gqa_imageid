@@ -60,7 +60,7 @@ Q_FIELDS = ["question", "query", "prompt", "instruction", "problem", "question_t
 A_FIELDS = ["answer", "answers", "direct_answer", "direct_answers", "correct_answer", "answer_text", "response", "output", "assistant", "gpt", "target", "final_answer", "multiple_choice_answer", "label", "Answer"]
 C_FIELDS = ["choices", "options", "candidates", "multiple_choices", "choice_list"]
 R_FIELDS = ["rationale", "rationales", "explanation", "solution", "reasoning"]
-I_FIELDS = ["image", "images", "image_path", "img_path", "image_file", "filename", "file_name", "path", "imageId", "image_id", "imgId", "img_id"]
+I_FIELDS = ["image", "images", "image_path", "img_path", "image_file", "filename", "file_name", "path", "image_id", "img_id"]
 
 YES_NO = {"yes", "no", "true", "false"}
 COLORS = {"red", "blue", "green", "yellow", "black", "white", "gray", "grey", "brown", "orange", "purple", "pink", "silver", "gold", "golden"}
@@ -1048,7 +1048,6 @@ def parse_json_object(text: str) -> dict[str, Any]:
 _PARQUET_FILE_CACHE: dict[str, Any] = {}
 _PARQUET_IMAGE_GROUP_CACHE_KEY: tuple[str, int, str] | None = None
 _PARQUET_IMAGE_GROUP_CACHE_VALUES: list[Any] | None = None
-_GQA_IMAGE_INDEX_CACHE: dict[str, dict[str, tuple[Path, int, str]]] = {}
 
 
 def normalize_taxonomy_name(value: Any, allowed: set[str], aliases: dict[str, str]) -> str | None:
@@ -1176,103 +1175,6 @@ def parquet_image_value(source_file: Path, source_index: int) -> Any:
     raise IndexError(f"source_index={source_index} is outside {source_file}")
 
 
-def parquet_column_value(source_file: Path, source_index: int, column: str) -> Any:
-    parquet_file = _PARQUET_FILE_CACHE.get(str(source_file))
-    if parquet_file is None:
-        try:
-            import pyarrow.parquet as pq  # type: ignore
-        except Exception as error:
-            raise RuntimeError("Reading embedded Parquet images requires pyarrow: pip install pyarrow") from error
-        parquet_file = pq.ParquetFile(source_file)
-        _PARQUET_FILE_CACHE[str(source_file)] = parquet_file
-
-    remaining = source_index
-    for row_group in range(parquet_file.num_row_groups):
-        row_count = parquet_file.metadata.row_group(row_group).num_rows
-        if remaining < row_count:
-            table = parquet_file.read_row_group(row_group, columns=[column])
-            return table.to_pylist()[remaining][column]
-        remaining -= row_count
-    raise IndexError(f"source_index={source_index} is outside {source_file}")
-
-
-def gqa_linked_image_value(source_file: Path, source_index: int, image_id: Any = None) -> Any:
-    """Resolve GQA instruction parquet rows whose images live in sibling *_images parquet files."""
-    if "gqa__lmms-lab__gqa" not in str(source_file).lower():
-        return None
-
-    if image_id is None:
-        parquet_file = _PARQUET_FILE_CACHE.get(str(source_file))
-        if parquet_file is None:
-            try:
-                import pyarrow.parquet as pq  # type: ignore
-            except Exception as error:
-                raise RuntimeError("Reading embedded Parquet images requires pyarrow: pip install pyarrow") from error
-            parquet_file = pq.ParquetFile(source_file)
-            _PARQUET_FILE_CACHE[str(source_file)] = parquet_file
-        names = list(parquet_file.schema_arrow.names)
-        normalized = {norm_key(name): name for name in names}
-        ref_column = next((normalized[norm_key(name)] for name in ["imageId", "image_id", "imgId", "img_id", "imageid"] if norm_key(name) in normalized), None)
-        if ref_column is None:
-            return None
-        image_id = parquet_column_value(source_file, source_index, ref_column)
-
-    image_key = compact(image_id)
-    if not image_key:
-        return None
-
-    dataset_root = source_file.parent.parent
-    cache_key = str(dataset_root)
-    index = _GQA_IMAGE_INDEX_CACHE.get(cache_key)
-    if index is None:
-        index = {}
-        image_dirs = []
-        parent_name = source_file.parent.name
-        if "instructions" in parent_name:
-            image_dirs.append(dataset_root / parent_name.replace("instructions", "images"))
-        image_dirs.extend(d for d in dataset_root.iterdir() if d.is_dir() and "image" in d.name.lower())
-
-        seen_files: set[str] = set()
-        for image_dir in image_dirs:
-            if not image_dir.is_dir():
-                continue
-            for file in sorted(image_dir.glob("*.parquet")):
-                if str(file) in seen_files:
-                    continue
-                seen_files.add(str(file))
-                try:
-                    import pyarrow.parquet as pq  # type: ignore
-                    parquet_file = _PARQUET_FILE_CACHE.get(str(file)) or pq.ParquetFile(file)
-                    _PARQUET_FILE_CACHE[str(file)] = parquet_file
-                except Exception:
-                    continue
-                names = list(parquet_file.schema_arrow.names)
-                normalized = {norm_key(name): name for name in names}
-                id_column = next((normalized[norm_key(name)] for name in ["id", "imageId", "image_id", "imgId", "img_id", "imageid"] if norm_key(name) in normalized), None)
-                image_column = next((normalized[norm_key(name)] for name in ["image", "images", "bytes"] if norm_key(name) in normalized), None)
-                if id_column is None or image_column is None:
-                    continue
-                offset = 0
-                for row_group in range(parquet_file.num_row_groups):
-                    row_count = parquet_file.metadata.row_group(row_group).num_rows
-                    table = parquet_file.read_row_group(row_group, columns=[id_column])
-                    for local_idx, item in enumerate(table.to_pylist()):
-                        key = compact(item.get(id_column))
-                        if key:
-                            index.setdefault(key, (file, offset + local_idx, image_column))
-                            stem = Path(key).stem
-                            if stem and stem != key:
-                                index.setdefault(stem, (file, offset + local_idx, image_column))
-                    offset += row_count
-        _GQA_IMAGE_INDEX_CACHE[cache_key] = index
-
-    match = index.get(image_key) or index.get(Path(image_key).stem)
-    if not match:
-        return None
-    image_file, image_index, image_column = match
-    return parquet_column_value(image_file, image_index, image_column)
-
-
 def image_url_for_row(row: dict[str, Any], args: argparse.Namespace) -> tuple[str | None, str]:
     reference = row.get("image")
     if isinstance(reference, str) and reference.startswith(("http://", "https://", "data:image/")):
@@ -1282,16 +1184,8 @@ def image_url_for_row(row: dict[str, Any], args: argparse.Namespace) -> tuple[st
     result = image_bytes_from_value(reference, roots)
     source_file = Path(compact(row.get("source_file"))).expanduser()
     if result is None and source_file.is_file() and source_file.suffix.lower() == ".parquet":
-        source_index = int(row.get("source_index", 0))
-        try:
-            value = parquet_image_value(source_file, source_index)
-            result = image_bytes_from_value(value, roots)
-            if result is None and value is not None:
-                linked_value = gqa_linked_image_value(source_file, source_index, value)
-                result = image_bytes_from_value(linked_value, roots)
-        except KeyError:
-            linked_value = gqa_linked_image_value(source_file, source_index)
-            result = image_bytes_from_value(linked_value, roots)
+        value = parquet_image_value(source_file, int(row.get("source_index", 0)))
+        result = image_bytes_from_value(value, roots)
     if result is None:
         if args.allow_text_only:
             return None, "text_only_missing_image"
@@ -1578,7 +1472,7 @@ def cmd_refine_skills(args: argparse.Namespace) -> int:
         args.api_base
         or os.environ.get("OPENAI_BASE_URL")
         or os.environ.get("OPENAI_API_BASE")
-        or "http://127.0.0.1:8001/v1"
+        or "http://127.0.0.1:8000/v1"
     )
     if args.metadata.resolve() == args.output.resolve():
         raise SystemExit("--output must differ from --metadata; the source metadata is never overwritten")
@@ -1950,7 +1844,7 @@ def cmd_refine_metadata(args: argparse.Namespace) -> int:
         args.api_base
         or os.environ.get("OPENAI_BASE_URL")
         or os.environ.get("OPENAI_API_BASE")
-        or "http://127.0.0.1:8001/v1"
+        or "http://127.0.0.1:8000/v1"
     )
     args.raw_root = args.raw_root.expanduser().resolve()
     args.image_roots = [root.expanduser().resolve() for root in args.image_roots or []]
@@ -2059,11 +1953,11 @@ def parser() -> argparse.ArgumentParser:
     rs.add_argument("--no-cache", action="store_true")
     rs.add_argument("--datasets", nargs="+", default=None)
     rs.add_argument("--splits", nargs="+", default=None)
-    rs.add_argument("--limit", type=int, default=20)
+    rs.add_argument("--limit", type=int, default=None)
     rs.add_argument("--batch-size", type=int, default=20)
     rs.add_argument("--model", default=os.environ.get("OPENAI_MODEL", "qwen3.6"))
     rs.add_argument("--api-base", default=None)
-    rs.add_argument("--api-key", default="EMPTY")
+    rs.add_argument("--api-key", default=None)
     rs.add_argument("--temperature", type=float, default=0.0)
     rs.add_argument("--max-tokens", type=int, default=4096)
     rs.add_argument("--timeout", type=int, default=120)
