@@ -1609,13 +1609,6 @@ def request_vlm_metadata_labels(
                 args.json_mode,
             )
             labels = parse_json_object(content).get("labels")
-            if isinstance(labels, dict):
-                labels = [labels]
-            if len(prepared_rows) == 1 and isinstance(labels, list) and len(labels) == 1:
-                expected_id = str(prepared_rows[0][0]["id"]).strip()
-                got_id = str(labels[0].get("id", "")).strip()
-                if not got_id or got_id != expected_id:
-                    labels[0]["id"] = expected_id
             if not isinstance(labels, list):
                 raise ValueError("VLM JSON must contain a labels list")
             returned = {
@@ -1626,15 +1619,7 @@ def request_vlm_metadata_labels(
             expected = {row["id"] for row, _, _ in prepared_rows}
             missing = expected - set(returned)
             if missing:
-                print(
-                    f"[warn] VLM omitted {len(missing)} ids; keep rule metadata for these samples: {sorted(missing)[:5]}",
-                    file=sys.stderr,
-                )
-                for missing_id in missing:
-                    returned[missing_id] = {
-                        "id": missing_id,
-                        "_vlm_error": "omitted_by_model",
-                    }
+                raise ValueError(f"VLM omitted {len(missing)} ids: {sorted(missing)[:5]}")
             return returned
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError, ValueError) as error:
             last_error = error
@@ -1802,28 +1787,22 @@ def refine_metadata_batch(
         for row, _, media_source in prepared:
             item = returned[row["id"]]
             labels[row["id"]] = item
-            if not item.get("_vlm_error"):
-                cache_row = {
-                    "cache_key": keys[row["id"]],
-                    "id": row["id"],
-                    "model": args.model,
-                    "schema_version": VLM_METADATA_SCHEMA_VERSION,
-                    "media_source": media_source,
-                    "label": item,
-                }
-                cache[keys[row["id"]]] = cache_row
-                append_cache(args.cache, cache_row)
+            cache_row = {
+                "cache_key": keys[row["id"]],
+                "id": row["id"],
+                "model": args.model,
+                "schema_version": VLM_METADATA_SCHEMA_VERSION,
+                "media_source": media_source,
+                "label": item,
+            }
+            cache[keys[row["id"]]] = cache_row
+            append_cache(args.cache, cache_row)
 
     output: list[dict[str, Any]] = []
     for row in rows:
         if row["id"] in failed:
             fallback = dict(row)
             fallback["vlm_metadata_error"] = failed[row["id"]]
-            output.append(fallback)
-        elif labels.get(row["id"], {}).get("_vlm_error"):
-            fallback = dict(row)
-            fallback["vlm_metadata_error"] = labels[row["id"]]["_vlm_error"]
-            fallback["label_source"] = "rule_fallback_after_vlm_omitted"
             output.append(fallback)
         else:
             output.append(
