@@ -235,22 +235,6 @@ def row_allowed(row: dict[str, Any], args: argparse.Namespace, per_dataset_count
     return True
 
 
-def factor_values(row: dict[str, Any]) -> dict[str, str]:
-    """Per-sample factor buckets used by Factor-1 controlled-transition training."""
-    answer_type = compact(row.get("answer_type_vlm")) or compact(row.get("answer_type")) or "unknown_answer"
-    return {
-        "visual_substrate": compact(row.get("visual_substrate")) or "unknown_visual",
-        "skill_requirement": compact(row.get("skill_type_primary")) or "unknown_skill",
-        "evidence_complexity": (
-            compact(row.get("evidence_complexity"))
-            or compact(row.get("evidence_complexity_level"))
-            or compact(row.get("evidence_scope"))
-            or "unknown_evidence"
-        ),
-        "answer_distribution": answer_type,
-    }
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description="Convert Factor-1 metadata to LLaVA train JSON")
     parser.add_argument("--metadata", type=Path, default=Path("cl_dataset/coin_factor1_meta_all/metadata/sample_metadata.vlm.jsonl"))
@@ -268,7 +252,6 @@ def main() -> int:
     parser.add_argument("--indent", type=int, default=None)
     parser.add_argument("--no-by-dataset", action="store_true")
     parser.add_argument("--no-by-regime", action="store_true")
-    parser.add_argument("--no-by-factor", action="store_true")
     args = parser.parse_args()
 
     args.metadata = args.metadata.expanduser().resolve()
@@ -287,8 +270,6 @@ def main() -> int:
     per_dataset_counts: Counter[str] = Counter()
     by_dataset_counts: Counter[str] = Counter()
     by_regime_counts: Counter[str] = Counter()
-    by_factor_counts: dict[str, Counter[str]] = defaultdict(Counter)
-    answer_distribution_by_factor: dict[str, dict[str, Counter[str]]] = defaultdict(lambda: defaultdict(Counter))
 
     def writer_for(kind: str, name: str) -> JsonArrayWriter:
         key = f"{kind}:{safe_name(name)}"
@@ -318,17 +299,6 @@ def main() -> int:
                 continue
 
             writers["all"].write(item)
-            factors = factor_values(row)
-            if not args.no_by_factor:
-                for factor_name, factor_value in factors.items():
-                    writer_for(f"by_factor/{factor_name}", factor_value).write(item)
-                    by_factor_counts[factor_name][factor_value] += 1
-                combo_name = "__".join(safe_name(factors[name]) for name in ["visual_substrate", "skill_requirement", "evidence_complexity", "answer_distribution"])
-                writer_for("by_factor_combo", combo_name).write(item)
-                by_factor_counts["factor_combo"][combo_name] += 1
-            answer_bucket = factors["answer_distribution"]
-            for factor_name, factor_value in factors.items():
-                answer_distribution_by_factor[factor_name][factor_value][answer_bucket] += 1
             if not args.no_by_dataset:
                 writer_for("by_dataset", dataset).write(item)
                 by_dataset_counts[dataset] += 1
@@ -356,15 +326,7 @@ def main() -> int:
         "stats": dict(stats),
         "by_dataset": dict(sorted(by_dataset_counts.items())),
         "by_regime": dict(sorted(by_regime_counts.items())),
-        "by_factor": {name: dict(sorted(counter.items())) for name, counter in sorted(by_factor_counts.items())},
-        "answer_distribution_by_factor": {
-            factor_name: {
-                factor_value: dict(sorted(answer_counter.items()))
-                for factor_value, answer_counter in sorted(value_map.items())
-            }
-            for factor_name, value_map in sorted(answer_distribution_by_factor.items())
-        },
-        "note": "Use --image_folder equal to output_root. Main controlled splits are under by_factor/*. dataset/regime are provenance-only auxiliary splits.",
+        "note": "Use --image_folder equal to output_root. Image paths in JSON are relative to output_root.",
     }
     (args.output_root / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(manifest, ensure_ascii=False, indent=2))
