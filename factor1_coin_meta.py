@@ -167,7 +167,7 @@ EVIDENCE_SCOPE_ALIASES = {
     "external_knowledge": "image_plus_knowledge",
 }
 ANSWER_TYPES = {"yes_no", "number", "option", "text_span", "attribute", "object", "free_form"}
-VLM_METADATA_SCHEMA_VERSION = "factor1-vlm-metadata-v1"
+VLM_METADATA_SCHEMA_VERSION = "factor1-vlm-metadata-v2"
 SKILL_ALIASES = {
     "object_recognition": "recognition",
     "scene_recognition": "recognition",
@@ -225,9 +225,16 @@ confidence is between 0 and 1."""
 
 VLM_METADATA_SYSTEM_PROMPT = """You annotate multimodal VQA samples for a continual-learning benchmark.
 
-Inspect each supplied image together with its question and reference answer. Do not solve a different task and do not use answer-format instructions such as "single word" as evidence.
+Your goal is to label what capability and visual evidence are required to answer each sample. The labels describe the reasoning/evidence needed, not the surface form of the final answer.
 
-Return one label per sample using only these taxonomies.
+Hard requirements:
+1. Return exactly one label for every provided id. Never omit ids and never invent ids.
+2. Inspect the image, question, choices, and reference answer together. If the image is unavailable, use the question, dataset, choices, and answer, but lower confidence.
+3. Ignore answer-format instructions such as "single word", "short answer", or "choose one option"; they must not affect skill or evidence labels.
+4. Choose the most specific skill. Use recognition only for direct object/scene/action identification with no attribute, relation, comparison, counting, text, chart, document, diagram, medical, remote-sensing, or knowledge reasoning.
+5. Evidence labels describe all evidence needed to justify the answer. Do not label single_region just because the final answer is one object or one attribute.
+
+Use only these taxonomies.
 
 visual_substrate:
 natural_photo, document, infographic, chart, diagram, science_diagram, academic_figure, medical, remote_sensing, screenshot, map, synthetic, other
@@ -239,19 +246,42 @@ evidence_source_primary and evidence_source_secondary:
 object, attribute, scene, action, spatial_relation, text, table, chart, diagram, medical_region, remote_sensing_region, map, external_knowledge, other
 
 evidence_scope:
-- single_region: one localized region/span/cell is sufficient.
-- global_image: the whole scene is sufficient without combining distinct evidence.
-- multi_region: two or more distinct regions/items/spans must be collected.
-- cross_region: evidence from distinct regions must be related or composed.
+- single_region: exactly one localized object/region/text span/cell is enough, with no reference object, no relation, no comparison, no counting over multiple instances, and no row/column/axis/legend lookup.
+- global_image: the whole scene/image gives the answer directly, without combining distinct regions or entities.
+- multi_region: two or more distinct objects, regions, text spans, cells, bars, table fields, or diagram parts must be collected.
+- cross_region: evidence from distinct regions must be composed through a relation, comparison, multi-hop link, or structured lookup.
 - cross_page: evidence crosses pages, panels, frames, or separate images.
-- image_plus_knowledge: visual evidence must be combined with external knowledge.
+- image_plus_knowledge: visual evidence must be combined with external/common/domain knowledge.
 
-evidence_count is the minimum number of distinct visual regions, objects, text spans, cells, or panels needed. Use 1 for direct global recognition. reasoning_hops is 0 for direct perception/readout, 1 for one relation/comparison/operation, 2 for two-step composition, and 3 for three or more steps.
+evidence_count is the minimum number of distinct evidence units required. Count objects, reference objects, bars, cells, text spans, diagram parts, medical regions, remote-sensing regions, or panels. reasoning_hops is 0 for direct perception/readout, 1 for one relation/comparison/counting/lookup operation, 2 for two-step composition, and 3 for three or more steps.
+
+Critical decision rules:
+- Spatial relation questions, including left, right, above, below, behind, in front of, next to, between, near, inside, on, under, and relative to, require skill_type_primary=relation, evidence_source_primary=spatial_relation, evidence_scope=multi_region or cross_region, evidence_count>=2, reasoning_hops>=1. Never use single_region for these questions.
+- Comparison questions, including larger, smaller, more, fewer, higher, lower, same, different, before, after, maximum, and minimum, require skill_type_primary=comparison, evidence_scope=multi_region or cross_region, evidence_count>=2, reasoning_hops>=1.
+- Counting questions require skill_type_primary=counting. If multiple instances must be inspected, use evidence_scope=multi_region, evidence_count>=2, reasoning_hops>=1.
+- Attribute questions can use single_region only when the target is directly localized, for example "What color is the car?". If the target is selected by a relation, category, legend, row, column, axis label, or another reference, use multi_region or cross_region.
+- Chart, table, document, and infographic lookup questions usually require finding a key/entity/row/column/axis/legend and then reading the matched value. Use chart_reasoning or document_reasoning, evidence_scope=multi_region or cross_region, evidence_count>=2, reasoning_hops>=1.
+- Text_reading means visible text in the image must be read. Do not choose text_reading merely because the question or answer is written as text.
+- External knowledge questions require requires_external_knowledge=true and evidence_scope=image_plus_knowledge.
+- Medical and remote-sensing datasets should use medical_reasoning or remote_sensing_reasoning when domain-specific interpretation is required.
 
 answer_type:
-yes_no, number, option, text_span, attribute, object, free_form
+- yes_no: yes/no answer.
+- number: numeric count or value.
+- option: answer selects from explicit choices.
+- text_span: exact text copied from the image.
+- attribute: color, size, material, state, shape, category attribute, or visual property.
+- object: visible object/entity/category.
+- free_form: other short or open answer.
 
-Return only JSON:
+Examples:
+- Q: "What device is to the left of the curtains?" A: "television" -> skill_type_primary=relation, evidence_source_primary=spatial_relation, evidence_scope=multi_region, evidence_count=2, reasoning_hops=1, answer_type=object.
+- Q: "What color is the sign?" A: "red" -> skill_type_primary=attribute, evidence_source_primary=attribute, evidence_scope=single_region, evidence_count=1, reasoning_hops=0, answer_type=attribute.
+- Q: "What is the color of the bar that represents Country ESTONIA?" A: "Blue" -> skill_type_primary=chart_reasoning, evidence_source_primary=chart, evidence_scope=multi_region, evidence_count=2, reasoning_hops=1, answer_type=attribute.
+- Q: "How many dogs are there?" A: "3" -> skill_type_primary=counting, evidence_source_primary=object, evidence_scope=multi_region, evidence_count=3, reasoning_hops=1, answer_type=number.
+- Q: "What word is printed on the stop sign?" A: "STOP" -> skill_type_primary=text_reading, evidence_source_primary=text, evidence_scope=single_region, evidence_count=1, reasoning_hops=0, answer_type=text_span.
+
+Return only valid JSON in this exact shape:
 {"labels":[{"id":"...","visual_substrate":"...","skill_type_primary":"...","skill_type_secondary":null,"evidence_source_primary":"...","evidence_source_secondary":null,"evidence_scope":"...","evidence_count":1,"reasoning_hops":0,"requires_external_knowledge":false,"answer_type":"...","confidence":{"visual_substrate":0.0,"skill_type":0.0,"evidence":0.0,"requires_external_knowledge":0.0,"answer_type":0.0}}]}"""
 
 
