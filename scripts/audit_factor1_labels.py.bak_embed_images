@@ -1,0 +1,379 @@
+#!/usr/bin/env python3
+"""Quality audit pack for Factor-1 metadata labels.
+
+This script samples examples stratified by the four controlled factors and creates:
+- audit_samples.jsonl: machine-readable sampled rows with flags
+- audit_samples.csv: spreadsheet-friendly review file
+- review.html: visual review page with image/question/answer/current labels
+- summary.json: distribution and audit flag counts
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import html
+import json
+import os
+import random
+import re
+from collections import Counter, defaultdict
+from pathlib import Path
+from typing import Any, Iterable
+
+FACTOR_FIELDS = {
+    "visual_substrate": ["visual_substrate"],
+    "skill_requirement": ["skill_type_primary"],
+    "evidence_complexity": ["evidence_complexity", "evidence_complexity_level", "evidence_scope"],
+    "answer_distribution": ["answer_type_vlm", "answer_type"],
+}
+
+REVIEW_COLUMNS = [
+    "id",
+    "dataset",
+    "regime",
+    "split",
+    "question",
+    "answer",
+    "image",
+    "visual_substrate",
+    "skill_requirement",
+    "evidence_complexity",
+    "answer_distribution",
+    "visual_substrate_rule",
+    "skill_type_primary_rule",
+    "evidence_type_primary_rule",
+    "answer_type_rule",
+    "overall_label_confidence",
+    "audit_flags",
+    "human_visual_substrate",
+    "human_skill_requirement",
+    "human_evidence_complexity",
+    "human_answer_distribution",
+    "human_is_correct",
+    "human_notes",
+]
+
+
+def compact(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return re.sub(r"\s+", " ", value).strip()
+    if isinstance(value, (int, float, bool)):
+        return str(value)
+    if isinstance(value, list):
+        return " ".join(x for x in (compact(v) for v in value) if x)
+    if isinstance(value, dict):
+        for key in ("text", "value", "answer", "content", "label"):
+            if key in value:
+                return compact(value[key])
+    return str(value)
+
+
+def first_value(row: dict[str, Any], fields: list[str], default: str = "unknown") -> str:
+    for field in fields:
+        value = compact(row.get(field))
+        if value:
+            return value
+    return default
+
+
+def factor_values(row: dict[str, Any]) -> dict[str, str]:
+    return {name: first_value(row, fields, f"unknown_{name}") for name, fields in FACTOR_FIELDS.items()}
+
+
+def iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
+    with path.open("r", encoding="utf-8") as f:
+        for line_no, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError as error:
+                raise ValueError(f"Bad JSONL at {path}:{line_no}: {error}") from error
+            if isinstance(obj, dict):
+                yield obj
+
+
+def load_train_image_map(train_json: Path) -> dict[str, str]:
+    data = json.load(train_json.open("r", encoding="utf-8"))
+    out: dict[str, str] = {}
+    for item in data:
+        if isinstance(item, dict) and item.get("id"):
+            if item.get("image"):
+                out[str(item["id"])] = str(item["image"])
+    return out
+
+
+def normalize_answer(answer: str) -> str:
+    return compact(answer).lower().strip(" .,:;!?\"'")
+
+
+def is_number_answer(answer: str) -> bool:
+    a = normalize_answer(answer)
+    if re.fullmatch(r"[-+]?\d+(\.\d+)?", a):
+        return True
+    return a in {
+        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+        "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
+    }
+
+
+def audit_flags(row: dict[str, Any], image_rel: str | None, confidence_threshold: float) -> list[str]:
+    flags: list[str] = []
+    factors = factor_values(row)
+    q = compact(row.get("question")).lower()
+    answer = compact(row.get("answer"))
+    answer_norm = normalize_answer(answer)
+
+    conf = row.get("overall_label_confidence")
+    try:
+        if conf is not None and float(conf) < confidence_threshold:
+            flags.append("low_overall_confidence")
+    except (TypeError, ValueError):
+        flags.append("bad_confidence_value")
+
+    label_conf = row.get("label_confidence")
+    if isinstance(label_conf, dict):
+        for key, value in label_conf.items():
+            try:
+                if float(value) < confidence_threshold:
+                    flags.append(f"low_{key}_confidence")
+            except (TypeError, ValueError):
+                flags.append(f"bad_{key}_confidence")
+
+    if not image_rel:
+        flags.append("text_only_or_missing_image")
+
+    for key, value in factors.items():
+        if value.startswith("unknown") or value in {"other", "null", "none"}:
+            flags.append(f"unknown_{key}")
+
+    if compact(row.get("visual_substrate_rule")) and factors["visual_substrate"] != compact(row.get("visual_substrate_rule")):
+        flags.append("visual_rule_vlm_disagree")
+    if compact(row.get("skill_type_primary_rule")) and factors["skill_requirement"] != compact(row.get("skill_type_primary_rule")):
+        flags.append("skill_rule_vlm_disagree")
+    if compact(row.get("answer_type_rule")) and factors["answer_distribution"] != compact(row.get("answer_type_rule")):
+        flags.append("answer_rule_vlm_disagree")
+
+    if answer_norm in {"yes", "no", "true", "false"} and factors["answer_distribution"] != "yes_no":
+        flags.append("answer_type_should_be_yes_no")
+    if is_number_answer(answer) and factors["answer_distribution"] != "number":
+        flags.append("answer_type_should_be_number")
+    if row.get("choices") and factors["answer_distribution"] not in {"option", "text_span"}:
+        flags.append("choice_question_non_option_answer_type")
+
+    if re.search(r"\b(how many|number of|count|total number)\b", q) and factors["skill_requirement"] != "counting":
+        flags.append("question_suggests_counting")
+    if re.search(r"\b(what color|which color|colour)\b", q) and factors["skill_requirement"] not in {"attribute", "recognition"}:
+        flags.append("question_suggests_attribute")
+    if re.search(r"\b(read|word|text|letter|sign|written|printed)\b", q) and factors["skill_requirement"] not in {"text_reading", "document_reasoning", "chart_reasoning"}:
+        flags.append("question_suggests_text_reading")
+
+    return sorted(set(flags))
+
+
+def choose_samples(rows: list[dict[str, Any]], image_map: dict[str, str], args: argparse.Namespace) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    rng = random.Random(args.seed)
+    buckets: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    issue_rows: list[dict[str, Any]] = []
+    summary: dict[str, Any] = {
+        "total_rows": len(rows),
+        "factor_counts": {factor: Counter() for factor in FACTOR_FIELDS},
+        "flag_counts": Counter(),
+        "dataset_counts": Counter(),
+    }
+
+    for row in rows:
+        row_id = compact(row.get("id"))
+        factors = factor_values(row)
+        for factor, value in factors.items():
+            buckets[(factor, value)].append(row)
+            summary["factor_counts"][factor][value] += 1
+        summary["dataset_counts"][compact(row.get("dataset")) or "unknown"] += 1
+        flags = audit_flags(row, image_map.get(row_id), args.confidence_threshold)
+        for flag in flags:
+            summary["flag_counts"][flag] += 1
+        if flags:
+            issue_rows.append(row)
+
+    selected: dict[str, dict[str, Any]] = {}
+    for (_factor, _value), bucket in sorted(buckets.items()):
+        sample_size = min(args.samples_per_bucket, len(bucket))
+        for row in rng.sample(bucket, sample_size):
+            selected[compact(row.get("id"))] = row
+
+    if args.issue_samples > 0 and issue_rows:
+        sample_size = min(args.issue_samples, len(issue_rows))
+        for row in rng.sample(issue_rows, sample_size):
+            selected[compact(row.get("id"))] = row
+
+    if args.max_total and len(selected) > args.max_total:
+        ids = list(selected)
+        rng.shuffle(ids)
+        selected = {row_id: selected[row_id] for row_id in ids[: args.max_total]}
+
+    serializable_summary = {
+        "total_rows": summary["total_rows"],
+        "selected_rows": len(selected),
+        "factor_counts": {k: dict(v) for k, v in summary["factor_counts"].items()},
+        "flag_counts": dict(summary["flag_counts"]),
+        "dataset_counts": dict(summary["dataset_counts"]),
+        "sampling": {
+            "samples_per_bucket": args.samples_per_bucket,
+            "issue_samples": args.issue_samples,
+            "max_total": args.max_total,
+            "seed": args.seed,
+            "confidence_threshold": args.confidence_threshold,
+        },
+    }
+    return list(selected.values()), serializable_summary
+
+
+def review_record(row: dict[str, Any], image_map: dict[str, str], train_root: Path, output_root: Path, args: argparse.Namespace) -> dict[str, Any]:
+    row_id = compact(row.get("id"))
+    image_rel = image_map.get(row_id)
+    flags = audit_flags(row, image_rel, args.confidence_threshold)
+    factors = factor_values(row)
+    rec = {
+        "id": row_id,
+        "dataset": compact(row.get("dataset")),
+        "regime": compact(row.get("regime")),
+        "split": compact(row.get("split")),
+        "question": compact(row.get("question")),
+        "answer": compact(row.get("answer")),
+        "image": image_rel or "",
+        "visual_substrate": factors["visual_substrate"],
+        "skill_requirement": factors["skill_requirement"],
+        "evidence_complexity": factors["evidence_complexity"],
+        "answer_distribution": factors["answer_distribution"],
+        "visual_substrate_rule": compact(row.get("visual_substrate_rule")),
+        "skill_type_primary_rule": compact(row.get("skill_type_primary_rule")),
+        "evidence_type_primary_rule": compact(row.get("evidence_type_primary_rule")),
+        "answer_type_rule": compact(row.get("answer_type_rule")),
+        "overall_label_confidence": row.get("overall_label_confidence", ""),
+        "audit_flags": ";".join(flags),
+        "human_visual_substrate": "",
+        "human_skill_requirement": "",
+        "human_evidence_complexity": "",
+        "human_answer_distribution": "",
+        "human_is_correct": "",
+        "human_notes": "",
+    }
+    if image_rel:
+        image_abs = train_root / image_rel
+        rec["image_for_html"] = os.path.relpath(image_abs, output_root)
+    else:
+        rec["image_for_html"] = ""
+    return rec
+
+
+def write_outputs(records: list[dict[str, Any]], summary: dict[str, Any], output_root: Path) -> None:
+    output_root.mkdir(parents=True, exist_ok=True)
+    jsonl_path = output_root / "audit_samples.jsonl"
+    with jsonl_path.open("w", encoding="utf-8") as f:
+        for rec in records:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+
+    csv_path = output_root / "audit_samples.csv"
+    with csv_path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=REVIEW_COLUMNS)
+        writer.writeheader()
+        for rec in records:
+            writer.writerow({key: rec.get(key, "") for key in REVIEW_COLUMNS})
+
+    (output_root / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_html(records, output_root / "review.html")
+
+
+def write_html(records: list[dict[str, Any]], path: Path) -> None:
+    cards = []
+    for i, rec in enumerate(records, 1):
+        image_html = "<div class='missing'>No image</div>"
+        if rec.get("image_for_html"):
+            image_html = f"<img src='{html.escape(rec['image_for_html'])}' loading='lazy'/>"
+        flags = rec.get("audit_flags") or "none"
+        cards.append(f"""
+<section class='card'>
+  <div class='idx'>#{i} · {html.escape(rec['id'])} · {html.escape(rec['dataset'])}</div>
+  <div class='grid'>
+    <div class='image'>{image_html}</div>
+    <div class='text'>
+      <p><b>Q:</b> {html.escape(rec['question'])}</p>
+      <p><b>A:</b> {html.escape(rec['answer'])}</p>
+      <table>
+        <tr><th>Visual</th><td>{html.escape(rec['visual_substrate'])}</td><td class='rule'>rule: {html.escape(rec['visual_substrate_rule'])}</td></tr>
+        <tr><th>Skill</th><td>{html.escape(rec['skill_requirement'])}</td><td class='rule'>rule: {html.escape(rec['skill_type_primary_rule'])}</td></tr>
+        <tr><th>Evidence</th><td>{html.escape(rec['evidence_complexity'])}</td><td class='rule'>rule evidence: {html.escape(rec['evidence_type_primary_rule'])}</td></tr>
+        <tr><th>Answer</th><td>{html.escape(rec['answer_distribution'])}</td><td class='rule'>rule: {html.escape(rec['answer_type_rule'])}</td></tr>
+        <tr><th>Confidence</th><td colspan='2'>{html.escape(str(rec['overall_label_confidence']))}</td></tr>
+        <tr><th>Flags</th><td colspan='2' class='flags'>{html.escape(flags)}</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+""")
+    html_doc = f"""<!doctype html>
+<html><head><meta charset='utf-8'/><title>Factor-1 Label Audit</title>
+<style>
+body {{ font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 24px; background: #f6f7f8; color: #15191d; }}
+.card {{ background: white; border: 1px solid #d9dee3; border-radius: 12px; padding: 16px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,.04); }}
+.idx {{ font-weight: 700; margin-bottom: 12px; color: #39424e; }}
+.grid {{ display: grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }}
+.image img {{ max-width: 280px; max-height: 260px; object-fit: contain; border-radius: 8px; border: 1px solid #e2e6ea; background: #fafafa; }}
+.missing {{ width: 260px; height: 180px; display: flex; align-items: center; justify-content: center; border: 1px dashed #b7bec7; border-radius: 8px; color: #69737f; }}
+table {{ border-collapse: collapse; width: 100%; margin-top: 8px; }}
+th, td {{ text-align: left; border-bottom: 1px solid #edf0f2; padding: 7px 8px; vertical-align: top; }}
+th {{ width: 110px; color: #53606d; }}
+.rule {{ color: #7b8794; }}
+.flags {{ color: #a33; font-weight: 600; }}
+@media (max-width: 760px) {{ .grid {{ grid-template-columns: 1fr; }} }}
+</style></head><body>
+<h1>Factor-1 Label Audit</h1>
+<p>Review whether Visual substrate, Skill requirement, Evidence complexity, and Answer distribution labels are correct.</p>
+{''.join(cards)}
+</body></html>"""
+    path.write_text(html_doc, encoding="utf-8")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Create audit pack for Factor-1 labels")
+    parser.add_argument("--metadata", type=Path, default=Path("cl_dataset/coin_factor1_meta_all/metadata/sample_metadata.vlm.jsonl"))
+    parser.add_argument("--train-root", type=Path, default=Path("cl_dataset/coin_factor1_train"))
+    parser.add_argument("--output-root", type=Path, default=Path("cl_dataset/coin_factor1_label_audit"))
+    parser.add_argument("--samples-per-bucket", type=int, default=20)
+    parser.add_argument("--issue-samples", type=int, default=300)
+    parser.add_argument("--max-total", type=int, default=1200)
+    parser.add_argument("--confidence-threshold", type=float, default=0.70)
+    parser.add_argument("--seed", type=int, default=42)
+    args = parser.parse_args()
+
+    args.metadata = args.metadata.expanduser().resolve()
+    args.train_root = args.train_root.expanduser().resolve()
+    args.output_root = args.output_root.expanduser().resolve()
+
+    image_map = load_train_image_map(args.train_root / "train.json")
+    rows = list(iter_jsonl(args.metadata))
+    sampled, summary = choose_samples(rows, image_map, args)
+    records = [review_record(row, image_map, args.train_root, args.output_root, args) for row in sampled]
+    write_outputs(records, summary, args.output_root)
+    print(json.dumps({
+        "metadata": str(args.metadata),
+        "train_root": str(args.train_root),
+        "output_root": str(args.output_root),
+        "rows": len(rows),
+        "sampled": len(records),
+        "files": {
+            "html": str(args.output_root / "review.html"),
+            "csv": str(args.output_root / "audit_samples.csv"),
+            "jsonl": str(args.output_root / "audit_samples.jsonl"),
+            "summary": str(args.output_root / "summary.json"),
+        },
+    }, ensure_ascii=False, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

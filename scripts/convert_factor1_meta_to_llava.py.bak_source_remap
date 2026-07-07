@@ -159,35 +159,7 @@ def stable_image_stem(row: dict[str, Any]) -> str:
     return hashlib.md5(raw.encode("utf-8")).hexdigest()
 
 
-def remap_source_file(row: dict[str, Any], raw_root: Path) -> dict[str, Any]:
-    """Map source_file from another machine's cl_dataset/coin root to the local raw_root."""
-    source = compact(row.get("source_file"))
-    if not source:
-        return row
-    source_path = Path(source).expanduser()
-    if source_path.exists():
-        return row
-
-    normalized = source.replace("\\", "/")
-    markers = ["/cl_dataset/coin/", "cl_dataset/coin/"]
-    rel = None
-    for marker in markers:
-        if marker in normalized:
-            rel = normalized.split(marker, 1)[1]
-            break
-    if rel is None:
-        return row
-
-    candidate = raw_root / rel
-    if not candidate.exists():
-        return row
-    patched = dict(row)
-    patched["source_file"] = str(candidate)
-    return patched
-
-
 def resolve_and_export_image(row: dict[str, Any], meta_module: Any, args: argparse.Namespace) -> tuple[str | None, str]:
-    row = remap_source_file(row, args.raw_root)
     image_args = SimpleNamespace(
         raw_root=args.raw_root.expanduser().resolve(),
         image_roots=[p.expanduser().resolve() for p in args.image_roots],
