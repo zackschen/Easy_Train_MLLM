@@ -281,8 +281,8 @@ def factor_values(row: dict[str, Any]) -> dict[str, str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Convert Factor-1 metadata to LLaVA train JSON")
-    parser.add_argument("--metadata", type=Path, default=Path("cl_dataset/coin_factor1_meta_all/metadata/sample_metadata.vlm.jsonl"))
-    parser.add_argument("--output-root", type=Path, default=Path("cl_dataset/coin_factor1_train"))
+    parser.add_argument("--metadata", type=Path, default=Path("cl_dataset/coin_factor1_meta_all_v2/metadata/sample_metadata.vlm.jsonl"))
+    parser.add_argument("--output-root", type=Path, default=Path("cl_dataset/coin_factor1_train_v2"))
     parser.add_argument("--raw-root", type=Path, default=Path("cl_dataset/coin"))
     parser.add_argument("--image-roots", type=Path, nargs="*", default=[])
     parser.add_argument("--project-root", type=Path, default=Path("."), help="Directory containing factor1_coin_meta.py")

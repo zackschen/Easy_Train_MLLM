@@ -376,9 +376,9 @@ th {{ width: 110px; color: #53606d; }}
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create audit pack for Factor-1 labels")
-    parser.add_argument("--metadata", type=Path, default=Path("cl_dataset/coin_factor1_meta_all/metadata/sample_metadata.vlm.jsonl"))
-    parser.add_argument("--train-root", type=Path, default=Path("cl_dataset/coin_factor1_train"))
-    parser.add_argument("--output-root", type=Path, default=Path("cl_dataset/coin_factor1_label_audit"))
+    parser.add_argument("--metadata", type=Path, default=Path("cl_dataset/coin_factor1_meta_all_v2/metadata/sample_metadata.vlm.jsonl"))
+    parser.add_argument("--train-root", type=Path, default=Path("cl_dataset/coin_factor1_train_v2"))
+    parser.add_argument("--output-root", type=Path, default=Path("cl_dataset/coin_factor1_label_audit_v2"))
     parser.add_argument("--samples-per-bucket", type=int, default=20)
     parser.add_argument("--issue-samples", type=int, default=300)
     parser.add_argument("--max-total", type=int, default=1200)
