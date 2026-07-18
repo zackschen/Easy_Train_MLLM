@@ -46,7 +46,6 @@ fi
 if [[ -n "${TASKS_OVERRIDE:-}" ]]; then
   read -r -a TASKS <<< "$TASKS_OVERRIDE"
 fi
-
 LIMIT="${LIMIT:-20}"
 MAX_NEW_TOKENS="${MAX_NEW_TOKENS:-64}"
 TEMPERATURE="${TEMPERATURE:-0}"
