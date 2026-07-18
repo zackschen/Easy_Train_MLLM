@@ -181,6 +181,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--allow-text-only", action="store_true", default=True)
     p.add_argument(
+        "--preserve-image-paths",
+        action="store_true",
+        help=(
+            "Do not require local image files while building splits. Keep image paths "
+            "as unresolved paths relative to --image-folder, derived from --train-root."
+        ),
+    )
+    p.add_argument(
         "--compact",
         action="store_true",
         help="Write JSON without indentation to reduce disk usage.",
@@ -229,14 +237,38 @@ def resolve_image(row: dict[str, Any], train_root: Path) -> Path | None:
     return None
 
 
+def unresolved_llava_image_path(row: dict[str, Any], train_root: Path, image_folder: Path) -> str | None:
+    value = row.get("image")
+    if not value:
+        return None
+    p = Path(str(value))
+    if p.is_absolute():
+        return str(p)
+    unresolved = train_root / p
+    return os.path.relpath(unresolved.resolve(strict=False), image_folder.resolve(strict=False))
+
+
+def ensure_image_token(out: dict[str, Any]) -> None:
+    first_human = next((m for m in out["conversations"] if m.get("from") == "human"), None)
+    if first_human is not None and "<image>" not in str(first_human.get("value", "")):
+        first_human["value"] = str(first_human.get("value", "")).strip() + "\n<image>"
+
+
 def normalize_for_llava(
     row: dict[str, Any],
     train_root: Path,
     image_folder: Path,
     allow_text_only: bool,
+    preserve_image_paths: bool,
 ) -> dict[str, Any]:
     out = dict(row)
     out["conversations"] = [dict(m) for m in row.get("conversations", [])]
+
+    if preserve_image_paths and row.get("image"):
+        out["image"] = unresolved_llava_image_path(row, train_root, image_folder)
+        ensure_image_token(out)
+        return out
+
     image_path = resolve_image(row, train_root)
 
     if row.get("image") and image_path is None:
@@ -244,9 +276,7 @@ def normalize_for_llava(
 
     if image_path is not None:
         out["image"] = os.path.relpath(image_path, image_folder.resolve())
-        first_human = next((m for m in out["conversations"] if m.get("from") == "human"), None)
-        if first_human is not None and "<image>" not in str(first_human.get("value", "")):
-            first_human["value"] = str(first_human.get("value", "")).strip() + "\n<image>"
+        ensure_image_token(out)
     else:
         out.pop("image", None)
         if not allow_text_only:
@@ -258,6 +288,8 @@ def normalize_for_llava(
 
 
 def validate_images(rows: list[dict[str, Any]], image_folder: Path, max_images: int) -> int:
+    if max_images <= 0:
+        return 0
     try:
         from PIL import Image
     except Exception as exc:  # pragma: no cover
@@ -412,7 +444,13 @@ def main() -> int:
     def normalized(row: dict[str, Any]) -> dict[str, Any]:
         sid = sample_id(row)
         if sid not in normalized_cache:
-            normalized_cache[sid] = normalize_for_llava(row, train_root, image_folder, args.allow_text_only)
+            normalized_cache[sid] = normalize_for_llava(
+                row,
+                train_root,
+                image_folder,
+                args.allow_text_only,
+                args.preserve_image_paths,
+            )
         return normalized_cache[sid]
 
     manifest: dict[str, Any] = {
@@ -431,6 +469,7 @@ def main() -> int:
             "seed": args.seed,
             "include_categories": args.include_category_map,
             "strict_included_categories": args.strict_included_categories,
+            "preserve_image_paths": args.preserve_image_paths,
         },
         "source_summary": summarize_rows([normalized(r) for r in rows[: min(len(rows), 1000)]]),
         "factors": {},

@@ -14,6 +14,10 @@ set -euo pipefail
 # By default this script requires 10000 train + 1000 eval samples per category.
 # If a category is still under-supported, keep STRICT=1 to fail fast and show the
 # deficient category. Set STRICT=0 only when you want partial diagnostic outputs.
+#
+# This script can run on a split-building server without local image files:
+# PRESERVE_IMAGE_PATHS=1 keeps image paths relative to IMAGE_FOLDER but skips
+# resolving image bytes. Training/evaluation still needs the actual images.
 
 PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
@@ -35,10 +39,11 @@ TAIL_SAMPLES_PER_CLASS="${TAIL_SAMPLES_PER_CLASS:-200}"
 MIN_TRAIN_SUPPORT="${MIN_TRAIN_SUPPORT:-$((TRAIN_SAMPLES_PER_CLASS + EVAL_SAMPLES_PER_CLASS))}"
 MIN_EVAL_SUPPORT="${MIN_EVAL_SUPPORT:-500}"
 BALANCE_BY="${BALANCE_BY:-dataset}"
-MAX_IMAGES_TO_CHECK="${MAX_IMAGES_TO_CHECK:-80}"
+MAX_IMAGES_TO_CHECK="${MAX_IMAGES_TO_CHECK:-0}"
 SEED="${SEED:-42}"
 STRICT="${STRICT:-1}"
 COMPACT="${COMPACT:-1}"
+PRESERVE_IMAGE_PATHS="${PRESERVE_IMAGE_PATHS:-1}"
 
 cd "$PROJECT_ROOT"
 
@@ -70,6 +75,10 @@ if [[ "$STRICT" == "1" ]]; then
   args+=(--strict-included-categories)
 fi
 
+if [[ "$PRESERVE_IMAGE_PATHS" == "1" ]]; then
+  args+=(--preserve-image-paths)
+fi
+
 if [[ "$COMPACT" == "1" ]]; then
   args+=(--compact)
 fi
@@ -84,5 +93,7 @@ echo "  visual categories:  $VISUAL_CATEGORIES"
 echo "  skill categories:   $SKILL_CATEGORIES"
 echo "  evidence categories:$EVIDENCE_CATEGORIES"
 echo "  strict:             $STRICT"
+echo "  preserve image path:$PRESERVE_IMAGE_PATHS"
+echo "  image checks:       $MAX_IMAGES_TO_CHECK"
 
 "${args[@]}"
