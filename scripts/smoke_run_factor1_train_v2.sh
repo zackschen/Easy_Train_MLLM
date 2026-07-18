@@ -35,11 +35,11 @@ MAX_SAMPLES="${MAX_SAMPLES:-256}"
 MAX_IMAGES_TO_CHECK="${MAX_IMAGES_TO_CHECK:-64}"
 SEED="${SEED:-42}"
 
-RUN_TRAIN="${RUN_TRAIN:-0}"
+RUN_TRAIN="${RUN_TRAIN:-1}"
 PROMPT_VERSION="${PROMPT_VERSION:-v1}"
-MODEL_PATH="${MODEL_PATH:-$PROJECT_ROOT/checkpoints/Vicuna/vicuna-7b-v1.5}"
-PROJECTOR_PATH="${PROJECTOR_PATH:-$PROJECT_ROOT/checkpoints/Vicuna/vicuna-7b-v1.5-projector/mm_projector.bin}"
-VISION_TOWER="${VISION_TOWER:-$PROJECT_ROOT/checkpoints/clip-vit-large-patch14-336}"
+MODEL_PATH="${MODEL_PATH:-$PROJECT_ROOT/checkpoints/LLaVA/Vicuna/vicuna-7b-v1.5}"
+PROJECTOR_PATH="${PROJECTOR_PATH:-$PROJECT_ROOT/checkpoints/LLaVA/Vicuna/vicuna-7b-v1.5-projector/mm_projector.bin}"
+VISION_TOWER="${VISION_TOWER:-$PROJECT_ROOT/checkpoints/LLaVA/clip-vit-large-patch14-336}"
 IMAGE_FOLDER="${IMAGE_FOLDER:-$PROJECT_ROOT/cl_dataset}"
 DS_CONFIG_PATH="${DS_CONFIG_PATH:-$PROJECT_ROOT/scripts/zero3_offload.json}"
 INCLUDE_GPUS="${INCLUDE_GPUS:-localhost:0}"
@@ -263,7 +263,7 @@ echo "  max steps:   $MAX_STEPS"
 echo "  include:     $INCLUDE_GPUS"
 echo "  output:      $OUTPUT_DIR"
 
-deepspeed --include "$INCLUDE_GPUS" --master_port "$MASTER_PORT" ETrain/Train/LLaVA/train_mem.py \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 deepspeed --include "$INCLUDE_GPUS" --master_port "$MASTER_PORT" ETrain/Train/LLaVA/train_mem.py \
   --deepspeed "$DS_CONFIG_PATH" \
   --lora_enable True --lora_r "$LORA_R" --lora_alpha "$LORA_ALPHA" --mm_projector_lr "$MM_PROJECTOR_LR" \
   --model_name_or_path "$MODEL_PATH" \
