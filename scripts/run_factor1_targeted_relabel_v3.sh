@@ -32,13 +32,14 @@ TARGETED_REFINED="${TARGETED_REFINED:-$TARGET_ROOT/metadata/targeted_candidates.
 TARGETED_CACHE="${TARGETED_CACHE:-$TARGET_ROOT/metadata/targeted_candidates.vlm.cache.jsonl}"
 TARGETED_REPORT="${TARGETED_REPORT:-$TARGET_ROOT/metadata/targeted_candidates.report.json}"
 
-API_BASE="${API_BASE:-http://127.0.0.1:8000/v1}"
+API_BASE="${API_BASE:-http://127.0.0.1:8001/v1}"
 API_KEY="${API_KEY:-EMPTY}"
 MODEL="${MODEL:-qwen3.6}"
 BATCH_SIZE="${BATCH_SIZE:-1}"
 MAX_TOKENS="${MAX_TOKENS:-4096}"
 TIMEOUT="${TIMEOUT:-300}"
 RETRIES="${RETRIES:-2}"
+CHECK_API="${CHECK_API:-1}"
 
 POOL_MAX_SAMPLES_PER_DATASET="${POOL_MAX_SAMPLES_PER_DATASET:-50000}"
 TARGET_COUNT="${TARGET_COUNT:-12000}"
@@ -103,6 +104,43 @@ echo "  target root:        $TARGET_ROOT"
 echo "  target count:       $TARGET_COUNT"
 echo "  max candidates:     $MAX_TOTAL_CANDIDATES"
 echo "  model/API:          $MODEL / $API_BASE"
+
+if [[ "$CHECK_API" == "1" && "$SELECT_ONLY" != "1" && "$CONVERT_ONLY" != "1" ]]; then
+  echo "[0/6] Check OpenAI-compatible Qwen API"
+  "$PYTHON_BIN" - "$API_BASE" "$API_KEY" <<'PYCODE'
+import json
+import sys
+import urllib.error
+import urllib.request
+
+base = sys.argv[1].rstrip("/")
+api_key = sys.argv[2] if len(sys.argv) > 2 else "EMPTY"
+if base.endswith("/chat/completions"):
+    models_url = base[: -len("/chat/completions")] + "/models"
+else:
+    models_url = base + "/models"
+headers = {}
+if api_key:
+    headers["Authorization"] = f"Bearer {api_key}"
+req = urllib.request.Request(models_url, headers=headers, method="GET")
+try:
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        body = resp.read().decode("utf-8", errors="replace")
+except urllib.error.HTTPError as exc:
+    print(f"API preflight failed: HTTP {exc.code} for {models_url}", file=sys.stderr)
+    print("Expected API_BASE like http://127.0.0.1:8001/v1, not bare http://host:port and not a wrong port.", file=sys.stderr)
+    raise SystemExit(2)
+except Exception as exc:
+    print(f"API preflight failed for {models_url}: {exc}", file=sys.stderr)
+    raise SystemExit(2)
+try:
+    data = json.loads(body)
+    names = [item.get("id") for item in data.get("data", []) if isinstance(item, dict)]
+except Exception:
+    names = []
+print(f"API ok: {models_url}" + (f"; models={names[:5]}" if names else ""))
+PYCODE
+fi
 
 if [[ "$REFINE_ONLY" != "1" && "$CONVERT_ONLY" != "1" ]]; then
   if [[ "$BUILD_POOL" == "1" ]]; then
