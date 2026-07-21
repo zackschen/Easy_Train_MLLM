@@ -54,6 +54,12 @@ DATASETS: dict[str, dict[str, Any]] = {
     "pathvqa": {"regime": "expert_medical_qa", "visual": "medical", "knowledge": True, "skill_hint": "medical_reasoning", "aliases": ["pathvqa", "path_vqa"]},
     "remote_sensing_vqa": {"regime": "expert_remote_sensing_qa", "visual": "remote_sensing", "knowledge": True, "skill_hint": "remote_sensing_reasoning", "aliases": ["remote_sensing_vqa", "rsvqa", "remote-sensing-sft-data"]},
     "lrs_vqa": {"regime": "expert_remote_sensing_qa", "visual": "remote_sensing", "knowledge": True, "skill_hint": "remote_sensing_reasoning", "aliases": ["lrs_vqa", "lrs-vqa", "lrs_vqa"]},
+    "textvqa": {"regime": "structured_visual_qa", "visual": "natural_photo", "knowledge": False, "skill_hint": "text_reading", "aliases": ["textvqa", "text_vqa", "text-vqa"]},
+    "stvqa": {"regime": "structured_visual_qa", "visual": "natural_photo", "knowledge": False, "skill_hint": "text_reading", "aliases": ["stvqa", "st_vqa", "st-vqa"]},
+    "dvqa": {"regime": "structured_visual_qa", "visual": "chart", "knowledge": False, "skill_hint": "chart_reasoning", "aliases": ["dvqa", "dvqa_dataset"]},
+    "plotqa": {"regime": "structured_visual_qa", "visual": "chart", "knowledge": False, "skill_hint": "chart_reasoning", "aliases": ["plotqa", "plot_qa", "plot-qa"]},
+    "figureqa": {"regime": "structured_visual_qa", "visual": "chart", "knowledge": False, "skill_hint": "chart_reasoning", "aliases": ["figureqa", "figure_qa", "figure-qa"]},
+    "iconqa": {"regime": "structured_visual_qa", "visual": "diagram", "knowledge": False, "skill_hint": "diagram_reasoning", "aliases": ["iconqa", "icon_qa", "icon-qa", "icon_qa"]},
 }
 
 Q_FIELDS = ["question", "query", "prompt", "instruction", "problem", "question_text", "input", "user", "human", "text", "Question"]
@@ -65,7 +71,7 @@ I_FIELDS = ["image", "images", "image_path", "img_path", "image_file", "filename
 YES_NO = {"yes", "no", "true", "false"}
 COLORS = {"red", "blue", "green", "yellow", "black", "white", "gray", "grey", "brown", "orange", "purple", "pink", "silver", "gold", "golden"}
 ATTRIBUTES = COLORS | {"large", "small", "big", "tiny", "round", "square", "rectangular", "wooden", "metal", "metallic", "plastic", "open", "closed", "empty", "full"}
-TEXT_SPAN_DATASETS = {"docvqa", "infographicvqa"}
+TEXT_SPAN_DATASETS = {"docvqa", "infographicvqa", "textvqa", "stvqa"}
 KNOWLEDGE_DATASETS = {"okvqa", "aokvqa", "scienceqa", "mmmu", "slake", "vqarad", "pathvqa"}
 REGIME_DIR_HINTS = {
     "natural_photo_qa": "natural",

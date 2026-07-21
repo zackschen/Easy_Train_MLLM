@@ -54,6 +54,12 @@ DATASET_VISUAL = {
     "slake": "medical",
     "vqarad": "medical",
     "pathvqa": "medical",
+    "textvqa": "natural_photo",
+    "stvqa": "natural_photo",
+    "dvqa": "chart",
+    "plotqa": "chart",
+    "figureqa": "chart",
+    "iconqa": "diagram",
 }
 
 DATASET_SKILL = {
@@ -70,6 +76,12 @@ DATASET_SKILL = {
     "slake": "medical_reasoning",
     "vqarad": "medical_reasoning",
     "pathvqa": "medical_reasoning",
+    "textvqa": "text_reading",
+    "stvqa": "text_reading",
+    "dvqa": "chart_reasoning",
+    "plotqa": "chart_reasoning",
+    "figureqa": "chart_reasoning",
+    "iconqa": "diagram_reasoning",
 }
 
 ATTRIBUTE_RE = re.compile(r"\b(color|colour|shape|size|material|pattern|texture|type of|kind of|what color|what colour|how big|how large)\b")
