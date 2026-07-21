@@ -1421,7 +1421,8 @@ def call_openai_compatible(
     enable_thinking: bool | None,
     json_mode: bool = False,
 ) -> str:
-    url = api_base.rstrip("/") + "/chat/completions"
+    base = api_base.rstrip("/")
+    url = base if base.endswith("/chat/completions") else base + "/chat/completions"
     payload = {
         "model": model,
         "messages": messages,
