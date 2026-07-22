@@ -439,6 +439,25 @@ def main() -> int:
     if not isinstance(rows, list) or not rows:
         raise SystemExit(f"Invalid or empty train JSON: {train_json}")
 
+    if args.strict_included_categories and args.include_category_map:
+        required = args.train_samples_per_class + args.eval_samples_per_class
+        strict_deficits: list[str] = []
+        for factor in args.factors:
+            requested = args.include_category_map.get(factor)
+            if not requested:
+                continue
+            field = DEFAULT_FACTORS[factor]
+            counts = Counter(meta(row, field) for row in rows)
+            for category in requested:
+                count = counts.get(category, 0)
+                if count < required:
+                    strict_deficits.append(f"{factor}/{category}={count}/{required}")
+        if strict_deficits:
+            raise SystemExit(
+                "insufficient samples for strict target split:\n  "
+                + "\n  ".join(strict_deficits)
+            )
+
     normalized_cache: dict[str, dict[str, Any]] = {}
 
     def normalized(row: dict[str, Any]) -> dict[str, Any]:
