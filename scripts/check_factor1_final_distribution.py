@@ -175,6 +175,50 @@ def build_sufficiency(rows: list[dict[str, Any]], targets: dict[str, list[str]],
     return result
 
 
+def image_prefix(value: Any) -> str:
+    if not value:
+        return "text_only"
+    text = str(value)
+    if text.startswith("/"):
+        parts = Path(text).parts
+        return "/".join(parts[:4]) if len(parts) >= 4 else text
+    parts = text.split("/")
+    return "/".join(parts[:2]) if len(parts) >= 2 else text
+
+
+def inspect_images(rows: list[dict[str, Any]], image_folder: Path | None, max_missing: int) -> dict[str, Any]:
+    prefixes = Counter(image_prefix(row.get("image")) for row in rows)
+    image_rows = [row for row in rows if row.get("image")]
+    result: dict[str, Any] = {
+        "image_prefixes": dict(prefixes.most_common()),
+        "checked": 0,
+        "missing_count": 0,
+        "missing_examples": [],
+    }
+    if image_folder is None:
+        result["check_status"] = "skipped_no_image_folder"
+        return result
+    image_folder = image_folder.resolve()
+    missing_examples = []
+    missing_count = 0
+    checked = 0
+    for row in image_rows:
+        image = str(row.get("image") or "")
+        if not image:
+            continue
+        path = Path(image) if image.startswith("/") else image_folder / image
+        checked += 1
+        if not path.exists():
+            missing_count += 1
+            if len(missing_examples) < max_missing:
+                missing_examples.append({"id": sample_id(row), "image": image, "expected_path": str(path)})
+    result["checked"] = checked
+    result["missing_count"] = missing_count
+    result["missing_examples"] = missing_examples
+    result["check_status"] = "ok" if not missing else "missing_images"
+    return result
+
+
 def inspect_split_root(split_root: Path, targets: dict[str, list[str]]) -> list[dict[str, Any]]:
     rows = []
     if not split_root:
@@ -216,6 +260,8 @@ def main() -> int:
     p.add_argument("--train-json", type=Path, required=True)
     p.add_argument("--output-root", type=Path, default=None)
     p.add_argument("--split-root", type=Path, default=None, help="Optional built strict split root to inspect.")
+    p.add_argument("--image-folder", type=Path, default=None, help="Optional LLaVA --image_folder used to verify image paths.")
+    p.add_argument("--max-missing-images", type=int, default=50, help="Max missing image examples saved in reports.")
     p.add_argument("--train-samples-per-class", type=int, default=10000)
     p.add_argument("--eval-samples-per-class", type=int, default=1000)
     p.add_argument("--targets", action="append", default=[], help="Override targets: factor=cat1,cat2. Repeatable.")
@@ -226,6 +272,7 @@ def main() -> int:
     train_json = args.train_json.resolve()
     output_root = args.output_root.resolve() if args.output_root else train_json.parent
     split_root = args.split_root.resolve() if args.split_root else None
+    image_folder = args.image_folder.resolve() if args.image_folder else None
     output_root.mkdir(parents=True, exist_ok=True)
 
     rows = load_rows(train_json)
@@ -253,11 +300,13 @@ def main() -> int:
     )
     sufficiency = build_sufficiency(rows, targets, required)
     split_checks = inspect_split_root(split_root, targets) if split_root else []
+    image_checks = inspect_images(rows, image_folder, args.max_missing_images)
 
     summary = {
         "train_json": str(train_json),
         "output_root": str(output_root),
         "split_root": str(split_root) if split_root else None,
+        "image_folder": str(image_folder) if image_folder else None,
         "required_per_category": required,
         "train_samples_per_class": args.train_samples_per_class,
         "eval_samples_per_class": args.eval_samples_per_class,
@@ -265,6 +314,7 @@ def main() -> int:
         "distributions": distributions,
         "target_sufficiency": sufficiency,
         "split_checks": split_checks,
+        "image_checks": image_checks,
         "top_visual_skill": [
             {"visual_substrate": v, "skill_requirement": s, "count": c}
             for (v, s), c in visual_skill.most_common(args.top_combos)
@@ -279,11 +329,14 @@ def main() -> int:
     md_path = output_root / "factor1_final_distribution.md"
     suff_csv = output_root / "factor1_target_sufficiency.csv"
     split_csv = output_root / "factor1_split_check.csv"
+    missing_csv = output_root / "factor1_missing_images.csv"
 
     json_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     write_csv(suff_csv, sufficiency)
     if split_checks:
         write_csv(split_csv, split_checks)
+    if image_checks.get("missing_examples"):
+        write_csv(missing_csv, image_checks["missing_examples"])
 
     lines: list[str] = []
     lines.append("# Factor-1 Final Distribution Check")
@@ -294,6 +347,9 @@ def main() -> int:
     lines.append(f"- text_only: {basic['text_only']}")
     lines.append(f"- duplicate_id_count: {basic['duplicate_id_count']}")
     lines.append(f"- canonicalized_samples: {basic['canonicalized_samples']}")
+    lines.append(f"- image_check_status: {image_checks['check_status']}")
+    lines.append(f"- image_checked: {image_checks['checked']}")
+    lines.append(f"- missing_images: {image_checks['missing_count']}")
     lines.append(f"- required_per_target_category: {required}")
     lines.append("")
 
@@ -308,6 +364,18 @@ def main() -> int:
     for name in ["visual_substrate", "skill_requirement", "evidence_complexity", "answer_distribution", "dataset", "regime", "media_source"]:
         lines.append(f"## {name}")
         lines.extend(table_lines(counter_table(Counter(distributions[name]), total, args.top_limit)))
+        lines.append("")
+
+    lines.append("## Image Prefixes")
+    lines.extend(table_lines(counter_table(Counter(image_checks["image_prefixes"]), total, args.top_limit)))
+    lines.append("")
+
+    if image_checks.get("missing_examples"):
+        lines.append("## Missing Image Examples")
+        missing_rows: list[list[Any]] = [["id", "image", "expected_path"]]
+        for item in image_checks["missing_examples"]:
+            missing_rows.append([f"`{item.get('id')}`", f"`{item.get('image')}`", f"`{item.get('expected_path')}`"])
+        lines.extend(table_lines(missing_rows))
         lines.append("")
 
     lines.append("## Top Visual-Skill Combos")
@@ -352,12 +420,17 @@ def main() -> int:
     print(f"Wrote: {suff_csv}")
     if split_checks:
         print(f"Wrote: {split_csv}")
-    print(f"samples={basic['samples']} with_image={basic['with_image']} text_only={basic['text_only']} duplicates={basic['duplicate_id_count']}")
+    if image_checks.get("missing_examples"):
+        print(f"Wrote: {missing_csv}")
+    print(f"samples={basic['samples']} with_image={basic['with_image']} text_only={basic['text_only']} duplicates={basic['duplicate_id_count']} missing_images={image_checks['missing_count']}")
     if short:
         print("SHORT categories:")
         for item in short:
             print(f"  {item['factor']}/{item['category']}: {item['count']}/{item['required']} gap={item['gap']}")
         return 2
+    if image_checks.get("missing_count", 0):
+        print("Target categories satisfy the required support, but some image files are missing.")
+        return 3
     print("All target categories satisfy the required support.")
     return 0
 
