@@ -60,6 +60,8 @@ DATASET_VISUAL = {
     "plotqa": "chart",
     "figureqa": "chart",
     "iconqa": "diagram",
+    "tqa": "diagram",
+    "geometry3k": "diagram",
 }
 
 DATASET_SKILL = {
@@ -82,6 +84,8 @@ DATASET_SKILL = {
     "plotqa": "chart_reasoning",
     "figureqa": "chart_reasoning",
     "iconqa": "diagram_reasoning",
+    "tqa": "diagram_reasoning",
+    "geometry3k": "diagram_reasoning",
 }
 
 ATTRIBUTE_RE = re.compile(r"\b(color|colour|shape|size|material|pattern|texture|type of|kind of|what color|what colour|how big|how large)\b")
@@ -224,7 +228,7 @@ def score_evidence(row: dict[str, Any], category: str) -> int:
             score = max(score, 5)
         if RELATION_RE.search(text) or COMPARE_RE.search(text) or MULTI_RE.search(text):
             score = max(score, 8)
-        if dataset in {"chartqa", "chartqa_eval", "docvqa", "infographicvqa", "ai2d"}:
+        if dataset in {"chartqa", "chartqa_eval", "docvqa", "infographicvqa", "ai2d", "tqa", "geometry3k", "iconqa"}:
             score = max(score, 4)
     elif category == "cross_context":
         if scope == "image_plus_knowledge" or dataset in {"okvqa", "aokvqa", "scienceqa", "mmmu", "slake", "vqarad", "pathvqa"}:

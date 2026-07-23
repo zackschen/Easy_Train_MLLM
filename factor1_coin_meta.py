@@ -20,6 +20,7 @@ import ast
 import base64
 import csv
 import hashlib
+import io
 import json
 import math
 import mimetypes
@@ -60,13 +61,36 @@ DATASETS: dict[str, dict[str, Any]] = {
     "plotqa": {"regime": "structured_visual_qa", "visual": "chart", "knowledge": False, "skill_hint": "chart_reasoning", "aliases": ["plotqa", "plot_qa", "plot-qa"]},
     "figureqa": {"regime": "structured_visual_qa", "visual": "chart", "knowledge": False, "skill_hint": "chart_reasoning", "aliases": ["figureqa", "figure_qa", "figure-qa"]},
     "iconqa": {"regime": "structured_visual_qa", "visual": "diagram", "knowledge": False, "skill_hint": "diagram_reasoning", "aliases": ["iconqa", "icon_qa", "icon-qa", "icon_qa"]},
+    "tqa": {"regime": "structured_visual_qa", "visual": "diagram", "knowledge": False, "skill_hint": "diagram_reasoning", "aliases": ["tqa", "ck12_tqa", "ck12-tqa", "ck12-tqa-multimodal", "textbookqa", "textbook_qa"]},
+    "geometry3k": {"regime": "structured_visual_qa", "visual": "diagram", "knowledge": False, "skill_hint": "diagram_reasoning", "aliases": ["geometry3k", "geometry_3k", "geometry-3k", "geo3k"]},
 }
 
 Q_FIELDS = ["question", "query", "prompt", "instruction", "problem", "question_text", "input", "user", "human", "text", "Question"]
 A_FIELDS = ["answer", "answers", "direct_answer", "direct_answers", "correct_answer", "answer_text", "response", "output", "assistant", "gpt", "target", "final_answer", "multiple_choice_answer", "label", "Answer"]
 C_FIELDS = ["choices", "options", "candidates", "multiple_choices", "choice_list"]
 R_FIELDS = ["rationale", "rationales", "explanation", "solution", "reasoning"]
-I_FIELDS = ["image", "images", "image_path", "img_path", "image_file", "filename", "file_name", "path", "imageId", "image_id", "imgId", "img_id"]
+I_FIELDS = [
+    "image",
+    "images",
+    "query_image",
+    "query_img",
+    "question_image",
+    "choice_image_0",
+    "choice_image_1",
+    "choice_image_2",
+    "choice_image_3",
+    "choice_image_4",
+    "image_path",
+    "img_path",
+    "image_file",
+    "filename",
+    "file_name",
+    "path",
+    "imageId",
+    "image_id",
+    "imgId",
+    "img_id",
+]
 
 YES_NO = {"yes", "no", "true", "false"}
 COLORS = {"red", "blue", "green", "yellow", "black", "white", "gray", "grey", "brown", "orange", "purple", "pink", "silver", "gold", "golden"}
@@ -558,6 +582,25 @@ def indexed_choice_answer(row: dict[str, Any], choices: list[str], answer_value:
     return choices[index] if 0 <= index < len(choices) else None
 
 
+def dataset_image_reference(dataset: str, split: str, row: dict[str, Any]) -> Any:
+    reference = img_ref(first(row, I_FIELDS))
+    if not reference:
+        return None
+    if dataset == "tqa" and isinstance(reference, str) and not reference.startswith("<embedded_image_bytes:"):
+        ref = reference.lstrip("./")
+        candidates = [ref]
+        if not ref.startswith("images/"):
+            candidates.extend([f"images/{split}/{ref}", f"images/{ref}", f"{split}/{ref}"])
+        return list(dict.fromkeys(candidates))
+    if dataset == "geometry3k" and isinstance(reference, str) and not reference.startswith("<embedded_image_bytes:"):
+        ref = reference.lstrip("./")
+        candidates = [ref]
+        if not ref.startswith("images/"):
+            candidates.extend([f"images/{ref}", f"{split}/{ref}", f"data/{ref}"])
+        return list(dict.fromkeys(candidates))
+    return reference
+
+
 def canonical(dataset: str, split: str, file: Path, idx: int, row: dict[str, Any]) -> dict[str, Any] | None:
     q = compact(first(row, Q_FIELDS))
     choices = as_list(first(row, C_FIELDS))
@@ -574,7 +617,27 @@ def canonical(dataset: str, split: str, file: Path, idx: int, row: dict[str, Any
     if not q or not a:
         return None
     raw_meta = {}
-    for k in ["question_type", "answer_type", "semantic", "semantic_type", "category", "subject", "type", "task", "source", "id", "question_id", "image_id"]:
+    raw_meta_fields = [
+        "question_type",
+        "answer_type",
+        "semantic",
+        "semantic_type",
+        "category",
+        "subject",
+        "type",
+        "task",
+        "source",
+        "id",
+        "question_id",
+        "image_id",
+        "query_image",
+        "choice_image_0",
+        "choice_image_1",
+        "choice_image_2",
+        "choice_image_3",
+        "choice_image_4",
+    ]
+    for k in raw_meta_fields:
         v = first(row, [k])
         if v is not None:
             raw_meta[k] = safe_json(v)
@@ -588,7 +651,7 @@ def canonical(dataset: str, split: str, file: Path, idx: int, row: dict[str, Any
         "answers": answers or [a],
         "choices": choices,
         "rationale": compact(first(row, R_FIELDS)) or None,
-        "image": img_ref(first(row, I_FIELDS)),
+        "image": dataset_image_reference(dataset, split, row),
         "raw_metadata": raw_meta,
     }
 
@@ -622,7 +685,7 @@ def skill_type(s: dict[str, Any], cfg: dict[str, Any]) -> tuple[str, str | None,
         return "document_reasoning", "table_reading" if has(text, r"\b(table|row|column|cell)\b") else "text_reading", 0.86, "dataset_default+rule"
     if d == "infographicvqa":
         return "document_reasoning", "chart_reasoning" if has(text, r"\b(chart|graph|bar|trend|axis)\b") else "text_reading", 0.82, "dataset_default+rule"
-    if d == "ai2d" or has(text, r"\b(diagram|arrow|flow|part|component|process)\b"):
+    if d in {"ai2d", "tqa", "geometry3k"} or has(text, r"\b(diagram|arrow|flow|part|component|process|geometry|angle|triangle|circle|line segment|parallel|perpendicular)\b"):
         return "diagram_reasoning", None, 0.86, "dataset_default+rule"
     if has(text, r"\b(how many|number of|count|total number)\b"):
         return "counting", None, 0.95, "rule"
@@ -655,8 +718,8 @@ def evidence_type(s: dict[str, Any], primary: str, secondary: str | None, cfg: d
         if d == "infographicvqa":
             return "text_span", "cross_region", 0.76, "dataset_default+weak_rule"
         return "text_span", None, 0.82, "dataset_default+rule"
-    if d == "ai2d" or primary == "diagram_reasoning":
-        return "diagram_region", "cross_region" if has(q, r"\b(process|flow|path|between|relationship|cause)\b") else None, 0.80, "dataset_default+rule"
+    if d in {"ai2d", "tqa", "geometry3k"} or primary == "diagram_reasoning":
+        return "diagram_region", "cross_region" if has(q, r"\b(process|flow|path|between|relationship|cause|angle|triangle|circle|line|parallel|perpendicular)\b") else None, 0.80, "dataset_default+rule"
     if cfg["knowledge"] or primary in {"knowledge_reasoning", "medical_reasoning", "remote_sensing_reasoning"}:
         return "image_plus_knowledge", None, 0.78, "dataset_default+rule"
     if primary in {"counting", "relation", "comparison"}:
@@ -1212,6 +1275,115 @@ def parquet_image_value(source_file: Path, source_index: int) -> Any:
     raise IndexError(f"source_index={source_index} is outside {source_file}")
 
 
+
+def parquet_row_values(source_file: Path, source_index: int, columns: list[str]) -> dict[str, Any]:
+    parquet_file = _PARQUET_FILE_CACHE.get(str(source_file))
+    if parquet_file is None:
+        try:
+            import pyarrow.parquet as pq  # type: ignore
+        except Exception as error:
+            raise RuntimeError("Reading embedded Parquet images requires pyarrow: pip install pyarrow") from error
+        parquet_file = pq.ParquetFile(source_file)
+        _PARQUET_FILE_CACHE[str(source_file)] = parquet_file
+
+    names = list(parquet_file.schema_arrow.names)
+    normalized = {norm_key(name): name for name in names}
+    requested_to_actual = {column: normalized[norm_key(column)] for column in columns if norm_key(column) in normalized}
+    actual_columns = list(dict.fromkeys(requested_to_actual.values()))
+    if not actual_columns:
+        return {}
+
+    remaining = source_index
+    for row_group in range(parquet_file.num_row_groups):
+        row_count = parquet_file.metadata.row_group(row_group).num_rows
+        if remaining < row_count:
+            table = parquet_file.read_row_group(row_group, columns=actual_columns)
+            raw = table.to_pylist()[remaining]
+            return {requested: raw.get(actual) for requested, actual in requested_to_actual.items()}
+        remaining -= row_count
+    raise IndexError(f"source_index={source_index} is outside {source_file}")
+
+
+def _image_from_any(value: Any, roots: list[Path]):
+    result = image_bytes_from_value(value, roots)
+    if result is None:
+        return None
+    try:
+        from PIL import Image  # type: ignore
+    except Exception as error:
+        raise RuntimeError("Pillow is required for IconQA composite images: pip install pillow") from error
+    data, _, _ = result
+    with Image.open(io.BytesIO(data)) as image:
+        return image.convert("RGB")
+
+
+def _fit_image(image: Any, max_w: int, max_h: int):
+    image = image.copy()
+    scale = min(max_w / max(1, image.width), max_h / max(1, image.height), 1.0)
+    if scale < 1.0:
+        image = image.resize((max(1, int(image.width * scale)), max(1, int(image.height * scale))))
+    return image
+
+
+def iconqa_composite_image_value(source_file: Path, source_index: int, roots: list[Path]) -> tuple[bytes, str, str] | None:
+    """Create a single LLaVA-compatible image for IconQA query+image choices."""
+    if "iconqa" not in str(source_file).lower() and "icon_qa" not in str(source_file).lower() and "icon-qa" not in str(source_file).lower():
+        return None
+
+    columns = ["query_image"] + [f"choice_image_{i}" for i in range(8)]
+    values = parquet_row_values(source_file, source_index, columns)
+    if not values:
+        return None
+
+    query = _image_from_any(values.get("query_image"), roots)
+    choices = []
+    for i in range(8):
+        image = _image_from_any(values.get(f"choice_image_{i}"), roots)
+        if image is not None:
+            choices.append((chr(ord("A") + i), image))
+
+    if query is None:
+        return None
+    if not choices:
+        out = io.BytesIO()
+        query.save(out, format="JPEG", quality=92)
+        return out.getvalue(), "image/jpeg", f"iconqa_query:{source_file}:{source_index}"
+
+    try:
+        from PIL import Image, ImageDraw, ImageFont  # type: ignore
+    except Exception as error:
+        raise RuntimeError("Pillow is required for IconQA composite images: pip install pillow") from error
+
+    query = _fit_image(query, 640, 360)
+    fitted_choices = [(label, _fit_image(image, 180, 160)) for label, image in choices]
+    pad = 18
+    label_h = 28
+    choice_cell_w = 190
+    choice_cell_h = 190
+    cols = min(4, max(1, len(fitted_choices)))
+    rows = (len(fitted_choices) + cols - 1) // cols
+    width = max(query.width + pad * 2, cols * choice_cell_w + pad * 2)
+    height = pad + label_h + query.height + pad + rows * choice_cell_h + pad
+    canvas = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(canvas)
+    font = ImageFont.load_default()
+
+    draw.text((pad, pad), "Query image", fill="black", font=font)
+    canvas.paste(query, ((width - query.width) // 2, pad + label_h))
+    y0 = pad + label_h + query.height + pad
+    for idx, (label, image) in enumerate(fitted_choices):
+        row = idx // cols
+        col = idx % cols
+        x = pad + col * choice_cell_w
+        y = y0 + row * choice_cell_h
+        draw.text((x, y), f"Choice {label}", fill="black", font=font)
+        canvas.paste(image, (x + (choice_cell_w - image.width) // 2, y + label_h))
+
+    out = io.BytesIO()
+    canvas.save(out, format="JPEG", quality=92)
+    return out.getvalue(), "image/jpeg", f"iconqa_composite:{source_file}:{source_index}"
+
+
 def parquet_column_value(source_file: Path, source_index: int, column: str) -> Any:
     parquet_file = _PARQUET_FILE_CACHE.get(str(source_file))
     if parquet_file is None:
@@ -1317,6 +1489,10 @@ def image_url_for_row(row: dict[str, Any], args: argparse.Namespace) -> tuple[st
     roots = image_search_roots(row, args)
     result = image_bytes_from_value(reference, roots)
     source_file = Path(compact(row.get("source_file"))).expanduser()
+    if source_file.is_file() and source_file.suffix.lower() == ".parquet":
+        composite = iconqa_composite_image_value(source_file, int(row.get("source_index", 0)), roots)
+        if composite is not None:
+            result = composite
     if result is None and source_file.is_file() and source_file.suffix.lower() == ".parquet":
         source_index = int(row.get("source_index", 0))
         try:
