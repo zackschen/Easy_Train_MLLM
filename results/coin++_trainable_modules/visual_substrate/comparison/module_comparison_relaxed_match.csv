@@ -1,0 +1,4 @@
+mode,final_average,mean_seen_accuracy,mean_score_at_learning,average_forgetting_old_tasks,bwt_old_tasks,final_task_score
+vision_only,0.183833,0.221056,0.182333,0.011600,0.001800,0.161000
+projector_only,0.195667,0.245875,0.200500,0.017000,-0.005800,0.166000
+llm_only,0.294333,0.371097,0.312000,0.027200,-0.021200,0.244000

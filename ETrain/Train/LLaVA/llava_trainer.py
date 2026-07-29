@@ -31,6 +31,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 from torch.utils.data import DataLoader, Dataset, RandomSampler, SequentialSampler
 from deepspeed.utils import safe_get_full_fp32_param, safe_get_full_grad, safe_get_full_optimizer_state
+from ETrain.Models.LLaVA.checkpoint_utils import align_state_dict_keys_to_model
 
 # Integrations must be imported before ML frameworks:
 # isort: off
@@ -64,7 +65,12 @@ from transformers.deepspeed import deepspeed_init, deepspeed_load_checkpoint
 from transformers.dependency_versions_check import dep_version_check
 from transformers.hyperparameter_search import ALL_HYPERPARAMETER_SEARCH_BACKENDS, default_hp_search_backend
 from transformers.modelcard import TrainingSummary
-from transformers.modeling_utils import PreTrainedModel, load_sharded_checkpoint, unwrap_model
+from transformers.modeling_utils import (
+    PreTrainedModel,
+    _load_state_dict_into_model,
+    load_sharded_checkpoint,
+    unwrap_model,
+)
 from transformers.models.auto.modeling_auto import MODEL_FOR_CAUSAL_LM_MAPPING_NAMES, MODEL_MAPPING_NAMES
 from transformers.optimization import Adafactor, get_scheduler
 from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
@@ -259,6 +265,44 @@ def get_length_grouped_indices(lengths, batch_size, world_size, generator=None, 
     return [i for megabatch in megabatches for batch in megabatch for i in batch]
 
 
+def _load_zero3_aware_state_dict(model, state_dict, description):
+    aligned, unmatched = align_state_dict_keys_to_model(state_dict, model)
+    if state_dict and not aligned:
+        preview = ', '.join(list(state_dict)[:5])
+        raise RuntimeError(
+            f"None of the {description} weights matched the current model. "
+            f"First keys: {preview}"
+        )
+
+    error_msgs = _load_state_dict_into_model(model, aligned, start_prefix='')
+    if error_msgs:
+        preview = '\n'.join(error_msgs[:10])
+        raise RuntimeError(
+            f"Failed to load {description} with ZeRO-3-aware loading:\n{preview}"
+        )
+    print(f"Loaded {len(aligned)}/{len(state_dict)} {description} tensors")
+    if unmatched:
+        print(f"Warning: {len(unmatched)} {description} tensors were unmatched: {unmatched[:5]}")
+
+
+def _add_lora_adapter_name(state_dict, adapter_name='default'):
+    """Convert PEFT checkpoint keys to the names used by an active adapter."""
+    renamed = {}
+    for key, value in state_dict.items():
+        if 'lora_' in key:
+            suffix = key.split('lora_', 1)[1]
+            if '.' in suffix:
+                suffix_to_replace = '.'.join(suffix.split('.')[1:])
+                key = key.replace(
+                    suffix_to_replace,
+                    f'{adapter_name}.{suffix_to_replace}',
+                )
+            else:
+                key = f'{key}.{adapter_name}'
+        renamed[key] = value
+    return renamed
+
+
 def load_model_from_previous_task(model, model_args):
     previous_task_model_path = model_args.previous_task_model_path
     print('Loading additional LLaVA weights...')
@@ -274,22 +318,23 @@ def load_model_from_previous_task(model, model_args):
                 subfolder=subfolder)
             return torch.load(cache_file, map_location='cpu')
         non_lora_trainables = load_from_hf(previous_task_model_path, 'non_lora_trainables.bin')
-    non_lora_trainables = {(k[11:] if k.startswith('base_model.') else k): v for k, v in non_lora_trainables.items()}
-    if any(k.startswith('model.model.') for k in non_lora_trainables):
-        non_lora_trainables = {(k[6:] if k.startswith('model.') else k): v for k, v in non_lora_trainables.items()}
-    model.load_state_dict(non_lora_trainables, strict=False)
+    _load_zero3_aware_state_dict(model, non_lora_trainables, 'non-LoRA')
+    del non_lora_trainables
 
     if model_args.expert_num == None:
-        from peft import PeftModel
-        from peft.utils import WEIGHTS_NAME,set_peft_model_state_dict
+        from peft.utils import WEIGHTS_NAME
         print('Loading LoRA weights...')
     else:
         sys.path.append('/home/chencheng/Code/Slim_Train')
         from CoIN.peft import PeftModel, TaskType, get_peft_model, CoINMOELoraConfig, WEIGHTS_NAME, set_peft_model_state_dict
             
     filename = os.path.join(previous_task_model_path, WEIGHTS_NAME)
-    adapters_weights = torch.load(filename, map_location=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
-    load_result = set_peft_model_state_dict(model, adapters_weights, adapter_name="default")
+    adapters_weights = torch.load(filename, map_location='cpu')
+    if model_args.expert_num == None:
+        adapters_weights = _add_lora_adapter_name(adapters_weights)
+        _load_zero3_aware_state_dict(model, adapters_weights, 'LoRA')
+    else:
+        set_peft_model_state_dict(model, adapters_weights, adapter_name="default")
     print('Model is loaded...')
 
 
@@ -362,20 +407,58 @@ class LLaVATrainer(Trainer):
             decay_parameters = get_parameter_names(opt_model, ALL_LAYERNORM_LAYERS)
             decay_parameters = [name for name in decay_parameters if "bias" not in name]
             
-            optimizer_grouped_parameters = [
-                {
-                    "params": [
-                        p for n, p in opt_model.named_parameters() if (n in decay_parameters and p.requires_grad)
-                    ],
-                    "weight_decay": self.args.weight_decay,
-                },
-                {
-                    "params": [
-                        p for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad)
-                    ],
-                    "weight_decay": 0.0,
-                },
-            ]
+            projector_lr = getattr(self.args, "mm_projector_lr", None)
+            vision_lr = getattr(self.args, "vision_tower_lr", None)
+
+            def parameter_group(name):
+                if projector_lr is not None and "mm_projector" in name:
+                    return "projector"
+                if vision_lr is not None and "vision_tower" in name:
+                    return "vision"
+                return "default"
+
+            group_lrs = {
+                "default": self.args.learning_rate,
+                "projector": projector_lr,
+                "vision": vision_lr,
+            }
+            optimizer_grouped_parameters = []
+            group_sizes = {}
+            named_parameters = list(opt_model.named_parameters())
+            for group_name, group_lr in group_lrs.items():
+                if group_lr is None:
+                    continue
+                for use_decay in (True, False):
+                    params = [
+                        parameter
+                        for name, parameter in named_parameters
+                        if parameter.requires_grad
+                        and parameter_group(name) == group_name
+                        and ((name in decay_parameters) == use_decay)
+                    ]
+                    if not params:
+                        continue
+                    optimizer_grouped_parameters.append(
+                        {
+                            "params": params,
+                            "weight_decay": self.args.weight_decay if use_decay else 0.0,
+                            "lr": group_lr,
+                        }
+                    )
+                    group_sizes[group_name] = group_sizes.get(group_name, 0) + sum(
+                        getattr(parameter, "ds_numel", parameter.numel())
+                        for parameter in params
+                    )
+
+            if not optimizer_grouped_parameters:
+                raise RuntimeError("No trainable parameters were assigned to the optimizer")
+            logger.info(
+                "Optimizer trainable groups: %s",
+                ", ".join(
+                    f"{name}={size:,}@lr={group_lrs[name]}"
+                    for name, size in group_sizes.items()
+                ),
+            )
 
             optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
 
@@ -439,6 +522,15 @@ class LLaVATrainer(Trainer):
             non_lora_state_dict = get_peft_state_non_lora_maybe_zero_3(
                 self.model.named_parameters()
             )
+            if getattr(training_args, "trainable_modules", None):
+                # Vicuna does not contain LLaVA's pretrained projector. Keep it
+                # in every explicit module checkpoint even when it is frozen,
+                # otherwise llm_only/vision_only evaluation would use a random
+                # projector and no longer represent the trained model.
+                projector_state = get_mm_adapter_state_maybe_zero_3(
+                    self.model.named_parameters(), ["mm_projector"]
+                )
+                non_lora_state_dict.update(projector_state)
             if training_args.local_rank == 0 or training_args.local_rank == -1:
                 self.model.config.save_pretrained(training_args.output_dir)
                 self.model.save_pretrained(training_args.output_dir, state_dict=state_dict)
@@ -1284,5 +1376,3 @@ class LLaVATrainer(Trainer):
         if args.local_rank == 0 or args.local_rank == -1:
             torch.save(fisher, os.path.join(self.args.output_dir, 'fisher.bin'))
             torch.save(optpar, os.path.join(self.args.output_dir, 'optpar.bin'))
-
-

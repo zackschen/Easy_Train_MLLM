@@ -103,6 +103,16 @@ class TrainingArguments(transformers.TrainingArguments):
     lora_weight_path: str = ""
     lora_bias: str = "none"
     mm_projector_lr: Optional[float] = None
+    vision_tower_lr: Optional[float] = None
+    trainable_modules: Optional[str] = field(
+        default=None,
+        metadata={
+            "help": (
+                "Explicit module policy: vision_only, projector_only, llm_only, "
+                "llm_projector, or all_modules."
+            )
+        },
+    )
     group_by_modality_length: bool = field(default=False)
 
 
