@@ -20,6 +20,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--stage-order", nargs="*", default=DEFAULT_ORDER)
     p.add_argument("--task-order", nargs="*", default=DEFAULT_ORDER)
     p.add_argument("--metric", default="relaxed_match", choices=["relaxed_match", "exact_match"])
+    p.add_argument("--factor-name", default="evidence_complexity")
     return p.parse_args()
 
 
@@ -116,10 +117,12 @@ def write_markdown(
     task_order: list[str],
     metric: str,
     forgetting_rows: list[dict[str, Any]],
+    factor_name: str,
 ) -> None:
     lookup = metric_lookup(rows, metric)
     lines = []
-    lines.append(f"# Factor-1 Evidence Continual Evaluation ({metric})")
+    display_name = factor_name.replace("_", " ").title()
+    lines.append(f"# Factor-1 {display_name} Continual Evaluation ({metric})")
     lines.append("")
     lines.append("## Performance Matrix")
     lines.append("")
@@ -179,7 +182,15 @@ def main() -> int:
         forgetting,
         ["task", "score_at_learning", "best_after_learning", "final_score", "forgetting"],
     )
-    write_markdown(output_dir / "learning_matrix.md", rows, args.stage_order, args.task_order, args.metric, forgetting)
+    write_markdown(
+        output_dir / "learning_matrix.md",
+        rows,
+        args.stage_order,
+        args.task_order,
+        args.metric,
+        forgetting,
+        args.factor_name,
+    )
     print(f"Wrote summary files to: {output_dir}")
     return 0
 

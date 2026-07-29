@@ -20,8 +20,113 @@ from .language_model.llava_llama import LlavaLlamaForCausalLM, LlavaConfig
 from ETrain.utils.LLaVA import conversation as conversation_lib
 
 def rank0_print(local_rank,*args):
-    if local_rank == 0:
+    if local_rank in (-1, 0):
         print(*args)
+
+
+TRAINABLE_MODULE_MODES = {
+    "vision_only": {"vision"},
+    "projector_only": {"projector"},
+    "llm_only": {"llm"},
+    "llm_projector": {"llm", "projector"},
+    "all_modules": {"vision", "projector", "llm"},
+}
+
+TRAINABLE_MODULE_ALIASES = {
+    "vision": "vision_only",
+    "visual": "vision_only",
+    "visual_only": "vision_only",
+    "projector": "projector_only",
+    "llm": "llm_only",
+    "joint": "llm_projector",
+    "all": "all_modules",
+}
+
+
+def configure_trainable_modules(model, training_args, local_rank):
+    """Apply an explicit, mutually comparable LLaVA module-training policy."""
+    requested_mode = getattr(training_args, "trainable_modules", None)
+    if requested_mode is None or not requested_mode.strip():
+        return
+
+    mode = requested_mode.strip().lower()
+    mode = TRAINABLE_MODULE_ALIASES.get(mode, mode)
+    if mode not in TRAINABLE_MODULE_MODES:
+        choices = ", ".join(TRAINABLE_MODULE_MODES)
+        raise ValueError(f"Unknown trainable_modules={requested_mode!r}; choose one of: {choices}")
+    if not training_args.lora_enable:
+        raise ValueError(
+            "Explicit trainable_modules experiments require --lora_enable True so every "
+            "regime uses the same compact and resumable checkpoint format."
+        )
+
+    selected = TRAINABLE_MODULE_MODES[mode]
+    model.requires_grad_(False)
+
+    if "llm" in selected:
+        for name, parameter in model.named_parameters():
+            if "lora_" in name:
+                parameter.requires_grad_(True)
+
+    if "projector" in selected:
+        projector = getattr(model.get_model(), "mm_projector", None)
+        if projector is None:
+            raise ValueError(f"trainable_modules={mode} requires an initialized mm_projector")
+        projector.requires_grad_(True)
+
+    if "vision" in selected:
+        vision_tower = model.get_vision_tower()
+        if vision_tower is None:
+            raise ValueError(f"trainable_modules={mode} requires an initialized vision tower")
+        vision_tower.requires_grad_(True)
+
+    counts = {"llm": 0, "projector": 0, "vision": 0, "other": 0}
+    tensor_counts = {"llm": 0, "projector": 0, "vision": 0, "other": 0}
+    for name, parameter in model.named_parameters():
+        if not parameter.requires_grad:
+            continue
+        if "lora_" in name:
+            module = "llm"
+        elif "mm_projector" in name:
+            module = "projector"
+        elif "vision_tower" in name:
+            module = "vision"
+        else:
+            module = "other"
+        # ZeRO-3 temporarily exposes partitioned parameters as zero-sized
+        # tensors; ds_numel retains their real unpartitioned size.
+        counts[module] += getattr(parameter, "ds_numel", parameter.numel())
+        tensor_counts[module] += 1
+
+    missing = [module for module in selected if tensor_counts[module] == 0]
+    if missing:
+        raise RuntimeError(f"No trainable parameters found for requested modules: {missing}")
+    if counts["other"]:
+        raise RuntimeError(
+            f"Module policy leaked {counts['other']:,} trainable parameters outside LLM LoRA, "
+            "projector, and vision tower."
+        )
+
+    total_trainable = sum(counts.values())
+    total_parameters = sum(
+        getattr(parameter, "ds_numel", parameter.numel())
+        for parameter in model.parameters()
+    )
+    training_args.trainable_modules = mode
+    training_args.tune_mm_mlp_adapter = False
+    model.config.tune_mm_mlp_adapter = False
+    model.config.trainable_modules = mode
+    model.config.freeze_mm_mlp_adapter = "projector" not in selected
+
+    rank0_print(local_rank, f"Trainable module policy: {mode}")
+    rank0_print(
+        local_rank,
+        "Trainable parameters: "
+        f"total={total_trainable:,}/{total_parameters:,} "
+        f"({100.0 * total_trainable / total_parameters:.4f}%), "
+        f"llm_lora={counts['llm']:,}, projector={counts['projector']:,}, "
+        f"vision={counts['vision']:,}",
+    )
 
 def auto_upgrade(config):
     cfg = AutoConfig.from_pretrained(config)
@@ -225,6 +330,8 @@ def create_LLaVA_model(training_args, model_args, data_args, bnb_model_from_pret
         training_args.use_im_start_end = model_args.mm_use_im_start_end
         model.config.mm_use_im_patch_token = model_args.mm_use_im_patch_token
         model.initialize_vision_tokenizer(model_args, tokenizer=tokenizer)
+
+    configure_trainable_modules(model, training_args, local_rank)
 
     if training_args.bits in [4, 8]:
         from peft.tuners.lora import LoraLayer

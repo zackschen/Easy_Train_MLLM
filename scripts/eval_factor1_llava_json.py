@@ -17,6 +17,7 @@ from tqdm import tqdm
 from transformers import AutoConfig, AutoTokenizer
 
 from ETrain.Models.LLaVA.language_model.llava_llama import LlavaLlamaForCausalLM
+from ETrain.Models.LLaVA.checkpoint_utils import align_state_dict_keys_to_model
 from ETrain.utils.LLaVA.constants import (
     DEFAULT_IMAGE_PATCH_TOKEN,
     DEFAULT_IMAGE_TOKEN,
@@ -71,14 +72,26 @@ def load_llava_lora(model_path: Path, model_base: Path | None, device: str):
         torch_dtype=torch.float16,
     )
 
+    # Vision-only checkpoints contain CLIP tensors, so materialize the delayed
+    # vision tower before applying non-LoRA weights.
+    vision_tower = model.get_vision_tower()
+    if vision_tower is not None and not vision_tower.is_loaded:
+        vision_tower.load_model()
+
     non_lora_path = model_path / "non_lora_trainables.bin"
     if non_lora_path.exists():
         print(f"Loading non-LoRA trainables: {non_lora_path}")
         non_lora = torch.load(str(non_lora_path), map_location="cpu")
-        non_lora = {(k[11:] if k.startswith("base_model.") else k): v for k, v in non_lora.items()}
-        if any(k.startswith("model.model.") for k in non_lora):
-            non_lora = {(k[6:] if k.startswith("model.") else k): v for k, v in non_lora.items()}
-        model.load_state_dict(non_lora, strict=False)
+        aligned, unmatched = align_state_dict_keys_to_model(non_lora, model)
+        if non_lora and not aligned:
+            raise RuntimeError(
+                "No non-LoRA checkpoint tensors matched the base LLaVA model; "
+                f"first keys: {list(non_lora)[:5]}"
+            )
+        model.load_state_dict(aligned, strict=False)
+        print(f"Loaded {len(aligned)}/{len(non_lora)} non-LoRA tensors")
+        if unmatched:
+            print(f"Warning: {len(unmatched)} non-LoRA tensors were unmatched: {unmatched[:5]}")
 
     print(f"Loading LoRA adapter: {model_path}")
     from peft import PeftModel
