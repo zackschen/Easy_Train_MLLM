@@ -1,0 +1,1015 @@
+[
+  {
+    "stage": "medical",
+    "task": "chart",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/chart/eval.json",
+    "predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions/chart.jsonl",
+    "scored_predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions_official/chart.jsonl",
+    "num_samples": 1000,
+    "num_scored": 1000,
+    "primary_score": 0.14174314574314575,
+    "dataset_macro_score": 0.27878581920008083,
+    "official_score": 0.14174314574314575,
+    "judge_score": null,
+    "official_coverage": 1.0,
+    "judge_coverage": 0.0,
+    "unscored_count": 0,
+    "protocol_counts": {
+      "official_metric": 1000
+    },
+    "metric_counts": {
+      "multiple_choice_accuracy": 105,
+      "anls": 127,
+      "normalized_accuracy": 427,
+      "chartqa_relaxed_accuracy": 340,
+      "vqa_soft_accuracy": 1
+    },
+    "reference_source_counts": {
+      "metadata_jsonl": 996,
+      "prediction_gt": 4
+    },
+    "per_dataset": {
+      "chartqa": {
+        "num_samples": 116,
+        "num_scored": 116,
+        "primary_score": 0.08620689655172414,
+        "official_score": 0.08620689655172414,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 116
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 116
+        }
+      },
+      "chartqa_eval": {
+        "num_samples": 114,
+        "num_scored": 114,
+        "primary_score": 0.10526315789473684,
+        "official_score": 0.10526315789473684,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 114
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 114
+        }
+      },
+      "docvqa": {
+        "num_samples": 27,
+        "num_scored": 27,
+        "primary_score": 0.08065843621399177,
+        "official_score": 0.08065843621399177,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 27
+        },
+        "metric_counts": {
+          "anls": 27
+        }
+      },
+      "dvqa": {
+        "num_samples": 426,
+        "num_scored": 426,
+        "primary_score": 0.19248826291079812,
+        "official_score": 0.19248826291079812,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 426
+        },
+        "metric_counts": {
+          "normalized_accuracy": 426
+        }
+      },
+      "iconqa": {
+        "num_samples": 4,
+        "num_scored": 4,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 4
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 4
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 100,
+        "num_scored": 100,
+        "primary_score": 0.14565367965367965,
+        "official_score": 0.14565367965367965,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 100
+        },
+        "metric_counts": {
+          "anls": 100
+        }
+      },
+      "mmmu": {
+        "num_samples": 101,
+        "num_scored": 101,
+        "primary_score": 0.0594059405940594,
+        "official_score": 0.0594059405940594,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 101
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 101
+        }
+      },
+      "pathvqa": {
+        "num_samples": 1,
+        "num_scored": 1,
+        "primary_score": 1.0,
+        "official_score": 1.0,
+        "judge_score": null,
+        "token_f1": 1.0,
+        "protocol_counts": {
+          "official_metric": 1
+        },
+        "metric_counts": {
+          "normalized_accuracy": 1
+        }
+      },
+      "textvqa": {
+        "num_samples": 1,
+        "num_scored": 1,
+        "primary_score": 1.0,
+        "official_score": 1.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 1
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 1
+        }
+      },
+      "tqa": {
+        "num_samples": 110,
+        "num_scored": 110,
+        "primary_score": 0.11818181818181818,
+        "official_score": 0.11818181818181818,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 110
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 110
+        }
+      }
+    }
+  },
+  {
+    "stage": "medical",
+    "task": "diagram",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/diagram/eval.json",
+    "predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions/diagram.jsonl",
+    "scored_predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions_official/diagram.jsonl",
+    "num_samples": 1000,
+    "num_scored": 1000,
+    "primary_score": 0.177,
+    "dataset_macro_score": 0.21793947669495942,
+    "official_score": 0.177,
+    "judge_score": null,
+    "official_coverage": 1.0,
+    "judge_coverage": 0.0,
+    "unscored_count": 0,
+    "protocol_counts": {
+      "official_metric": 1000
+    },
+    "metric_counts": {
+      "multiple_choice_accuracy": 637,
+      "normalized_accuracy": 358,
+      "vqa_soft_accuracy": 5
+    },
+    "reference_source_counts": {
+      "prediction_gt": 226,
+      "metadata_jsonl": 774
+    },
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 203,
+        "num_scored": 203,
+        "primary_score": 0.18226600985221675,
+        "official_score": 0.18226600985221675,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 203
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 203
+        }
+      },
+      "geometry3k": {
+        "num_samples": 192,
+        "num_scored": 192,
+        "primary_score": 0.041666666666666664,
+        "official_score": 0.041666666666666664,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 192
+        },
+        "metric_counts": {
+          "normalized_accuracy": 192
+        }
+      },
+      "iconqa": {
+        "num_samples": 226,
+        "num_scored": 226,
+        "primary_score": 0.22123893805309736,
+        "official_score": 0.22123893805309736,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 226
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 226
+        }
+      },
+      "mmmu": {
+        "num_samples": 208,
+        "num_scored": 208,
+        "primary_score": 0.07692307692307693,
+        "official_score": 0.07692307692307693,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 208
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 208
+        }
+      },
+      "pathvqa": {
+        "num_samples": 166,
+        "num_scored": 166,
+        "primary_score": 0.3855421686746988,
+        "official_score": 0.3855421686746988,
+        "judge_score": null,
+        "token_f1": 0.4268269981062327,
+        "protocol_counts": {
+          "official_metric": 166
+        },
+        "metric_counts": {
+          "normalized_accuracy": 166
+        }
+      },
+      "textvqa": {
+        "num_samples": 5,
+        "num_scored": 5,
+        "primary_score": 0.4,
+        "official_score": 0.4,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 5
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 5
+        }
+      }
+    }
+  },
+  {
+    "stage": "medical",
+    "task": "document",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/document/eval.json",
+    "predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions/document.jsonl",
+    "scored_predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions_official/document.jsonl",
+    "num_samples": 1000,
+    "num_scored": 1000,
+    "primary_score": 0.1961304683616879,
+    "dataset_macro_score": 0.21242061129546877,
+    "official_score": 0.1961304683616879,
+    "judge_score": null,
+    "official_coverage": 1.0,
+    "judge_coverage": 0.0,
+    "unscored_count": 0,
+    "protocol_counts": {
+      "official_metric": 1000
+    },
+    "metric_counts": {
+      "anls": 557,
+      "multiple_choice_accuracy": 265,
+      "vqa_soft_accuracy": 166,
+      "count_accuracy": 8,
+      "normalized_accuracy": 4
+    },
+    "reference_source_counts": {
+      "metadata_jsonl": 917,
+      "prediction_gt": 83
+    },
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 3,
+        "num_scored": 3,
+        "primary_score": 0.3333333333333333,
+        "official_score": 0.3333333333333333,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 3
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 3
+        }
+      },
+      "aokvqa": {
+        "num_samples": 12,
+        "num_scored": 12,
+        "primary_score": 0.25,
+        "official_score": 0.25,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 12
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 12
+        }
+      },
+      "docvqa": {
+        "num_samples": 529,
+        "num_scored": 529,
+        "primary_score": 0.21354185380798754,
+        "official_score": 0.21354185380798754,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 529
+        },
+        "metric_counts": {
+          "anls": 529
+        }
+      },
+      "iconqa": {
+        "num_samples": 83,
+        "num_scored": 83,
+        "primary_score": 0.07228915662650602,
+        "official_score": 0.07228915662650602,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 83
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 83
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 28,
+        "num_scored": 28,
+        "primary_score": 0.12024384633080286,
+        "official_score": 0.12024384633080286,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 28
+        },
+        "metric_counts": {
+          "anls": 28
+        }
+      },
+      "mmmu": {
+        "num_samples": 155,
+        "num_scored": 155,
+        "primary_score": 0.01935483870967742,
+        "official_score": 0.01935483870967742,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 155
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 155
+        }
+      },
+      "okvqa": {
+        "num_samples": 4,
+        "num_scored": 4,
+        "primary_score": 0.25,
+        "official_score": 0.25,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 4
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 4
+        }
+      },
+      "pathvqa": {
+        "num_samples": 2,
+        "num_scored": 2,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": 0.0,
+        "protocol_counts": {
+          "official_metric": 2
+        },
+        "metric_counts": {
+          "normalized_accuracy": 2
+        }
+      },
+      "slake": {
+        "num_samples": 2,
+        "num_scored": 2,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": 0.3333333333333333,
+        "protocol_counts": {
+          "official_metric": 2
+        },
+        "metric_counts": {
+          "normalized_accuracy": 2
+        }
+      },
+      "tallyqa": {
+        "num_samples": 8,
+        "num_scored": 8,
+        "primary_score": 0.25,
+        "official_score": 0.25,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 8
+        },
+        "metric_counts": {
+          "count_accuracy": 8
+        }
+      },
+      "textvqa": {
+        "num_samples": 122,
+        "num_scored": 122,
+        "primary_score": 0.3377049180327869,
+        "official_score": 0.3377049180327869,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 122
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 122
+        }
+      },
+      "visual7w": {
+        "num_samples": 12,
+        "num_scored": 12,
+        "primary_score": 0.5,
+        "official_score": 0.5,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 12
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 12
+        }
+      },
+      "vqav2": {
+        "num_samples": 40,
+        "num_scored": 40,
+        "primary_score": 0.415,
+        "official_score": 0.415,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 40
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 40
+        }
+      }
+    }
+  },
+  {
+    "stage": "medical",
+    "task": "infographic",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/infographic/eval.json",
+    "predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions/infographic.jsonl",
+    "scored_predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions_official/infographic.jsonl",
+    "num_samples": 1000,
+    "num_scored": 1000,
+    "primary_score": 0.21329372318428047,
+    "dataset_macro_score": 0.1333156911736809,
+    "official_score": 0.21329372318428047,
+    "judge_score": null,
+    "official_coverage": 1.0,
+    "judge_coverage": 0.0,
+    "unscored_count": 0,
+    "protocol_counts": {
+      "official_metric": 1000
+    },
+    "metric_counts": {
+      "anls": 831,
+      "multiple_choice_accuracy": 135,
+      "vqa_soft_accuracy": 26,
+      "chartqa_relaxed_accuracy": 8
+    },
+    "reference_source_counts": {
+      "metadata_jsonl": 883,
+      "prediction_gt": 117
+    },
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 2,
+        "num_scored": 2,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 2
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 2
+        }
+      },
+      "iconqa": {
+        "num_samples": 117,
+        "num_scored": 117,
+        "primary_score": 0.1282051282051282,
+        "official_score": 0.1282051282051282,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 117
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 117
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 831,
+        "num_scored": 831,
+        "primary_score": 0.22634623728553604,
+        "official_score": 0.22634623728553604,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 831
+        },
+        "metric_counts": {
+          "anls": 831
+        }
+      },
+      "mmmu": {
+        "num_samples": 15,
+        "num_scored": 15,
+        "primary_score": 0.13333333333333333,
+        "official_score": 0.13333333333333333,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 15
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 15
+        }
+      },
+      "okvqa": {
+        "num_samples": 2,
+        "num_scored": 2,
+        "primary_score": 0.3,
+        "official_score": 0.3,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 2
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 2
+        }
+      },
+      "textvqa": {
+        "num_samples": 23,
+        "num_scored": 23,
+        "primary_score": 0.28695652173913044,
+        "official_score": 0.28695652173913044,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 23
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 23
+        }
+      },
+      "tqa": {
+        "num_samples": 8,
+        "num_scored": 8,
+        "primary_score": 0.125,
+        "official_score": 0.125,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 8
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 8
+        }
+      },
+      "visual7w": {
+        "num_samples": 1,
+        "num_scored": 1,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 1
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 1
+        }
+      },
+      "vqav2": {
+        "num_samples": 1,
+        "num_scored": 1,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 1
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 1
+        }
+      }
+    }
+  },
+  {
+    "stage": "medical",
+    "task": "medical",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/medical/eval.json",
+    "predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions/medical.jsonl",
+    "scored_predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions_official/medical.jsonl",
+    "num_samples": 1000,
+    "num_scored": 1000,
+    "primary_score": 0.451,
+    "dataset_macro_score": 0.2779751969796279,
+    "official_score": 0.451,
+    "judge_score": null,
+    "official_coverage": 1.0,
+    "judge_coverage": 0.0,
+    "unscored_count": 0,
+    "protocol_counts": {
+      "official_metric": 1000
+    },
+    "metric_counts": {
+      "multiple_choice_accuracy": 147,
+      "normalized_accuracy": 852,
+      "vqa_soft_accuracy": 1
+    },
+    "reference_source_counts": {
+      "metadata_jsonl": 999,
+      "prediction_gt": 1
+    },
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 6,
+        "num_scored": 6,
+        "primary_score": 0.16666666666666666,
+        "official_score": 0.16666666666666666,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 6
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 6
+        }
+      },
+      "gqa": {
+        "num_samples": 2,
+        "num_scored": 2,
+        "primary_score": 0.5,
+        "official_score": 0.5,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 2
+        },
+        "metric_counts": {
+          "normalized_accuracy": 2
+        }
+      },
+      "iconqa": {
+        "num_samples": 1,
+        "num_scored": 1,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 1
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 1
+        }
+      },
+      "mmmu": {
+        "num_samples": 140,
+        "num_scored": 140,
+        "primary_score": 0.07142857142857142,
+        "official_score": 0.07142857142857142,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 140
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 140
+        }
+      },
+      "okvqa": {
+        "num_samples": 1,
+        "num_scored": 1,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 1
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 1
+        }
+      },
+      "pathvqa": {
+        "num_samples": 555,
+        "num_scored": 555,
+        "primary_score": 0.5387387387387388,
+        "official_score": 0.5387387387387388,
+        "judge_score": null,
+        "token_f1": 0.5506786510084861,
+        "protocol_counts": {
+          "official_metric": 555
+        },
+        "metric_counts": {
+          "normalized_accuracy": 555
+        }
+      },
+      "slake": {
+        "num_samples": 138,
+        "num_scored": 138,
+        "primary_score": 0.45652173913043476,
+        "official_score": 0.45652173913043476,
+        "judge_score": null,
+        "token_f1": 0.5024499654934438,
+        "protocol_counts": {
+          "official_metric": 138
+        },
+        "metric_counts": {
+          "normalized_accuracy": 138
+        }
+      },
+      "vqarad": {
+        "num_samples": 157,
+        "num_scored": 157,
+        "primary_score": 0.49044585987261147,
+        "official_score": 0.49044585987261147,
+        "judge_score": null,
+        "token_f1": 0.523550564792603,
+        "protocol_counts": {
+          "official_metric": 157
+        },
+        "metric_counts": {
+          "normalized_accuracy": 157
+        }
+      }
+    }
+  },
+  {
+    "stage": "medical",
+    "task": "natural_photo",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/natural_photo/eval.json",
+    "predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions/natural_photo.jsonl",
+    "scored_predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules/visual_substrate/llm_only/eval/2_medical/predictions_official/natural_photo.jsonl",
+    "num_samples": 1000,
+    "num_scored": 1000,
+    "primary_score": 0.4254,
+    "dataset_macro_score": 0.43634539709124825,
+    "official_score": 0.4254,
+    "judge_score": null,
+    "official_coverage": 1.0,
+    "judge_coverage": 0.0,
+    "unscored_count": 0,
+    "protocol_counts": {
+      "official_metric": 1000
+    },
+    "metric_counts": {
+      "count_accuracy": 103,
+      "vqa_soft_accuracy": 296,
+      "multiple_choice_accuracy": 389,
+      "normalized_accuracy": 204,
+      "anls": 8
+    },
+    "reference_source_counts": {
+      "metadata_jsonl": 917,
+      "prediction_gt": 83
+    },
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 20,
+        "num_scored": 20,
+        "primary_score": 0.3,
+        "official_score": 0.3,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 20
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 20
+        }
+      },
+      "aokvqa": {
+        "num_samples": 100,
+        "num_scored": 100,
+        "primary_score": 0.2,
+        "official_score": 0.2,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 100
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 100
+        }
+      },
+      "gqa": {
+        "num_samples": 119,
+        "num_scored": 119,
+        "primary_score": 0.37815126050420167,
+        "official_score": 0.37815126050420167,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 119
+        },
+        "metric_counts": {
+          "normalized_accuracy": 119
+        }
+      },
+      "iconqa": {
+        "num_samples": 83,
+        "num_scored": 83,
+        "primary_score": 0.30120481927710846,
+        "official_score": 0.30120481927710846,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 83
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 83
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 8,
+        "num_scored": 8,
+        "primary_score": 0.5625,
+        "official_score": 0.5625,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 8
+        },
+        "metric_counts": {
+          "anls": 8
+        }
+      },
+      "mmmu": {
+        "num_samples": 77,
+        "num_scored": 77,
+        "primary_score": 0.07792207792207792,
+        "official_score": 0.07792207792207792,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 77
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 77
+        }
+      },
+      "okvqa": {
+        "num_samples": 81,
+        "num_scored": 81,
+        "primary_score": 0.562962962962963,
+        "official_score": 0.562962962962963,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 81
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 81
+        }
+      },
+      "pathvqa": {
+        "num_samples": 9,
+        "num_scored": 9,
+        "primary_score": 0.6666666666666666,
+        "official_score": 0.6666666666666666,
+        "judge_score": null,
+        "token_f1": 0.7407407407407407,
+        "protocol_counts": {
+          "official_metric": 9
+        },
+        "metric_counts": {
+          "normalized_accuracy": 9
+        }
+      },
+      "slake": {
+        "num_samples": 76,
+        "num_scored": 76,
+        "primary_score": 0.4473684210526316,
+        "official_score": 0.4473684210526316,
+        "judge_score": null,
+        "token_f1": 0.4473684210526316,
+        "protocol_counts": {
+          "official_metric": 76
+        },
+        "metric_counts": {
+          "normalized_accuracy": 76
+        }
+      },
+      "tallyqa": {
+        "num_samples": 103,
+        "num_scored": 103,
+        "primary_score": 0.6213592233009708,
+        "official_score": 0.6213592233009708,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 103
+        },
+        "metric_counts": {
+          "count_accuracy": 103
+        }
+      },
+      "textvqa": {
+        "num_samples": 101,
+        "num_scored": 101,
+        "primary_score": 0.30396039603960395,
+        "official_score": 0.30396039603960395,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 101
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 101
+        }
+      },
+      "visual7w": {
+        "num_samples": 109,
+        "num_scored": 109,
+        "primary_score": 0.7889908256880734,
+        "official_score": 0.7889908256880734,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 109
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 109
+        }
+      },
+      "vqav2": {
+        "num_samples": 114,
+        "num_scored": 114,
+        "primary_score": 0.4614035087719298,
+        "official_score": 0.4614035087719298,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 114
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 114
+        }
+      }
+    }
+  }
+]

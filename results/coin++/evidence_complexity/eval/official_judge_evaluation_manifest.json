@@ -1,0 +1,76 @@
+{
+  "scoring_protocol": "dataset_native_then_llm_judge",
+  "judge_mode": "fallback",
+  "judge_model": "qwen3.6",
+  "known_dataset_routes": {
+    "vqa_soft_accuracy": [
+      "okvqa",
+      "textvqa",
+      "vqav2"
+    ],
+    "anls": [
+      "docvqa",
+      "infographicvqa"
+    ],
+    "chartqa_relaxed_accuracy": [
+      "chartqa",
+      "chartqa_eval",
+      "tqa"
+    ],
+    "multiple_choice_accuracy": [
+      "ai2d",
+      "aokvqa",
+      "iconqa",
+      "mmmu",
+      "visual7w"
+    ],
+    "count_accuracy": [
+      "tallyqa"
+    ],
+    "normalized_accuracy": [
+      "dvqa",
+      "geometry3k",
+      "gqa",
+      "pathvqa",
+      "slake",
+      "vqarad"
+    ]
+  },
+  "annotation_report": {
+    "sources": [
+      {
+        "path": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_targeted_pool_v3/metadata/sample_metadata.jsonl",
+        "kind": "metadata",
+        "matched_rows": 3045,
+        "malformed_rows": 0
+      },
+      {
+        "path": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_targeted_pool_v4_missing/metadata/sample_metadata.jsonl",
+        "kind": "metadata",
+        "matched_rows": 0,
+        "malformed_rows": 0
+      },
+      {
+        "path": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_targeted_pool_v5_chart_diagram_text/metadata/sample_metadata.jsonl",
+        "kind": "metadata",
+        "matched_rows": 385,
+        "malformed_rows": 0
+      },
+      {
+        "path": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_targeted_pool_v8_tqa_geometry/metadata/sample_metadata.jsonl",
+        "kind": "metadata",
+        "matched_rows": 344,
+        "malformed_rows": 0
+      }
+    ],
+    "needed_ids": 4000,
+    "resolved_ids": 3774,
+    "missing_ids": 226
+  },
+  "stages": [
+    "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/1_single_evidence",
+    "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence",
+    "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/3_cross_region_or_multihop",
+    "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/4_cross_context"
+  ]
+}

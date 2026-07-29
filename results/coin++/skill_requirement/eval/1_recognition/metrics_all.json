@@ -1,0 +1,214 @@
+[
+  {
+    "stage": "recognition",
+    "task": "recognition",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/skill_requirement/trainable/eval/recognition/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/skill_requirement/eval/1_recognition/predictions/recognition.jsonl",
+    "num_samples": 1000,
+    "image_samples": 798,
+    "text_only_samples": 202,
+    "answer_type_counts": {
+      "yes_no": 158,
+      "object": 484,
+      "option": 237,
+      "text_span": 107,
+      "number": 9,
+      "attribute": 3,
+      "free_form": 2
+    },
+    "exact_match": 0.515,
+    "relaxed_match": 0.567,
+    "number_match": 0.004,
+    "yes_no_match": 0.109
+  },
+  {
+    "stage": "recognition",
+    "task": "counting",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/skill_requirement/trainable/eval/counting/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/skill_requirement/eval/1_recognition/predictions/counting.jsonl",
+    "num_samples": 1000,
+    "image_samples": 801,
+    "text_only_samples": 199,
+    "answer_type_counts": {
+      "number": 467,
+      "option": 146,
+      "object": 325,
+      "text_span": 52,
+      "yes_no": 10
+    },
+    "exact_match": 0.089,
+    "relaxed_match": 0.137,
+    "number_match": 0.028,
+    "yes_no_match": 0.008
+  },
+  {
+    "stage": "recognition",
+    "task": "medical_reasoning",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/skill_requirement/trainable/eval/medical_reasoning/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/skill_requirement/eval/1_recognition/predictions/medical_reasoning.jsonl",
+    "num_samples": 1000,
+    "image_samples": 593,
+    "text_only_samples": 407,
+    "answer_type_counts": {
+      "yes_no": 391,
+      "object": 338,
+      "option": 205,
+      "free_form": 63,
+      "number": 3
+    },
+    "exact_match": 0.27,
+    "relaxed_match": 0.316,
+    "number_match": 0.0,
+    "yes_no_match": 0.215
+  },
+  {
+    "stage": "recognition",
+    "task": "knowledge_reasoning",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/skill_requirement/trainable/eval/knowledge_reasoning/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/skill_requirement/eval/1_recognition/predictions/knowledge_reasoning.jsonl",
+    "num_samples": 1000,
+    "image_samples": 727,
+    "text_only_samples": 273,
+    "answer_type_counts": {
+      "object": 393,
+      "option": 407,
+      "yes_no": 98,
+      "text_span": 67,
+      "attribute": 3,
+      "free_form": 14,
+      "number": 18
+    },
+    "exact_match": 0.278,
+    "relaxed_match": 0.359,
+    "number_match": 0.005,
+    "yes_no_match": 0.058
+  },
+  {
+    "stage": "recognition",
+    "task": "chart_reasoning",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/skill_requirement/trainable/eval/chart_reasoning/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/skill_requirement/eval/1_recognition/predictions/chart_reasoning.jsonl",
+    "num_samples": 1000,
+    "image_samples": 871,
+    "text_only_samples": 129,
+    "answer_type_counts": {
+      "number": 384,
+      "object": 447,
+      "option": 93,
+      "text_span": 62,
+      "attribute": 4,
+      "free_form": 3,
+      "yes_no": 7
+    },
+    "exact_match": 0.042,
+    "relaxed_match": 0.075,
+    "number_match": 0.01,
+    "yes_no_match": 0.002
+  },
+  {
+    "stage": "recognition",
+    "task": "document_reasoning",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/skill_requirement/trainable/eval/document_reasoning/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/skill_requirement/eval/1_recognition/predictions/document_reasoning.jsonl",
+    "num_samples": 1000,
+    "image_samples": 840,
+    "text_only_samples": 160,
+    "answer_type_counts": {
+      "option": 159,
+      "number": 304,
+      "text_span": 515,
+      "object": 13,
+      "yes_no": 9
+    },
+    "exact_match": 0.073,
+    "relaxed_match": 0.148,
+    "number_match": 0.021,
+    "yes_no_match": 0.004
+  },
+  {
+    "stage": "recognition",
+    "task": "text_reading",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/skill_requirement/trainable/eval/text_reading/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/skill_requirement/eval/1_recognition/predictions/text_reading.jsonl",
+    "num_samples": 1000,
+    "image_samples": 870,
+    "text_only_samples": 130,
+    "answer_type_counts": {
+      "option": 177,
+      "text_span": 430,
+      "object": 257,
+      "number": 112,
+      "yes_no": 17,
+      "free_form": 5,
+      "attribute": 2
+    },
+    "exact_match": 0.204,
+    "relaxed_match": 0.322,
+    "number_match": 0.018,
+    "yes_no_match": 0.013
+  },
+  {
+    "stage": "recognition",
+    "task": "diagram_reasoning",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/skill_requirement/trainable/eval/diagram_reasoning/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/skill_requirement/eval/1_recognition/predictions/diagram_reasoning.jsonl",
+    "num_samples": 1000,
+    "image_samples": 581,
+    "text_only_samples": 419,
+    "answer_type_counts": {
+      "yes_no": 63,
+      "option": 546,
+      "number": 196,
+      "free_form": 26,
+      "object": 52,
+      "text_span": 117
+    },
+    "exact_match": 0.16,
+    "relaxed_match": 0.222,
+    "number_match": 0.009,
+    "yes_no_match": 0.03
+  },
+  {
+    "stage": "recognition",
+    "task": "relation",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/skill_requirement/trainable/eval/relation/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/skill_requirement/eval/1_recognition/predictions/relation.jsonl",
+    "num_samples": 1000,
+    "image_samples": 848,
+    "text_only_samples": 152,
+    "answer_type_counts": {
+      "yes_no": 123,
+      "text_span": 110,
+      "option": 211,
+      "object": 526,
+      "attribute": 18,
+      "free_form": 2,
+      "number": 10
+    },
+    "exact_match": 0.374,
+    "relaxed_match": 0.423,
+    "number_match": 0.002,
+    "yes_no_match": 0.066
+  },
+  {
+    "stage": "recognition",
+    "task": "attribute",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/skill_requirement/trainable/eval/attribute/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/skill_requirement/eval/1_recognition/predictions/attribute.jsonl",
+    "num_samples": 1000,
+    "image_samples": 850,
+    "text_only_samples": 150,
+    "answer_type_counts": {
+      "yes_no": 68,
+      "object": 313,
+      "option": 192,
+      "text_span": 121,
+      "attribute": 301,
+      "free_form": 5
+    },
+    "exact_match": 0.37,
+    "relaxed_match": 0.41,
+    "number_match": 0.0,
+    "yes_no_match": 0.037
+  }
+]

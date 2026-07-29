@@ -1,0 +1,90 @@
+[
+  {
+    "stage": "multi_evidence",
+    "task": "single_evidence",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/evidence_complexity/trainable/eval/single_evidence/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions/single_evidence.jsonl",
+    "num_samples": 1000,
+    "image_samples": 840,
+    "text_only_samples": 160,
+    "answer_type_counts": {
+      "object": 308,
+      "text_span": 137,
+      "yes_no": 107,
+      "option": 208,
+      "number": 199,
+      "attribute": 38,
+      "free_form": 3
+    },
+    "exact_match": 0.168,
+    "relaxed_match": 0.209,
+    "number_match": 0.004,
+    "yes_no_match": 0.057
+  },
+  {
+    "stage": "multi_evidence",
+    "task": "multi_evidence",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/evidence_complexity/trainable/eval/multi_evidence/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions/multi_evidence.jsonl",
+    "num_samples": 1000,
+    "image_samples": 850,
+    "text_only_samples": 150,
+    "answer_type_counts": {
+      "number": 265,
+      "option": 185,
+      "text_span": 94,
+      "object": 340,
+      "yes_no": 80,
+      "free_form": 25,
+      "attribute": 11
+    },
+    "exact_match": 0.212,
+    "relaxed_match": 0.261,
+    "number_match": 0.024,
+    "yes_no_match": 0.049
+  },
+  {
+    "stage": "multi_evidence",
+    "task": "cross_region_or_multihop",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/evidence_complexity/trainable/eval/cross_region_or_multihop/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions/cross_region_or_multihop.jsonl",
+    "num_samples": 1000,
+    "image_samples": 881,
+    "text_only_samples": 119,
+    "answer_type_counts": {
+      "yes_no": 82,
+      "number": 298,
+      "object": 323,
+      "option": 188,
+      "text_span": 83,
+      "free_form": 22,
+      "attribute": 4
+    },
+    "exact_match": 0.116,
+    "relaxed_match": 0.16,
+    "number_match": 0.011,
+    "yes_no_match": 0.042
+  },
+  {
+    "stage": "multi_evidence",
+    "task": "cross_context",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/evidence_complexity/trainable/eval/cross_context/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions/cross_context.jsonl",
+    "num_samples": 1000,
+    "image_samples": 793,
+    "text_only_samples": 207,
+    "answer_type_counts": {
+      "text_span": 79,
+      "free_form": 27,
+      "yes_no": 172,
+      "option": 273,
+      "object": 346,
+      "number": 101,
+      "attribute": 2
+    },
+    "exact_match": 0.238,
+    "relaxed_match": 0.278,
+    "number_match": 0.008,
+    "yes_no_match": 0.095
+  }
+]

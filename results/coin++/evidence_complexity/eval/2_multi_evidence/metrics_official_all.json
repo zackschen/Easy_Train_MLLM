@@ -1,0 +1,1226 @@
+[
+  {
+    "stage": "multi_evidence",
+    "task": "cross_context",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/evidence_complexity/trainable/eval/cross_context/eval.json",
+    "predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions/cross_context.jsonl",
+    "scored_predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions_official/cross_context.jsonl",
+    "num_samples": 1000,
+    "num_scored": 1000,
+    "primary_score": 0.2887272727272727,
+    "dataset_macro_score": 0.3494255972079195,
+    "official_score": 0.2887272727272727,
+    "judge_score": null,
+    "official_coverage": 1.0,
+    "judge_coverage": 0.0,
+    "unscored_count": 0,
+    "protocol_counts": {
+      "official_metric": 1000
+    },
+    "metric_counts": {
+      "vqa_soft_accuracy": 185,
+      "normalized_accuracy": 336,
+      "multiple_choice_accuracy": 347,
+      "chartqa_relaxed_accuracy": 51,
+      "anls": 55,
+      "count_accuracy": 26
+    },
+    "reference_source_counts": {
+      "metadata_jsonl": 938,
+      "prediction_gt": 62
+    },
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 57,
+        "num_scored": 57,
+        "primary_score": 0.21052631578947367,
+        "official_score": 0.21052631578947367,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 57
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 57
+        }
+      },
+      "aokvqa": {
+        "num_samples": 74,
+        "num_scored": 74,
+        "primary_score": 0.14864864864864866,
+        "official_score": 0.14864864864864866,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 74
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 74
+        }
+      },
+      "chartqa": {
+        "num_samples": 16,
+        "num_scored": 16,
+        "primary_score": 0.6875,
+        "official_score": 0.6875,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 16
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 16
+        }
+      },
+      "chartqa_eval": {
+        "num_samples": 16,
+        "num_scored": 16,
+        "primary_score": 0.6875,
+        "official_score": 0.6875,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 16
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 16
+        }
+      },
+      "geometry3k": {
+        "num_samples": 59,
+        "num_scored": 59,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 59
+        },
+        "metric_counts": {
+          "normalized_accuracy": 59
+        }
+      },
+      "gqa": {
+        "num_samples": 55,
+        "num_scored": 55,
+        "primary_score": 0.36363636363636365,
+        "official_score": 0.36363636363636365,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 55
+        },
+        "metric_counts": {
+          "normalized_accuracy": 55
+        }
+      },
+      "iconqa": {
+        "num_samples": 62,
+        "num_scored": 62,
+        "primary_score": 0.1774193548387097,
+        "official_score": 0.1774193548387097,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 62
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 62
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 55,
+        "num_scored": 55,
+        "primary_score": 0.28231404958677686,
+        "official_score": 0.28231404958677686,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 55
+        },
+        "metric_counts": {
+          "anls": 55
+        }
+      },
+      "mmmu": {
+        "num_samples": 90,
+        "num_scored": 90,
+        "primary_score": 0.06666666666666667,
+        "official_score": 0.06666666666666667,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 90
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 90
+        }
+      },
+      "okvqa": {
+        "num_samples": 64,
+        "num_scored": 64,
+        "primary_score": 0.184375,
+        "official_score": 0.184375,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 64
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 64
+        }
+      },
+      "pathvqa": {
+        "num_samples": 108,
+        "num_scored": 108,
+        "primary_score": 0.25925925925925924,
+        "official_score": 0.25925925925925924,
+        "judge_score": null,
+        "token_f1": 0.2660867938645716,
+        "protocol_counts": {
+          "official_metric": 108
+        },
+        "metric_counts": {
+          "normalized_accuracy": 108
+        }
+      },
+      "slake": {
+        "num_samples": 55,
+        "num_scored": 55,
+        "primary_score": 0.2545454545454545,
+        "official_score": 0.2545454545454545,
+        "judge_score": null,
+        "token_f1": 0.27,
+        "protocol_counts": {
+          "official_metric": 55
+        },
+        "metric_counts": {
+          "normalized_accuracy": 55
+        }
+      },
+      "tallyqa": {
+        "num_samples": 26,
+        "num_scored": 26,
+        "primary_score": 0.38461538461538464,
+        "official_score": 0.38461538461538464,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 26
+        },
+        "metric_counts": {
+          "count_accuracy": 26
+        }
+      },
+      "textvqa": {
+        "num_samples": 55,
+        "num_scored": 55,
+        "primary_score": 0.4109090909090909,
+        "official_score": 0.4109090909090909,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 55
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 55
+        }
+      },
+      "tqa": {
+        "num_samples": 19,
+        "num_scored": 19,
+        "primary_score": 0.7368421052631579,
+        "official_score": 0.7368421052631579,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 19
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 19
+        }
+      },
+      "visual7w": {
+        "num_samples": 64,
+        "num_scored": 64,
+        "primary_score": 0.46875,
+        "official_score": 0.46875,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 64
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 64
+        }
+      },
+      "vqarad": {
+        "num_samples": 59,
+        "num_scored": 59,
+        "primary_score": 0.423728813559322,
+        "official_score": 0.423728813559322,
+        "judge_score": null,
+        "token_f1": 0.4279661016949153,
+        "protocol_counts": {
+          "official_metric": 59
+        },
+        "metric_counts": {
+          "normalized_accuracy": 59
+        }
+      },
+      "vqav2": {
+        "num_samples": 66,
+        "num_scored": 66,
+        "primary_score": 0.5424242424242425,
+        "official_score": 0.5424242424242425,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 66
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 66
+        }
+      }
+    }
+  },
+  {
+    "stage": "multi_evidence",
+    "task": "cross_region_or_multihop",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/evidence_complexity/trainable/eval/cross_region_or_multihop/eval.json",
+    "predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions/cross_region_or_multihop.jsonl",
+    "scored_predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions_official/cross_region_or_multihop.jsonl",
+    "num_samples": 1000,
+    "num_scored": 1000,
+    "primary_score": 0.15049345238095238,
+    "dataset_macro_score": 0.14792932749934526,
+    "official_score": 0.15049345238095238,
+    "judge_score": null,
+    "official_coverage": 1.0,
+    "judge_coverage": 0.0,
+    "unscored_count": 0,
+    "protocol_counts": {
+      "official_metric": 1000
+    },
+    "metric_counts": {
+      "chartqa_relaxed_accuracy": 152,
+      "vqa_soft_accuracy": 126,
+      "anls": 110,
+      "normalized_accuracy": 302,
+      "multiple_choice_accuracy": 259,
+      "count_accuracy": 51
+    },
+    "reference_source_counts": {
+      "metadata_jsonl": 942,
+      "prediction_gt": 58
+    },
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.08,
+        "official_score": 0.08,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 50
+        }
+      },
+      "aokvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 50
+        }
+      },
+      "chartqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.18,
+        "official_score": 0.18,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 50
+        }
+      },
+      "chartqa_eval": {
+        "num_samples": 51,
+        "num_scored": 51,
+        "primary_score": 0.13725490196078433,
+        "official_score": 0.13725490196078433,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 51
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 51
+        }
+      },
+      "docvqa": {
+        "num_samples": 51,
+        "num_scored": 51,
+        "primary_score": 0.11727357609710551,
+        "official_score": 0.11727357609710551,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 51
+        },
+        "metric_counts": {
+          "anls": 51
+        }
+      },
+      "dvqa": {
+        "num_samples": 114,
+        "num_scored": 114,
+        "primary_score": 0.15789473684210525,
+        "official_score": 0.15789473684210525,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 114
+        },
+        "metric_counts": {
+          "normalized_accuracy": 114
+        }
+      },
+      "geometry3k": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.02,
+        "official_score": 0.02,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "normalized_accuracy": 50
+        }
+      },
+      "gqa": {
+        "num_samples": 53,
+        "num_scored": 53,
+        "primary_score": 0.3584905660377358,
+        "official_score": 0.3584905660377358,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 53
+        },
+        "metric_counts": {
+          "normalized_accuracy": 53
+        }
+      },
+      "iconqa": {
+        "num_samples": 58,
+        "num_scored": 58,
+        "primary_score": 0.10344827586206896,
+        "official_score": 0.10344827586206896,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 58
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 58
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 59,
+        "num_scored": 59,
+        "primary_score": 0.2103813559322034,
+        "official_score": 0.2103813559322034,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 59
+        },
+        "metric_counts": {
+          "anls": 59
+        }
+      },
+      "mmmu": {
+        "num_samples": 51,
+        "num_scored": 51,
+        "primary_score": 0.0196078431372549,
+        "official_score": 0.0196078431372549,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 51
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 51
+        }
+      },
+      "okvqa": {
+        "num_samples": 25,
+        "num_scored": 25,
+        "primary_score": 0.168,
+        "official_score": 0.168,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 25
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 25
+        }
+      },
+      "pathvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.22,
+        "official_score": 0.22,
+        "judge_score": null,
+        "token_f1": 0.242,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "normalized_accuracy": 50
+        }
+      },
+      "slake": {
+        "num_samples": 10,
+        "num_scored": 10,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": 0.1,
+        "protocol_counts": {
+          "official_metric": 10
+        },
+        "metric_counts": {
+          "normalized_accuracy": 10
+        }
+      },
+      "tallyqa": {
+        "num_samples": 51,
+        "num_scored": 51,
+        "primary_score": 0.058823529411764705,
+        "official_score": 0.058823529411764705,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 51
+        },
+        "metric_counts": {
+          "count_accuracy": 51
+        }
+      },
+      "textvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.078,
+        "official_score": 0.078,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 50
+        }
+      },
+      "tqa": {
+        "num_samples": 51,
+        "num_scored": 51,
+        "primary_score": 0.3137254901960784,
+        "official_score": 0.3137254901960784,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 51
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 51
+        }
+      },
+      "visual7w": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.2,
+        "official_score": 0.2,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 50
+        }
+      },
+      "vqarad": {
+        "num_samples": 25,
+        "num_scored": 25,
+        "primary_score": 0.32,
+        "official_score": 0.32,
+        "judge_score": null,
+        "token_f1": 0.32,
+        "protocol_counts": {
+          "official_metric": 25
+        },
+        "metric_counts": {
+          "normalized_accuracy": 25
+        }
+      },
+      "vqav2": {
+        "num_samples": 51,
+        "num_scored": 51,
+        "primary_score": 0.21568627450980393,
+        "official_score": 0.21568627450980393,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 51
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 51
+        }
+      }
+    }
+  },
+  {
+    "stage": "multi_evidence",
+    "task": "multi_evidence",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/evidence_complexity/trainable/eval/multi_evidence/eval.json",
+    "predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions/multi_evidence.jsonl",
+    "scored_predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions_official/multi_evidence.jsonl",
+    "num_samples": 1000,
+    "num_scored": 1000,
+    "primary_score": 0.24356984126984127,
+    "dataset_macro_score": 0.24356984126984127,
+    "official_score": 0.24356984126984127,
+    "judge_score": null,
+    "official_coverage": 1.0,
+    "judge_coverage": 0.0,
+    "unscored_count": 0,
+    "protocol_counts": {
+      "official_metric": 1000
+    },
+    "metric_counts": {
+      "normalized_accuracy": 300,
+      "chartqa_relaxed_accuracy": 150,
+      "multiple_choice_accuracy": 250,
+      "anls": 100,
+      "vqa_soft_accuracy": 150,
+      "count_accuracy": 50
+    },
+    "reference_source_counts": {
+      "metadata_jsonl": 950,
+      "prediction_gt": 50
+    },
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.32,
+        "official_score": 0.32,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 50
+        }
+      },
+      "aokvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.12,
+        "official_score": 0.12,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 50
+        }
+      },
+      "chartqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.18,
+        "official_score": 0.18,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 50
+        }
+      },
+      "chartqa_eval": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.1,
+        "official_score": 0.1,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 50
+        }
+      },
+      "docvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.15873015873015872,
+        "official_score": 0.15873015873015872,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "anls": 50
+        }
+      },
+      "dvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.12,
+        "official_score": 0.12,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "normalized_accuracy": 50
+        }
+      },
+      "geometry3k": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.02,
+        "official_score": 0.02,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "normalized_accuracy": 50
+        }
+      },
+      "gqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.34,
+        "official_score": 0.34,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "normalized_accuracy": 50
+        }
+      },
+      "iconqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.34,
+        "official_score": 0.34,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 50
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.18866666666666668,
+        "official_score": 0.18866666666666668,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "anls": 50
+        }
+      },
+      "mmmu": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.04,
+        "official_score": 0.04,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 50
+        }
+      },
+      "okvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.26,
+        "official_score": 0.26,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 50
+        }
+      },
+      "pathvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.32,
+        "official_score": 0.32,
+        "judge_score": null,
+        "token_f1": 0.3582222222222222,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "normalized_accuracy": 50
+        }
+      },
+      "slake": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.42,
+        "official_score": 0.42,
+        "judge_score": null,
+        "token_f1": 0.49552669552669554,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "normalized_accuracy": 50
+        }
+      },
+      "tallyqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.4,
+        "official_score": 0.4,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "count_accuracy": 50
+        }
+      },
+      "textvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.17,
+        "official_score": 0.17,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 50
+        }
+      },
+      "tqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.08,
+        "official_score": 0.08,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 50
+        }
+      },
+      "visual7w": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.5,
+        "official_score": 0.5,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 50
+        }
+      },
+      "vqarad": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.48,
+        "official_score": 0.48,
+        "judge_score": null,
+        "token_f1": 0.5152222222222222,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "normalized_accuracy": 50
+        }
+      },
+      "vqav2": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.314,
+        "official_score": 0.314,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 50
+        }
+      }
+    }
+  },
+  {
+    "stage": "multi_evidence",
+    "task": "single_evidence",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/evidence_complexity/trainable/eval/single_evidence/eval.json",
+    "predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions/single_evidence.jsonl",
+    "scored_predictions_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/results/coin++/evidence_complexity/eval/2_multi_evidence/predictions_official/single_evidence.jsonl",
+    "num_samples": 1000,
+    "num_scored": 1000,
+    "primary_score": 0.2121445981554677,
+    "dataset_macro_score": 0.19273306493206066,
+    "official_score": 0.2121445981554677,
+    "judge_score": null,
+    "official_coverage": 1.0,
+    "judge_coverage": 0.0,
+    "unscored_count": 0,
+    "protocol_counts": {
+      "official_metric": 1000
+    },
+    "metric_counts": {
+      "count_accuracy": 52,
+      "anls": 116,
+      "vqa_soft_accuracy": 175,
+      "multiple_choice_accuracy": 269,
+      "normalized_accuracy": 238,
+      "chartqa_relaxed_accuracy": 150
+    },
+    "reference_source_counts": {
+      "metadata_jsonl": 944,
+      "prediction_gt": 56
+    },
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.12,
+        "official_score": 0.12,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 50
+        }
+      },
+      "aokvqa": {
+        "num_samples": 53,
+        "num_scored": 53,
+        "primary_score": 0.07547169811320754,
+        "official_score": 0.07547169811320754,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 53
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 53
+        }
+      },
+      "chartqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.08,
+        "official_score": 0.08,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 50
+        }
+      },
+      "chartqa_eval": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.2,
+        "official_score": 0.2,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 50
+        }
+      },
+      "docvqa": {
+        "num_samples": 61,
+        "num_scored": 61,
+        "primary_score": 0.027322404371584702,
+        "official_score": 0.027322404371584702,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 61
+        },
+        "metric_counts": {
+          "anls": 61
+        }
+      },
+      "dvqa": {
+        "num_samples": 5,
+        "num_scored": 5,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 5
+        },
+        "metric_counts": {
+          "normalized_accuracy": 5
+        }
+      },
+      "geometry3k": {
+        "num_samples": 15,
+        "num_scored": 15,
+        "primary_score": 0.0,
+        "official_score": 0.0,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 15
+        },
+        "metric_counts": {
+          "normalized_accuracy": 15
+        }
+      },
+      "gqa": {
+        "num_samples": 57,
+        "num_scored": 57,
+        "primary_score": 0.3508771929824561,
+        "official_score": 0.3508771929824561,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 57
+        },
+        "metric_counts": {
+          "normalized_accuracy": 57
+        }
+      },
+      "iconqa": {
+        "num_samples": 56,
+        "num_scored": 56,
+        "primary_score": 0.5,
+        "official_score": 0.5,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 56
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 56
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 55,
+        "num_scored": 55,
+        "primary_score": 0.27050784525092825,
+        "official_score": 0.27050784525092825,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 55
+        },
+        "metric_counts": {
+          "anls": 55
+        }
+      },
+      "mmmu": {
+        "num_samples": 53,
+        "num_scored": 53,
+        "primary_score": 0.07547169811320754,
+        "official_score": 0.07547169811320754,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 53
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 53
+        }
+      },
+      "okvqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.176,
+        "official_score": 0.176,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 50
+        }
+      },
+      "pathvqa": {
+        "num_samples": 58,
+        "num_scored": 58,
+        "primary_score": 0.1896551724137931,
+        "official_score": 0.1896551724137931,
+        "judge_score": null,
+        "token_f1": 0.1939655172413793,
+        "protocol_counts": {
+          "official_metric": 58
+        },
+        "metric_counts": {
+          "normalized_accuracy": 58
+        }
+      },
+      "slake": {
+        "num_samples": 51,
+        "num_scored": 51,
+        "primary_score": 0.4117647058823529,
+        "official_score": 0.4117647058823529,
+        "judge_score": null,
+        "token_f1": 0.4444444444444444,
+        "protocol_counts": {
+          "official_metric": 51
+        },
+        "metric_counts": {
+          "normalized_accuracy": 51
+        }
+      },
+      "tallyqa": {
+        "num_samples": 52,
+        "num_scored": 52,
+        "primary_score": 0.038461538461538464,
+        "official_score": 0.038461538461538464,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 52
+        },
+        "metric_counts": {
+          "count_accuracy": 52
+        }
+      },
+      "textvqa": {
+        "num_samples": 61,
+        "num_scored": 61,
+        "primary_score": 0.09836065573770492,
+        "official_score": 0.09836065573770492,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 61
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 61
+        }
+      },
+      "tqa": {
+        "num_samples": 50,
+        "num_scored": 50,
+        "primary_score": 0.1,
+        "official_score": 0.1,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 50
+        },
+        "metric_counts": {
+          "chartqa_relaxed_accuracy": 50
+        }
+      },
+      "visual7w": {
+        "num_samples": 57,
+        "num_scored": 57,
+        "primary_score": 0.40350877192982454,
+        "official_score": 0.40350877192982454,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 57
+        },
+        "metric_counts": {
+          "multiple_choice_accuracy": 57
+        }
+      },
+      "vqarad": {
+        "num_samples": 52,
+        "num_scored": 52,
+        "primary_score": 0.36538461538461536,
+        "official_score": 0.36538461538461536,
+        "judge_score": null,
+        "token_f1": 0.3717948717948718,
+        "protocol_counts": {
+          "official_metric": 52
+        },
+        "metric_counts": {
+          "normalized_accuracy": 52
+        }
+      },
+      "vqav2": {
+        "num_samples": 64,
+        "num_scored": 64,
+        "primary_score": 0.371875,
+        "official_score": 0.371875,
+        "judge_score": null,
+        "token_f1": null,
+        "protocol_counts": {
+          "official_metric": 64
+        },
+        "metric_counts": {
+          "vqa_soft_accuracy": 64
+        }
+      }
+    }
+  }
+]

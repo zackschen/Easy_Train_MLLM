@@ -1,0 +1,32 @@
+{
+  "name": "factor1_data_pipeline",
+  "purpose": "Collected scripts used to build, audit, repair, merge, canonicalize, balance, and validate CoIN++ Factor-1 datasets.",
+  "moved_from": [
+    "factor1_coin_meta.py",
+    "scripts/audit_factor1_labels.py",
+    "scripts/score_factor1_label_audit.py",
+    "scripts/select_factor1_targeted_relabel_candidates.py",
+    "scripts/convert_factor1_meta_to_llava.py",
+    "scripts/merge_factor1_llava_train_json.py",
+    "scripts/repair_factor1_evidence_skill_labels.py",
+    "scripts/canonicalize_factor1_train_json.py",
+    "scripts/canonicalize_factor1_diagram_skill.py",
+    "scripts/build_factor1_balanced_splits.py",
+    "scripts/check_factor1_final_distribution.py",
+    "scripts/run_factor1_all_metadata.sh",
+    "scripts/run_factor1_targeted_relabel_v3.sh",
+    "scripts/run_factor1_targeted_relabel_round2_missing.sh",
+    "scripts/run_factor1_targeted_relabel_round3_add_sources.sh",
+    "scripts/run_factor1_targeted_relabel_round4_iconqa.sh",
+    "scripts/run_factor1_targeted_relabel_round5_tqa_geometry.sh",
+    "scripts/run_build_factor1_balanced_splits.sh",
+    "scripts/run_build_factor1_10k_splits.sh",
+    "scripts/run_check_factor1_final_v8.sh"
+  ],
+  "missing_sources": [],
+  "final_dataset_root": "cl_dataset/coin_factor1_final",
+  "notes": [
+    "This directory is the canonical location; former data-pipeline copies at the repository root and scripts root were removed.",
+    "Shell entrypoints resolve PROJECT_ROOT from this directory and keep supporting an explicit PROJECT_ROOT override."
+  ]
+}
