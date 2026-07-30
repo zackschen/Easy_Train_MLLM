@@ -1,0 +1,129 @@
+[
+  {
+    "stage": "diagram",
+    "task": "natural_photo",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/natural_photo/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/5_diagram/predictions/natural_photo.jsonl",
+    "num_samples": 1000,
+    "image_samples": 764,
+    "text_only_samples": 236,
+    "answer_type_counts": {
+      "object": 447,
+      "number": 53,
+      "option": 263,
+      "yes_no": 117,
+      "text_span": 85,
+      "attribute": 34,
+      "free_form": 1
+    },
+    "exact_match": 0.219,
+    "relaxed_match": 0.291,
+    "number_match": 0.006,
+    "yes_no_match": 0.058
+  },
+  {
+    "stage": "diagram",
+    "task": "medical",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/medical/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/5_diagram/predictions/medical.jsonl",
+    "num_samples": 1000,
+    "image_samples": 721,
+    "text_only_samples": 279,
+    "answer_type_counts": {
+      "option": 141,
+      "object": 378,
+      "yes_no": 392,
+      "free_form": 82,
+      "attribute": 3,
+      "number": 4
+    },
+    "exact_match": 0.301,
+    "relaxed_match": 0.333,
+    "number_match": 0.002,
+    "yes_no_match": 0.26
+  },
+  {
+    "stage": "diagram",
+    "task": "document",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/document/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/5_diagram/predictions/document.jsonl",
+    "num_samples": 1000,
+    "image_samples": 760,
+    "text_only_samples": 240,
+    "answer_type_counts": {
+      "text_span": 523,
+      "option": 196,
+      "object": 50,
+      "number": 214,
+      "yes_no": 17
+    },
+    "exact_match": 0.041,
+    "relaxed_match": 0.112,
+    "number_match": 0.003,
+    "yes_no_match": 0.007
+  },
+  {
+    "stage": "diagram",
+    "task": "infographic",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/infographic/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/5_diagram/predictions/infographic.jsonl",
+    "num_samples": 1000,
+    "image_samples": 868,
+    "text_only_samples": 132,
+    "answer_type_counts": {
+      "text_span": 398,
+      "number": 480,
+      "option": 115,
+      "yes_no": 2,
+      "object": 4,
+      "attribute": 1
+    },
+    "exact_match": 0.104,
+    "relaxed_match": 0.15,
+    "number_match": 0.04,
+    "yes_no_match": 0.001
+  },
+  {
+    "stage": "diagram",
+    "task": "diagram",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/diagram/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/5_diagram/predictions/diagram.jsonl",
+    "num_samples": 1000,
+    "image_samples": 566,
+    "text_only_samples": 434,
+    "answer_type_counts": {
+      "option": 574,
+      "free_form": 44,
+      "number": 233,
+      "object": 59,
+      "yes_no": 85,
+      "text_span": 5
+    },
+    "exact_match": 0.211,
+    "relaxed_match": 0.244,
+    "number_match": 0.021,
+    "yes_no_match": 0.055
+  },
+  {
+    "stage": "diagram",
+    "task": "chart",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final/splits/visual_substrate/trainable/eval/chart/eval.json",
+    "predictions_file": "/home/chencheng/data/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/5_diagram/predictions/chart.jsonl",
+    "num_samples": 1000,
+    "image_samples": 895,
+    "text_only_samples": 105,
+    "answer_type_counts": {
+      "option": 99,
+      "text_span": 60,
+      "object": 484,
+      "number": 333,
+      "yes_no": 12,
+      "attribute": 4,
+      "free_form": 8
+    },
+    "exact_match": 0.028,
+    "relaxed_match": 0.062,
+    "number_match": 0.008,
+    "yes_no_match": 0.006
+  }
+]
