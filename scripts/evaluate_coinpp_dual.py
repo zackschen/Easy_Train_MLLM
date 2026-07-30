@@ -155,33 +155,81 @@ def parse_score(value: Any) -> float | None:
     return min(10.0, max(0.0, score))
 
 
-def normalize_judge_results(payload: Any) -> dict[str, dict[str, Any]]:
+def normalize_judge_results(
+    payload: Any,
+    expected_keys: list[str] | None = None,
+) -> dict[str, dict[str, Any]]:
+    expected_keys = expected_keys or []
     if isinstance(payload, dict):
-        candidates = payload.get("results") or payload.get("scores") or payload.get("judgments")
-        if candidates is None and ("key" in payload or "id" in payload):
+        candidates = None
+        for field in ("results", "judgments", "labels", "scores"):
+            value = payload.get(field)
+            if isinstance(value, list):
+                candidates = value
+                break
+        if candidates is None and any(
+            field in payload
+            for field in (
+                "key",
+                "id",
+                "score",
+                "rating",
+                "correctness_score",
+                "correct",
+            )
+        ):
             candidates = [payload]
     else:
         candidates = payload
+    if not isinstance(candidates, list) and len(expected_keys) == 1:
+        raw_score = parse_score(candidates)
+        if raw_score is not None:
+            return {
+                expected_keys[0]: {
+                    "raw_score_0_10": raw_score,
+                    "score": raw_score / 10.0,
+                    "reason": "",
+                }
+            }
     if not isinstance(candidates, list):
         raise ValueError(f"Judge JSON must contain a result list, got {type(candidates).__name__}")
 
     output: dict[str, dict[str, Any]] = {}
+    parsed_without_valid_key: list[dict[str, Any]] = []
     for item in candidates:
-        if not isinstance(item, dict):
+        if isinstance(item, dict):
+            key = str(item.get("key") or item.get("id") or item.get("sample_id") or "")
+            raw_score = parse_score(
+                item.get("score", item.get("rating", item.get("correctness_score")))
+            )
+            if raw_score is None and "correct" in item:
+                raw_score = parse_score(item["correct"])
+            reason = str(item.get("reason") or item.get("explanation") or "").strip()
+        else:
+            key = ""
+            raw_score = parse_score(item)
+            reason = ""
+        if raw_score is None:
             continue
-        key = str(item.get("key") or item.get("id") or "")
-        raw_score = parse_score(
-            item.get("score", item.get("rating", item.get("correctness_score")))
-        )
-        if raw_score is None and "correct" in item:
-            raw_score = parse_score(item["correct"])
-        if not key or raw_score is None:
-            continue
-        output[key] = {
+        result = {
             "raw_score_0_10": raw_score,
             "score": raw_score / 10.0,
-            "reason": str(item.get("reason") or item.get("explanation") or "").strip(),
+            "reason": reason,
         }
+        if key:
+            output[key] = result
+        else:
+            parsed_without_valid_key.append(result)
+
+    # With one input there is no ambiguity: accept a valid score even when the
+    # model omitted, shortened, or rewrote the transport key.
+    if len(expected_keys) == 1:
+        expected_key = expected_keys[0]
+        if expected_key in output:
+            return {expected_key: output[expected_key]}
+        parsed_results = [*output.values(), *parsed_without_valid_key]
+        if len(parsed_results) == 1:
+            return {expected_key: parsed_results[0]}
     return output
 
 
@@ -190,15 +238,19 @@ def judge_request(
     args: argparse.Namespace,
 ) -> dict[str, dict[str, Any]]:
     endpoint = args.judge_base_url.rstrip("/") + "/chat/completions"
-    compact_samples = [
-        {
-            "key": sample["judge_key"],
-            "question": sample["row"].get("question", ""),
-            "ground_truth_answers": sample["references"],
-            "assistant_answer": sample["row"].get("pred", ""),
-        }
-        for sample in samples
-    ]
+    transport_to_internal: dict[str, str] = {}
+    compact_samples = []
+    for index, sample in enumerate(samples):
+        transport_key = f"s{index}"
+        transport_to_internal[transport_key] = sample["judge_key"]
+        compact_samples.append(
+            {
+                "key": transport_key,
+                "question": sample["row"].get("question", ""),
+                "ground_truth_answers": sample["references"],
+                "assistant_answer": sample["row"].get("pred", ""),
+            }
+        )
     system_prompt = (
         "You are a precise evaluator for visual question answering. The image is not provided; "
         "evaluate the assistant answer only against the question and ground-truth answer(s), as in "
@@ -234,8 +286,38 @@ def judge_request(
     )
     with urllib.request.urlopen(request, timeout=args.judge_timeout) as response:
         response_body = json.loads(response.read().decode("utf-8"))
-    content = response_body["choices"][0]["message"]["content"]
-    return normalize_judge_results(parse_json_payload(content))
+    message = response_body["choices"][0]["message"]
+    content = message.get("content") or message.get("reasoning_content") or ""
+    try:
+        payload = parse_json_payload(content)
+        returned = normalize_judge_results(
+            payload,
+            expected_keys=list(transport_to_internal),
+        )
+    except ValueError:
+        if len(samples) != 1:
+            raise
+        scalar_content = re.sub(
+            r"<think>.*?</think>",
+            "",
+            content,
+            flags=re.DOTALL | re.IGNORECASE,
+        )
+        raw_score = parse_score(scalar_content)
+        if raw_score is None:
+            raise
+        returned = {
+            "s0": {
+                "raw_score_0_10": raw_score,
+                "score": raw_score / 10.0,
+                "reason": "Recovered from a singleton scalar response.",
+            }
+        }
+    return {
+        transport_to_internal[key]: result
+        for key, result in returned.items()
+        if key in transport_to_internal
+    }
 
 
 def request_with_retries(
