@@ -43,7 +43,7 @@ ANNOTATION_CACHE="${ANNOTATION_CACHE:-$DEFAULT_ANNOTATION_CACHE}"
 JUDGE_MODEL="${JUDGE_MODEL:-qwen3.6}"
 JUDGE_BASE_URL="${JUDGE_BASE_URL:-${OPENAI_BASE_URL:-http://127.0.0.1:8001/v1}}"
 JUDGE_API_KEY="${JUDGE_API_KEY:-${OPENAI_API_KEY:-EMPTY}}"
-JUDGE_BATCH_SIZE="${JUDGE_BATCH_SIZE:-8}"
+JUDGE_BATCH_SIZE="${JUDGE_BATCH_SIZE:-1}"
 JUDGE_WORKERS="${JUDGE_WORKERS:-4}"
 JUDGE_TIMEOUT="${JUDGE_TIMEOUT:-180}"
 JUDGE_RETRIES="${JUDGE_RETRIES:-3}"
@@ -109,7 +109,8 @@ CoIN++ independent standard + all-sample LLM-Judge evaluation
   judge model:       $JUDGE_MODEL
   judge API:         $JUDGE_BASE_URL
   judge cache:       $JUDGE_CACHE
-  judge batch/work:  $JUDGE_BATCH_SIZE / $JUDGE_WORKERS
+  judge request:     CoIN scalar, one sample per request
+  judge workers:     $JUDGE_WORKERS
   sample limit:      ${LIMIT:-all}
 EOF
 
