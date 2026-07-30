@@ -30,28 +30,27 @@ class JudgeHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         length = int(self.headers["Content-Length"])
         payload = json.loads(self.rfile.read(length))
-        samples = json.loads(payload["messages"][1]["content"].split("\n", 1)[1])
-        type(self).sample_count += len(samples)
-        results = []
-        for sample in samples:
-            exact = (
-                sample["assistant_answer"].strip().lower()
-                == sample["ground_truth_answers"][0].strip().lower()
-            )
-            results.append(
-                {
-                    "key": sample["key"],
-                    "score": 10 if exact else 2,
-                    "reason": "mock decision",
-                }
-            )
+        content = payload["messages"][1]["content"]
+        ground_truth = content.split("[Reference answer(s)]\n", 1)[1].split(
+            "\n\n[Candidate answer]",
+            1,
+        )[0]
+        assistant_answer = content.split("[Candidate answer]\n", 1)[1].strip()
+        try:
+            references = json.loads(ground_truth)
+        except json.JSONDecodeError:
+            references = [ground_truth]
+        if not isinstance(references, list):
+            references = [str(references)]
+        exact = assistant_answer.strip().lower() in {
+            str(reference).strip().lower() for reference in references
+        }
+        type(self).sample_count += 1
         body = {
             "choices": [
                 {
                     "message": {
-                        "content": "```json\n"
-                        + json.dumps({"results": results})
-                        + "\n```"
+                        "content": "10" if exact else "2",
                     }
                 }
             ]

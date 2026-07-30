@@ -11,6 +11,12 @@ prediction:
 
 The two scores are never merged into a fallback or hybrid score.
 
+The Judge uses the versioned `rubric-scalar-v3` protocol. Each request contains
+one sample, places the detailed correctness rubric in the system message, and
+requires one numeric 0-10 response. The rubric defines semantic equivalence,
+partial credit, contradictions, multiple references, exact numeric answers,
+and prompt-injection resistance. Changing the rubric changes the cache key.
+
 ## Factor Evaluation
 
 Start the Judge service, then run:
@@ -39,7 +45,7 @@ the same command; cached predictions are skipped automatically.
 For a small end-to-end check:
 
 ```bash
-LIMIT=20 JUDGE_BATCH_SIZE=4 JUDGE_WORKERS=1 \
+LIMIT=20 JUDGE_BATCH_SIZE=1 JUDGE_WORKERS=1 \
 bash scripts/coin++/run_dual_track_eval.sh
 ```
 
