@@ -70,6 +70,33 @@ class JudgeHandler(BaseHTTPRequestHandler):
         self.wfile.write(encoded)
 
 
+class StructuredRecoveryHandler(BaseHTTPRequestHandler):
+    scalar_requests = 0
+    structured_requests = 0
+    schema = None
+
+    def log_message(self, format: str, *args) -> None:
+        return
+
+    def do_POST(self) -> None:
+        length = int(self.headers["Content-Length"])
+        payload = json.loads(self.rfile.read(length))
+        if payload.get("response_format"):
+            type(self).structured_requests += 1
+            type(self).schema = payload["response_format"]
+            content = '{"score": 7}'
+        else:
+            type(self).scalar_requests += 1
+            content = "b"
+        body = {"choices": [{"message": {"content": content}}]}
+        encoded = json.dumps(body).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(encoded)))
+        self.end_headers()
+        self.wfile.write(encoded)
+
+
 class DualEvaluationTests(unittest.TestCase):
     def test_textvqa_annotation_controls_are_only_removed_for_judge(self) -> None:
         references = [
@@ -131,6 +158,42 @@ class DualEvaluationTests(unittest.TestCase):
         self.assertCountEqual(calls, ["bad-key", "good-key"])
         self.assertIn("good-key", cached)
         self.assertNotIn("bad-key", cached)
+
+    def test_unparseable_scalar_uses_json_schema_recovery(self) -> None:
+        StructuredRecoveryHandler.scalar_requests = 0
+        StructuredRecoveryHandler.structured_requests = 0
+        StructuredRecoveryHandler.schema = None
+        server = ThreadingHTTPServer(("127.0.0.1", 0), StructuredRecoveryHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            sample = {
+                "judge_key": "recovery-key",
+                "row": {"id": "sample", "question": "Q", "pred": "B"},
+                "references": ["A"],
+            }
+            args = SimpleNamespace(
+                judge_model="qwen-mock-judge",
+                judge_base_url=f"http://127.0.0.1:{server.server_port}/v1",
+                judge_api_key="EMPTY",
+                judge_timeout=5,
+                judge_retries=3,
+            )
+            result = dual.request_with_retries([sample], args)["recovery-key"]
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+        self.assertEqual(StructuredRecoveryHandler.scalar_requests, 1)
+        self.assertEqual(StructuredRecoveryHandler.structured_requests, 1)
+        self.assertEqual(
+            StructuredRecoveryHandler.schema["type"],
+            "json_schema",
+        )
+        self.assertEqual(result["raw_score_0_10"], 7.0)
+        self.assertEqual(result["score"], 0.7)
+        self.assertEqual(result["transport"], "json_schema_recovery")
 
     def test_judge_score_parsing(self) -> None:
         self.assertEqual(dual.parse_score("8/10"), 8.0)

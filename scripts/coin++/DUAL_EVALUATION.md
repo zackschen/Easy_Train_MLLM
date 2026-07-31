@@ -19,7 +19,11 @@ and prompt-injection resistance. Qwen requests explicitly disable thinking so
 the response budget cannot be consumed by hidden reasoning. For the Judge
 track only, TextVQA annotation-control responses are removed when semantic
 human answers remain; the official TextVQA metric still receives all ten
-original answers. Changing the rubric changes the cache key.
+original answers. If a scalar response is malformed, the evaluator retries
+the same rubric with a JSON Schema constrained output and records the transport
+as `json_schema_recovery`; this formatting recovery does not change the cache
+key or invalidate successful scalar judgments. Changing the rubric changes the
+cache key.
 
 ## Factor Evaluation
 

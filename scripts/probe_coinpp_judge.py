@@ -10,6 +10,7 @@ from types import SimpleNamespace
 
 from evaluate_coinpp_dual import (
     COIN_JUDGE_PROMPT,
+    COIN_JUDGE_STRUCTURED_PROMPT,
     JUDGE_PROMPT_VERSION,
     judge_references_for_row,
     judge_single_request,
@@ -39,6 +40,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--candidate", default="no")
     parser.add_argument("--timeout", type=float, default=180.0)
     parser.add_argument("--show-prompt", action="store_true")
+    parser.add_argument(
+        "--structured-output",
+        action="store_true",
+        help="Force the JSON-schema recovery transport for this probe.",
+    )
     return parser.parse_args()
 
 
@@ -73,9 +79,18 @@ def main() -> int:
     if ignored_references:
         print("ignored_references=" + json.dumps(ignored_references, ensure_ascii=False))
     if args.show_prompt:
-        print("\n[SYSTEM]\n" + COIN_JUDGE_PROMPT)
+        system_prompt = (
+            COIN_JUDGE_STRUCTURED_PROMPT
+            if args.structured_output
+            else COIN_JUDGE_PROMPT
+        )
+        print("\n[SYSTEM]\n" + system_prompt)
         print("\n[USER]\n" + judge_user_content(sample, args.model))
-    result = judge_single_request(sample, request_args)
+    result = judge_single_request(
+        sample,
+        request_args,
+        structured_output=args.structured_output,
+    )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
