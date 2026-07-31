@@ -57,6 +57,25 @@ Decision rules:
 
 Evaluate silently. Output exactly one numeric score from 0 to 10 on a single line. You may use one decimal place when needed. Do not output words, JSON, Markdown, an explanation, or a '/10' suffix."""
 
+COIN_JUDGE_STRUCTURED_PROMPT = (
+    COIN_JUDGE_PROMPT.rsplit("\n\nEvaluate silently.", 1)[0]
+    + "\n\nEvaluate silently. Output exactly one JSON object with one numeric "
+    'field named "score" whose value is from 0 to 10. Do not output any other '
+    "field, text, Markdown, or explanation."
+)
+COIN_JUDGE_RESPONSE_FORMAT = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "coin_judge_score",
+        "schema": {
+            "type": "object",
+            "properties": {"score": {"type": "number"}},
+            "required": ["score"],
+            "additionalProperties": False,
+        },
+    },
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -397,6 +416,7 @@ def parse_coin_score_response(message: dict[str, Any]) -> dict[str, Any]:
 def judge_single_request(
     sample: dict[str, Any],
     args: argparse.Namespace,
+    structured_output: bool = False,
 ) -> dict[str, Any]:
     endpoint = args.judge_base_url.rstrip("/") + "/chat/completions"
     user_content = judge_user_content(sample, str(args.judge_model))
@@ -405,13 +425,19 @@ def judge_single_request(
         "messages": [
             {
                 "role": "system",
-                "content": COIN_JUDGE_PROMPT,
+                "content": (
+                    COIN_JUDGE_STRUCTURED_PROMPT
+                    if structured_output
+                    else COIN_JUDGE_PROMPT
+                ),
             },
             {"role": "user", "content": user_content},
         ],
         "temperature": 0,
         "max_tokens": 1024,
     }
+    if structured_output:
+        body["response_format"] = COIN_JUDGE_RESPONSE_FORMAT
     if "qwen" in str(args.judge_model).lower():
         body["chat_template_kwargs"] = {
             "enable_thinking": False,
@@ -428,7 +454,11 @@ def judge_single_request(
     )
     with urllib.request.urlopen(request, timeout=args.judge_timeout) as response:
         response_body = json.loads(response.read().decode("utf-8"))
-    return parse_coin_score_response(response_body["choices"][0]["message"])
+    result = parse_coin_score_response(response_body["choices"][0]["message"])
+    result["transport"] = (
+        "json_schema_recovery" if structured_output else "scalar"
+    )
+    return result
 
 
 def judge_request(
@@ -449,18 +479,35 @@ def request_with_retries(
         raise ValueError("CoIN scalar Judge requires exactly one sample per request")
 
     sample = samples[0]
-    last_error: Exception | None = None
+    primary_error: Exception | None = None
     for attempt in range(args.judge_retries + 1):
         try:
             return judge_request([sample], args)
+        except ValueError as error:
+            # Temperature-zero formatting failures are deterministic. Move
+            # directly to constrained decoding instead of repeating the same
+            # malformed scalar response.
+            primary_error = error
+            break
+        except (OSError, KeyError, urllib.error.HTTPError) as error:
+            primary_error = error
+        if attempt < args.judge_retries:
+            time.sleep(min(8.0, 1.5 * (2**attempt)))
+
+    recovery_error: Exception | None = None
+    for attempt in range(args.judge_retries + 1):
+        try:
+            result = judge_single_request(sample, args, structured_output=True)
+            return {sample["judge_key"]: result}
         except (OSError, KeyError, ValueError, urllib.error.HTTPError) as error:
-            last_error = error
+            recovery_error = error
         if attempt < args.judge_retries:
             time.sleep(min(8.0, 1.5 * (2**attempt)))
 
     raise RuntimeError(
-        f"LLM judge failed for sample={sample['judge_key'][:12]} after "
-        f"{args.judge_retries + 1} attempts; last error: {last_error}"
+        f"LLM judge failed for sample={sample['judge_key'][:12]} after scalar "
+        f"and JSON-schema recovery; scalar error: {primary_error}; "
+        f"recovery error: {recovery_error}"
     )
 
 def read_judge_cache(path: Path | None) -> dict[str, dict[str, Any]]:
@@ -541,8 +588,12 @@ def run_all_judgments(
                         for sample in batch:
                             key = str(sample["judge_key"])
                             failures.append((key, str(error)))
+                            row = sample.get("row") or {}
+                            dataset = str((row.get("metadata") or {}).get("dataset") or "")
                             print(
-                                f"[judge-all][failed] key={key[:12]} error={error}",
+                                f"[judge-all][failed] key={key[:12]} "
+                                f"id={row.get('id')} dataset={dataset or 'unknown'} "
+                                f"error={error}",
                                 flush=True,
                             )
                     else:
@@ -687,6 +738,7 @@ def prepare_rows(
                     "score": float(result["score"]),
                     "raw_score_0_10": float(result["raw_score_0_10"]),
                     "reason": result.get("reason", ""),
+                    "judge_transport": result.get("transport", "scalar"),
                     "judge_status": "cache_or_api",
                 }
             )
@@ -858,6 +910,9 @@ def write_outputs(
                     "raw_scale": "0_to_10",
                     "reported_scale": "0_to_1",
                     "image_provided_to_judge": False,
+                    "output_transport": (
+                        "scalar_primary_with_json_schema_recovery"
+                    ),
                     "reference_policy": (
                         "TextVQA annotation-control responses are excluded from "
                         "Judge inputs when semantic references remain; standard "
