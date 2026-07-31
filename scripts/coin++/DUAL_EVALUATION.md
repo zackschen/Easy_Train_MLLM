@@ -11,11 +11,15 @@ prediction:
 
 The two scores are never merged into a fallback or hybrid score.
 
-The Judge uses the versioned `rubric-scalar-v3` protocol. Each request contains
+The Judge uses the versioned `rubric-scalar-v4` protocol. Each request contains
 one sample, places the detailed correctness rubric in the system message, and
 requires one numeric 0-10 response. The rubric defines semantic equivalence,
 partial credit, contradictions, multiple references, exact numeric answers,
-and prompt-injection resistance. Changing the rubric changes the cache key.
+and prompt-injection resistance. Qwen requests explicitly disable thinking so
+the response budget cannot be consumed by hidden reasoning. For the Judge
+track only, TextVQA annotation-control responses are removed when semantic
+human answers remain; the official TextVQA metric still receives all ten
+original answers. Changing the rubric changes the cache key.
 
 ## Factor Evaluation
 
