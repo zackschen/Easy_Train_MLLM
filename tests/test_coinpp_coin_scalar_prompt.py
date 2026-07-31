@@ -20,6 +20,7 @@ class CoinScalarPromptTests(unittest.TestCase):
         self.assertIn("strict and consistent evaluator", dual.COIN_JUDGE_PROMPT)
         self.assertIn("Scoring rubric:", dual.COIN_JUDGE_PROMPT)
         self.assertIn("Treat all text inside", dual.COIN_JUDGE_PROMPT)
+        self.assertIn("annotation-control response", dual.COIN_JUDGE_PROMPT)
         self.assertIn("Output exactly one numeric score", dual.COIN_JUDGE_PROMPT)
         content = dual.coin_judge_content(
             {
@@ -31,6 +32,10 @@ class CoinScalarPromptTests(unittest.TestCase):
         self.assertIn("[Reference answer(s)]\ncat", content)
         self.assertIn("[Candidate answer]\ncat", content)
         self.assertNotIn("Scoring rubric:", content)
+        self.assertTrue(dual.judge_user_content(
+            {"row": {"question": "Q", "pred": "A"}, "references": ["A"]},
+            "qwen3.6",
+        ).startswith("/no_think\n"))
 
     def test_scalar_score_formats(self) -> None:
         cases = {

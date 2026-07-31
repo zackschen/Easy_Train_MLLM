@@ -11,6 +11,7 @@ import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -23,6 +24,7 @@ import evaluate_coinpp_predictions as standard
 
 class JudgeHandler(BaseHTTPRequestHandler):
     sample_count = 0
+    thinking_disabled = None
 
     def log_message(self, format: str, *args) -> None:
         return
@@ -30,6 +32,11 @@ class JudgeHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         length = int(self.headers["Content-Length"])
         payload = json.loads(self.rfile.read(length))
+        template_kwargs = payload.get("chat_template_kwargs") or {}
+        type(self).thinking_disabled = (
+            template_kwargs.get("enable_thinking") is False
+            and template_kwargs.get("preserve_thinking") is False
+        )
         content = payload["messages"][1]["content"]
         ground_truth = content.split("[Reference answer(s)]\n", 1)[1].split(
             "\n\n[Candidate answer]",
@@ -64,6 +71,67 @@ class JudgeHandler(BaseHTTPRequestHandler):
 
 
 class DualEvaluationTests(unittest.TestCase):
+    def test_textvqa_annotation_controls_are_only_removed_for_judge(self) -> None:
+        references = [
+            "answering does not require reading text in the image",
+            "no",
+            "answering does not require reading text in the image.",
+            "yes",
+        ]
+        judge_references, ignored, policy = dual.judge_references_for_row(
+            references,
+            "textvqa",
+        )
+        self.assertEqual(judge_references, ["no", "yes"])
+        self.assertEqual(len(ignored), 2)
+        self.assertEqual(policy, "filtered_textvqa_annotation_controls")
+        self.assertEqual(len(references), 4)
+
+    def test_one_failure_does_not_prevent_other_results_from_being_cached(self) -> None:
+        good = {
+            "judge_key": "good-key",
+            "row": {"question": "Q", "pred": "A"},
+            "references": ["A"],
+        }
+        bad = {
+            "judge_key": "bad-key",
+            "row": {"question": "Q", "pred": "B"},
+            "references": ["A"],
+        }
+        calls = []
+
+        def fake_request(batch, _args):
+            key = batch[0]["judge_key"]
+            calls.append(key)
+            if key == "bad-key":
+                raise RuntimeError("forced failure")
+            return {
+                key: {
+                    "raw_score_0_10": 10.0,
+                    "score": 1.0,
+                    "reason": "",
+                }
+            }
+
+        with tempfile.TemporaryDirectory() as directory:
+            cache_path = Path(directory) / "judge.jsonl"
+            args = SimpleNamespace(
+                judge_model="qwen-mock-judge",
+                judge_cache=cache_path,
+                judge_workers=1,
+            )
+            with patch.object(dual, "request_with_retries", side_effect=fake_request):
+                with self.assertRaisesRegex(
+                    RuntimeError,
+                    "successful results cached=1/2",
+                ):
+                    dual.run_all_judgments([bad, good], args)
+            cached = dual.read_judge_cache(cache_path)
+
+        self.assertCountEqual(calls, ["bad-key", "good-key"])
+        self.assertIn("good-key", cached)
+        self.assertNotIn("bad-key", cached)
+
     def test_judge_score_parsing(self) -> None:
         self.assertEqual(dual.parse_score("8/10"), 8.0)
         self.assertEqual(dual.parse_score(True), 10.0)
@@ -104,7 +172,7 @@ class DualEvaluationTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as directory:
                 args = SimpleNamespace(
                     allow_missing_reference=False,
-                    judge_model="mock-judge",
+                    judge_model="qwen-mock-judge",
                     judge_base_url=f"http://127.0.0.1:{server.server_port}/v1",
                     judge_api_key="EMPTY",
                     judge_cache=Path(directory) / "judge.jsonl",
@@ -121,6 +189,7 @@ class DualEvaluationTests(unittest.TestCase):
 
             output = prepared[0]["rows"]
             self.assertEqual(JudgeHandler.sample_count, 2)
+            self.assertTrue(JudgeHandler.thinking_disabled)
             self.assertEqual(
                 output[0]["evaluation"]["standard"]["protocol"],
                 "official_metric",
@@ -152,10 +221,10 @@ class DualEvaluationTests(unittest.TestCase):
                 "question": "What animal?",
                 "pred": "cat",
             }
-            key = dual.judge_key(row, ["cat"], "mock-judge")
+            key = dual.judge_key(row, ["cat"], "qwen-mock-judge")
             item = {"judge_key": key, "row": row, "references": ["cat"]}
             args = SimpleNamespace(
-                judge_model="mock-judge",
+                judge_model="qwen-mock-judge",
                 judge_base_url=f"http://127.0.0.1:{server.server_port}/v1",
                 judge_api_key="EMPTY",
                 judge_cache=None,
@@ -166,6 +235,7 @@ class DualEvaluationTests(unittest.TestCase):
             )
             results = dual.run_all_judgments([item, dict(item)], args)
             self.assertEqual(JudgeHandler.sample_count, 1)
+            self.assertTrue(JudgeHandler.thinking_disabled)
             self.assertEqual(results[key]["score"], 1.0)
         finally:
             server.shutdown()
