@@ -1,0 +1,7 @@
+track,mode,final_average,mean_seen_score,mean_score_at_learning,average_forgetting_old_tasks,bwt_old_tasks,final_task_score
+standard,vision_only,0.106490,0.072011,0.063911,0.001877,0.051094,0.131774
+standard,projector_only,0.183900,0.214773,0.180445,0.014712,0.004146,0.151852
+standard,llm_only,0.284387,0.360894,0.324552,0.048198,-0.048198,0.285497
+llm_judge,vision_only,0.192850,0.236214,0.174733,0.004000,0.021740,0.150400
+llm_judge,projector_only,0.219917,0.275971,0.208733,0.002120,0.013420,0.168900
+llm_judge,llm_only,0.296300,0.387705,0.321475,0.030370,-0.030210,0.249600

@@ -1,0 +1,62 @@
+{
+  "evaluation_protocol": "independent_standard_and_llm_judge",
+  "standard_track": {
+    "registered_metric_first": true,
+    "fallback": "normalized_answer_match"
+  },
+  "llm_judge_track": {
+    "coverage": "all_predictions",
+    "model": "qwen3.6",
+    "prompt_version": "coinpp-all-results-judge-rubric-scalar-v4",
+    "raw_scale": "0_to_10",
+    "reported_scale": "0_to_1",
+    "image_provided_to_judge": false,
+    "output_transport": "scalar_primary_with_json_schema_recovery",
+    "reference_policy": "TextVQA annotation-control responses are excluded from Judge inputs when semantic references remain; standard metrics retain all original references."
+  },
+  "annotation_report": {
+    "sources": [
+      {
+        "path": "/data/chencheng/cl_dataset/coin_factor1_final/evaluation_annotations_visual.jsonl",
+        "kind": "cache",
+        "matched_rows": 5486,
+        "malformed_rows": 0
+      },
+      {
+        "path": "/data/chencheng/cl_dataset/coin_factor1_targeted_pool_v3/metadata/sample_metadata.jsonl",
+        "kind": "metadata",
+        "matched_rows": 0,
+        "malformed_rows": 0
+      },
+      {
+        "path": "/data/chencheng/cl_dataset/coin_factor1_targeted_pool_v4_missing/metadata/sample_metadata.jsonl",
+        "kind": "metadata",
+        "matched_rows": 0,
+        "malformed_rows": 0
+      },
+      {
+        "path": "/data/chencheng/cl_dataset/coin_factor1_targeted_pool_v5_chart_diagram_text/metadata/sample_metadata.jsonl",
+        "kind": "metadata",
+        "matched_rows": 0,
+        "malformed_rows": 0
+      },
+      {
+        "path": "/data/chencheng/cl_dataset/coin_factor1_targeted_pool_v6_iconqa/metadata/sample_metadata.jsonl",
+        "kind": "metadata",
+        "matched_rows": 514,
+        "malformed_rows": 0
+      }
+    ],
+    "needed_ids": 6000,
+    "resolved_ids": 6000,
+    "missing_ids": 0
+  },
+  "stages": [
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/1_natural_photo",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/2_medical",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/3_document",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/4_infographic",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/5_diagram",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++/visual_substrate/eval/6_chart"
+  ]
+}
