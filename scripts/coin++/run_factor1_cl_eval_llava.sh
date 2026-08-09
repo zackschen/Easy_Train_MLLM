@@ -10,15 +10,15 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
 cd "$PROJECT_ROOT"
 
 FACTOR="${FACTOR:-evidence_complexity}"
-DATA_ROOT="${DATA_ROOT:-$PROJECT_ROOT/cl_dataset/coin_factor1_final}"
+DATA_ROOT="${DATA_ROOT:-$PROJECT_ROOT/cl_dataset/coin_factor1_final_textvqa_clean}"
 SPLIT_ROOT="${SPLIT_ROOT:-$DATA_ROOT/splits/$FACTOR}"
 EVAL_DIR="${EVAL_DIR:-$SPLIT_ROOT/trainable/eval}"
 ORDER_JSON="${ORDER_JSON:-$SPLIT_ROOT/transition_order.json}"
 IMAGE_FOLDER="${IMAGE_FOLDER:-$PROJECT_ROOT/cl_dataset}"
 
-CHECKPOINT_ROOT="${CHECKPOINT_ROOT:-$PROJECT_ROOT/checkpoints/LLaVA/Instruction/CoIN++/$FACTOR}"
+CHECKPOINT_ROOT="${CHECKPOINT_ROOT:-$PROJECT_ROOT/checkpoints/LLaVA/Instruction/CoIN++_textvqa_clean/$FACTOR}"
 MODEL_BASE="${MODEL_BASE:-$PROJECT_ROOT/checkpoints/LLaVA/Vicuna/vicuna-7b-v1.5}"
-RESULT_ROOT="${RESULT_ROOT:-$PROJECT_ROOT/results/coin++/$FACTOR/eval}"
+RESULT_ROOT="${RESULT_ROOT:-$PROJECT_ROOT/results/coin++_textvqa_clean/$FACTOR/eval}"
 EVALUATOR="${EVALUATOR:-$PROJECT_ROOT/scripts/eval_factor1_llava_json.py}"
 SUMMARIZER="${SUMMARIZER:-$PROJECT_ROOT/scripts/summarize_factor1_eval.py}"
 

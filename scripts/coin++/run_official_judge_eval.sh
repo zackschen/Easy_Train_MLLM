@@ -18,14 +18,14 @@ PYTHON_BIN="${PYTHON_BIN:-$DEFAULT_PYTHON}"
 export PYTHONPATH="$PROJECT_ROOT${PYTHONPATH:+:$PYTHONPATH}"
 
 FACTOR="${FACTOR:-evidence_complexity}"
-DATA_ROOT="${DATA_ROOT:-$PROJECT_ROOT/cl_dataset/coin_factor1_final}"
+DATA_ROOT="${DATA_ROOT:-$PROJECT_ROOT/cl_dataset/coin_factor1_final_textvqa_clean}"
 ORDER_JSON="${ORDER_JSON:-$DATA_ROOT/splits/$FACTOR/transition_order.json}"
-RESULT_ROOTS="${RESULT_ROOTS:-$PROJECT_ROOT/results/coin++/$FACTOR/eval}"
+RESULT_ROOTS="${RESULT_ROOTS:-$PROJECT_ROOT/results/coin++_textvqa_clean/$FACTOR/eval}"
 
 SCORER="${SCORER:-$PROJECT_ROOT/scripts/evaluate_coinpp_predictions.py}"
 SUMMARIZER="${SUMMARIZER:-$PROJECT_ROOT/scripts/summarize_coinpp_official_eval.py}"
 ANNOTATION_CACHE="${ANNOTATION_CACHE:-$DATA_ROOT/evaluation_annotations.jsonl}"
-JUDGE_CACHE="${JUDGE_CACHE:-$PROJECT_ROOT/results/coin++/judge_cache/${FACTOR}.jsonl}"
+JUDGE_CACHE="${JUDGE_CACHE:-$PROJECT_ROOT/results/coin++_textvqa_clean/judge_cache/${FACTOR}.jsonl}"
 
 JUDGE_MODE="${JUDGE_MODE:-fallback}"
 JUDGE_MODEL="${JUDGE_MODEL:-qwen3.6}"

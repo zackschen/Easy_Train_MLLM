@@ -9,12 +9,12 @@ PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 cd "$PROJECT_ROOT"
 
-FACTOR="${FACTOR:-visual_substrate}"
+FACTOR="${FACTOR:-skill_requirement}"
 MODULE_MODES="${MODULE_MODES:-vision_only projector_only llm_only}"
-DATA_ROOT="${DATA_ROOT:-$PROJECT_ROOT/cl_dataset/coin_factor1_final}"
+DATA_ROOT="${DATA_ROOT:-$PROJECT_ROOT/cl_dataset/coin_factor1_final_textvqa_clean}"
 ORDER_JSON="${ORDER_JSON:-$DATA_ROOT/splits/$FACTOR/transition_order.json}"
-CHECKPOINT_BASE="${CHECKPOINT_BASE:-$PROJECT_ROOT/checkpoints/LLaVA/Instruction/CoIN++_TrainableModules}"
-RESULT_BASE="${RESULT_BASE:-$PROJECT_ROOT/results/coin++_trainable_modules}"
+CHECKPOINT_BASE="${CHECKPOINT_BASE:-$PROJECT_ROOT/checkpoints/LLaVA/Instruction/CoIN++_TrainableModules_textvqa_clean}"
+RESULT_BASE="${RESULT_BASE:-$PROJECT_ROOT/results/coin++_trainable_modules_textvqa_clean}"
 MODEL_BASE="${MODEL_BASE:-$PROJECT_ROOT/checkpoints/LLaVA/Vicuna/vicuna-7b-v1.5}"
 
 EVAL_SCRIPT="${EVAL_SCRIPT:-$SCRIPT_DIR/run_factor1_cl_eval_llava.sh}"
@@ -128,14 +128,16 @@ evaluated_modes=()
 for mode in "${modes[@]}"; do
   checkpoint_root="$CHECKPOINT_BASE/$FACTOR/$mode"
   missing_checkpoints=()
-  for idx in "${!STAGES[@]}"; do
-    stage_no=$((idx + 1))
-    stage="${STAGES[$idx]}"
-    stage_key="${stage_no}_${stage}"
-    if ! checkpoint_complete "$checkpoint_root/$stage_key"; then
-      missing_checkpoints+=("$stage_key")
-    fi
-  done
+  if [[ "$DRY_RUN" != "1" ]]; then
+    for idx in "${!STAGES[@]}"; do
+      stage_no=$((idx + 1))
+      stage="${STAGES[$idx]}"
+      stage_key="${stage_no}_${stage}"
+      if ! checkpoint_complete "$checkpoint_root/$stage_key"; then
+        missing_checkpoints+=("$stage_key")
+      fi
+    done
+  fi
 
   if [[ "${#missing_checkpoints[@]}" -gt 0 ]]; then
     echo "[incomplete] mode=$mode missing: ${missing_checkpoints[*]}" >&2

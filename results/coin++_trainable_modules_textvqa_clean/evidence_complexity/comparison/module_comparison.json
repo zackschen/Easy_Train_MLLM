@@ -1,0 +1,300 @@
+{
+  "factor": "evidence_complexity",
+  "metric": "relaxed_match",
+  "stages": [
+    "single_evidence",
+    "multi_evidence",
+    "cross_region_or_multihop",
+    "cross_context"
+  ],
+  "summaries": [
+    {
+      "mode": "vision_only",
+      "final_average": 0.22275,
+      "mean_seen_accuracy": 0.20660416666666667,
+      "mean_score_at_learning": 0.21125,
+      "average_forgetting_old_tasks": 0.0,
+      "bwt_old_tasks": 0.015333333333333329,
+      "final_task_score": 0.267
+    },
+    {
+      "mode": "projector_only",
+      "final_average": 0.27725,
+      "mean_seen_accuracy": 0.23752083333333335,
+      "mean_score_at_learning": 0.2465,
+      "average_forgetting_old_tasks": 0.0,
+      "bwt_old_tasks": 0.04099999999999999,
+      "final_task_score": 0.33
+    },
+    {
+      "mode": "llm_only",
+      "final_average": 0.35150000000000003,
+      "mean_seen_accuracy": 0.35975,
+      "mean_score_at_learning": 0.376,
+      "average_forgetting_old_tasks": 0.03433333333333333,
+      "bwt_old_tasks": -0.032666666666666656,
+      "final_task_score": 0.43
+    },
+    {
+      "mode": "llm_projector",
+      "final_average": 0.349,
+      "mean_seen_accuracy": 0.35483333333333333,
+      "mean_score_at_learning": 0.3765,
+      "average_forgetting_old_tasks": 0.03666666666666666,
+      "bwt_old_tasks": -0.03666666666666666,
+      "final_task_score": 0.441
+    }
+  ],
+  "task_metrics": [
+    {
+      "mode": "vision_only",
+      "task": "single_evidence",
+      "score_at_learning": 0.203,
+      "best_after_learning": 0.222,
+      "final_score": 0.222,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.01899999999999999
+    },
+    {
+      "mode": "vision_only",
+      "task": "multi_evidence",
+      "score_at_learning": 0.198,
+      "best_after_learning": 0.221,
+      "final_score": 0.221,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.022999999999999993
+    },
+    {
+      "mode": "vision_only",
+      "task": "cross_region_or_multihop",
+      "score_at_learning": 0.177,
+      "best_after_learning": 0.181,
+      "final_score": 0.181,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0040000000000000036
+    },
+    {
+      "mode": "vision_only",
+      "task": "cross_context",
+      "score_at_learning": 0.267,
+      "best_after_learning": 0.267,
+      "final_score": 0.267,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0
+    },
+    {
+      "mode": "projector_only",
+      "task": "single_evidence",
+      "score_at_learning": 0.223,
+      "best_after_learning": 0.282,
+      "final_score": 0.282,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.05899999999999997
+    },
+    {
+      "mode": "projector_only",
+      "task": "multi_evidence",
+      "score_at_learning": 0.226,
+      "best_after_learning": 0.26,
+      "final_score": 0.26,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.034
+    },
+    {
+      "mode": "projector_only",
+      "task": "cross_region_or_multihop",
+      "score_at_learning": 0.207,
+      "best_after_learning": 0.237,
+      "final_score": 0.237,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.03
+    },
+    {
+      "mode": "projector_only",
+      "task": "cross_context",
+      "score_at_learning": 0.33,
+      "best_after_learning": 0.33,
+      "final_score": 0.33,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0
+    },
+    {
+      "mode": "llm_only",
+      "task": "single_evidence",
+      "score_at_learning": 0.404,
+      "best_after_learning": 0.404,
+      "final_score": 0.34,
+      "forgetting": 0.064,
+      "final_minus_learning": -0.064
+    },
+    {
+      "mode": "llm_only",
+      "task": "multi_evidence",
+      "score_at_learning": 0.364,
+      "best_after_learning": 0.364,
+      "final_score": 0.325,
+      "forgetting": 0.03899999999999998,
+      "final_minus_learning": -0.03899999999999998
+    },
+    {
+      "mode": "llm_only",
+      "task": "cross_region_or_multihop",
+      "score_at_learning": 0.306,
+      "best_after_learning": 0.311,
+      "final_score": 0.311,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0050000000000000044
+    },
+    {
+      "mode": "llm_only",
+      "task": "cross_context",
+      "score_at_learning": 0.43,
+      "best_after_learning": 0.43,
+      "final_score": 0.43,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0
+    },
+    {
+      "mode": "llm_projector",
+      "task": "single_evidence",
+      "score_at_learning": 0.391,
+      "best_after_learning": 0.391,
+      "final_score": 0.323,
+      "forgetting": 0.068,
+      "final_minus_learning": -0.068
+    },
+    {
+      "mode": "llm_projector",
+      "task": "multi_evidence",
+      "score_at_learning": 0.35,
+      "best_after_learning": 0.35,
+      "final_score": 0.332,
+      "forgetting": 0.01799999999999996,
+      "final_minus_learning": -0.01799999999999996
+    },
+    {
+      "mode": "llm_projector",
+      "task": "cross_region_or_multihop",
+      "score_at_learning": 0.324,
+      "best_after_learning": 0.324,
+      "final_score": 0.3,
+      "forgetting": 0.02400000000000002,
+      "final_minus_learning": -0.02400000000000002
+    },
+    {
+      "mode": "llm_projector",
+      "task": "cross_context",
+      "score_at_learning": 0.441,
+      "best_after_learning": 0.441,
+      "final_score": 0.441,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0
+    }
+  ],
+  "matrices": {
+    "vision_only": [
+      [
+        0.203,
+        0.186,
+        0.143,
+        0.239
+      ],
+      [
+        0.206,
+        0.198,
+        0.146,
+        0.262
+      ],
+      [
+        0.21,
+        0.209,
+        0.177,
+        0.267
+      ],
+      [
+        0.222,
+        0.221,
+        0.181,
+        0.267
+      ]
+    ],
+    "projector_only": [
+      [
+        0.223,
+        0.213,
+        0.158,
+        0.27
+      ],
+      [
+        0.233,
+        0.226,
+        0.183,
+        0.294
+      ],
+      [
+        0.23,
+        0.224,
+        0.207,
+        0.27
+      ],
+      [
+        0.282,
+        0.26,
+        0.237,
+        0.33
+      ]
+    ],
+    "llm_only": [
+      [
+        0.404,
+        0.3,
+        0.221,
+        0.349
+      ],
+      [
+        0.381,
+        0.364,
+        0.209,
+        0.333
+      ],
+      [
+        0.323,
+        0.304,
+        0.306,
+        0.343
+      ],
+      [
+        0.34,
+        0.325,
+        0.311,
+        0.43
+      ]
+    ],
+    "llm_projector": [
+      [
+        0.391,
+        0.297,
+        0.213,
+        0.347
+      ],
+      [
+        0.37,
+        0.35,
+        0.201,
+        0.348
+      ],
+      [
+        0.331,
+        0.303,
+        0.324,
+        0.342
+      ],
+      [
+        0.323,
+        0.332,
+        0.3,
+        0.441
+      ]
+    ]
+  }
+}

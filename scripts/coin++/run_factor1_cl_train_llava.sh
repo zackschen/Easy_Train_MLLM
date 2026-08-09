@@ -16,7 +16,7 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
 cd "$PROJECT_ROOT"
 
 FACTOR="${FACTOR:-evidence_complexity}"
-DATA_ROOT="${DATA_ROOT:-$PROJECT_ROOT/cl_dataset/coin_factor1_final}"
+DATA_ROOT="${DATA_ROOT:-$PROJECT_ROOT/cl_dataset/coin_factor1_final_textvqa_clean}"
 SPLIT_ROOT="${SPLIT_ROOT:-$DATA_ROOT/splits/$FACTOR}"
 TRAIN_DIR="${TRAIN_DIR:-$SPLIT_ROOT/trainable/train}"
 EVAL_DIR="${EVAL_DIR:-$SPLIT_ROOT/trainable/eval}"
@@ -30,9 +30,9 @@ PROJECTOR_PATH="${PROJECTOR_PATH:-$PROJECT_ROOT/checkpoints/LLaVA/Vicuna/$MODEL_
 VISION_TOWER="${VISION_TOWER:-$PROJECT_ROOT/checkpoints/LLaVA/clip-vit-large-patch14-336}"
 DS_CONFIG_PATH="${DS_CONFIG_PATH:-$PROJECT_ROOT/scripts/zero3_offload.json}"
 
-OUTPUT_ROOT="${OUTPUT_ROOT:-$PROJECT_ROOT/checkpoints/LLaVA/Instruction/CoIN++/$FACTOR}"
-LOG_DIR="${LOG_DIR:-$PROJECT_ROOT/results/coin++/$FACTOR/logs}"
-INCLUDE_GPUS="${INCLUDE_GPUS:-localhost:0,1,2,3,4,5,6,7}"
+OUTPUT_ROOT="${OUTPUT_ROOT:-$PROJECT_ROOT/checkpoints/LLaVA/Instruction/CoIN++_textvqa_clean/$FACTOR}"
+LOG_DIR="${LOG_DIR:-$PROJECT_ROOT/results/coin++_textvqa_clean/$FACTOR/logs}"
+INCLUDE_GPUS="${INCLUDE_GPUS:-localhost:0,1,2,3}"
 MASTER_PORT="${MASTER_PORT:-29651}"
 
 RUN_TRAIN="${RUN_TRAIN:-1}"
@@ -112,6 +112,15 @@ stage_checkpoint_complete() {
   done
   return 0
 }
+stage_checkpoint_reusable() {
+  local stage_output="$1"
+  local marker="$stage_output/.coinpp_stage_complete"
+
+  stage_checkpoint_complete "$stage_output" || return 1
+  [[ -s "$marker" ]] || return 1
+  grep -Fqx "data_root=$DATA_ROOT" "$marker"
+}
+
 
 write_stage_complete_marker() {
   local stage_output="$1"
@@ -122,6 +131,7 @@ write_stage_complete_marker() {
     printf 'factor=%s\n' "$FACTOR"
     printf 'stage_number=%s\n' "$stage_no"
     printf 'stage=%s\n' "$stage"
+    printf 'data_root=%s\n' "$DATA_ROOT"
     printf 'trainable_modules=%s\n' "${TRAINABLE_MODULES:-legacy_llm_projector}"
     printf 'completed_at=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   } > "$stage_output/.coinpp_stage_complete"
@@ -141,7 +151,7 @@ if [[ -z "$RESUME_FROM_STAGE" ]]; then
       stage_no=$((idx + 1))
       stage="${STAGES[$idx]}"
       stage_output="$OUTPUT_ROOT/${stage_no}_${stage}"
-      if ! stage_checkpoint_complete "$stage_output"; then
+      if ! stage_checkpoint_reusable "$stage_output"; then
         RESUME_FROM_STAGE="$stage_no"
         AUTO_RESUME_REASON="first incomplete checkpoint: ${stage_no}_${stage}"
         break

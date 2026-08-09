@@ -11,7 +11,7 @@ set -euo pipefail
 
 PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 MODULE_MODE="${MODULE_MODE:-llm_only}"
-FACTOR="${FACTOR:-visual_substrate}"
+FACTOR="${FACTOR:-skill_requirement}"
 
 case "$MODULE_MODE" in
   vision_only)
@@ -51,8 +51,8 @@ case "$MODULE_MODE" in
     ;;
 esac
 
-OUTPUT_ROOT="${OUTPUT_ROOT:-$PROJECT_ROOT/checkpoints/LLaVA/Instruction/CoIN++_TrainableModules/$FACTOR/$MODULE_MODE}"
-LOG_DIR="${LOG_DIR:-$PROJECT_ROOT/results/coin++_trainable_modules/$FACTOR/$MODULE_MODE/logs}"
+OUTPUT_ROOT="${OUTPUT_ROOT:-$PROJECT_ROOT/checkpoints/LLaVA/Instruction/CoIN++_TrainableModules_textvqa_clean/$FACTOR/$MODULE_MODE}"
+LOG_DIR="${LOG_DIR:-$PROJECT_ROOT/results/coin++_trainable_modules_textvqa_clean/$FACTOR/$MODULE_MODE/logs}"
 
 export PROJECT_ROOT FACTOR OUTPUT_ROOT LOG_DIR
 export TRAINABLE_MODULES="$MODULE_MODE"

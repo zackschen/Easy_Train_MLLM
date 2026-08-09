@@ -63,7 +63,7 @@ Do not use a limited run as the final report because it writes limited
 ## Trainable Modules
 
 ```bash
-FACTOR=visual_substrate \
+FACTOR=skill_requirement \
 MODULE_MODES="vision_only projector_only llm_only" \
 JUDGE_MODEL=qwen3.6 \
 JUDGE_BASE_URL=http://127.0.0.1:8001/v1 \
@@ -73,5 +73,5 @@ bash scripts/coin++/run_trainable_modules_dual_eval.sh
 The cross-module report is written to:
 
 ```text
-results/coin++_trainable_modules/visual_substrate/comparison_dual/module_comparison_dual.md
+results/coin++_trainable_modules_textvqa_clean/skill_requirement/comparison_dual/module_comparison_dual.md
 ```

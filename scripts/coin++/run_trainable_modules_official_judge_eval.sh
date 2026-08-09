@@ -16,11 +16,11 @@ fi
 PYTHON_BIN="${PYTHON_BIN:-$DEFAULT_PYTHON}"
 export PYTHONPATH="$PROJECT_ROOT${PYTHONPATH:+:$PYTHONPATH}"
 
-FACTOR="${FACTOR:-visual_substrate}"
+FACTOR="${FACTOR:-skill_requirement}"
 MODULE_MODES="${MODULE_MODES:-vision_only projector_only llm_only}"
-DATA_ROOT="${DATA_ROOT:-$PROJECT_ROOT/cl_dataset/coin_factor1_final}"
+DATA_ROOT="${DATA_ROOT:-$PROJECT_ROOT/cl_dataset/coin_factor1_final_textvqa_clean}"
 ORDER_JSON="${ORDER_JSON:-$DATA_ROOT/splits/$FACTOR/transition_order.json}"
-RESULT_BASE="${RESULT_BASE:-$PROJECT_ROOT/results/coin++_trainable_modules/$FACTOR}"
+RESULT_BASE="${RESULT_BASE:-$PROJECT_ROOT/results/coin++_trainable_modules_textvqa_clean/$FACTOR}"
 GENERIC_RUNNER="${GENERIC_RUNNER:-$SCRIPT_DIR/run_official_judge_eval.sh}"
 COMPARATOR="${COMPARATOR:-$PROJECT_ROOT/scripts/compare_coinpp_module_official_eval.py}"
 

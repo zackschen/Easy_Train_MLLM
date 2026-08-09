@@ -42,7 +42,7 @@ Rescore a completed Skill or Visual experiment by overriding the result root:
 
 ```bash
 FACTOR=skill_requirement \
-RESULT_ROOTS=results/coin++/skill_requirement/eval \
+RESULT_ROOTS=results/coin++_textvqa_clean/skill_requirement/eval \
 bash scripts/coin++/run_official_judge_eval.sh
 ```
 
@@ -59,7 +59,7 @@ The three default regimes are rescored without repeating model inference. Their
 new comparison is written to:
 
 ```text
-results/coin++_trainable_modules/visual_substrate/comparison_official/module_comparison.md
+results/coin++_trainable_modules_textvqa_clean/skill_requirement/comparison_official/module_comparison.md
 ```
 
 ## Reproducibility
@@ -67,9 +67,9 @@ results/coin++_trainable_modules/visual_substrate/comparison_official/module_com
 The first run builds a compact annotation cache at:
 
 ```text
-cl_dataset/coin_factor1_final/evaluation_annotations.jsonl
+cl_dataset/coin_factor1_final_textvqa_clean/evaluation_annotations.jsonl
 ```
 
 Keep this file with the final benchmark release. LLM-Judge decisions are
-cached under `results/coin++/judge_cache/`, and each scored prediction records
+cached under `results/coin++_textvqa_clean/judge_cache/`, and each scored prediction records
 the judge model, prompt version, fallback reason, and short decision rationale.

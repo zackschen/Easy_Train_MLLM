@@ -4,14 +4,14 @@ This folder contains the final LLaVA continual-training entrypoints for the cons
 
 ## Dataset Defaults
 
-- data root: `/home/chencheng/data/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final`
+- data root: `/home/chencheng/data/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final_textvqa_clean`
 - image folder: `/home/chencheng/data/Code/Easy_Train_MLLM/cl_dataset`
 
 Each factor uses the fixed `10000 train + 1000 eval` splits under:
 
 ```bash
-cl_dataset/coin_factor1_final/splits/<factor>/trainable/train/<stage>/train.json
-cl_dataset/coin_factor1_final/splits/<factor>/trainable/eval/<stage>/eval.json
+cl_dataset/coin_factor1_final_textvqa_clean/splits/<factor>/trainable/train/<stage>/train.json
+cl_dataset/coin_factor1_final_textvqa_clean/splits/<factor>/trainable/eval/<stage>/eval.json
 ```
 
 ## Main Commands
@@ -28,6 +28,32 @@ bash scripts/coin++/run_skill_requirement_llava.sh
 
 # Run all three factor tracks
 bash scripts/coin++/run_all_factor_tracks_llava.sh
+```
+
+## One-Command Clean Rerun
+
+Run all three data-factor training/evaluation tracks, followed by the ten
+trainable-module chains found in the previous experiment: four for Evidence
+Complexity and three each for Skill Requirement and Visual Substrate:
+
+```bash
+conda activate ETrain
+bash scripts/coin++/run_all_textvqa_clean_llava.sh
+```
+
+The command uses four GPUs by default. Completed checkpoints and evaluations
+are detected automatically, so the same command safely resumes after an
+interruption. Use `MODULE_FACTORS=skill_requirement` to run only one module
+factor, or `MODULE_MODES=llm_only` to run one mode across selected factors.
+`RUN_DUAL_EVAL=auto` and `RUN_MODULE_DUAL_EVAL=auto` run the
+independent standard plus all-sample LLM-Judge tracks only when the Judge API
+is reachable. On a separate Judge server, run only those final phases with:
+
+```bash
+RUN_FACTOR_TRAIN=0 RUN_FACTOR_EVAL=0 \
+RUN_MODULE_TRAIN=0 RUN_MODULE_EVAL=0 \
+RUN_DUAL_EVAL=1 RUN_MODULE_DUAL_EVAL=1 \
+  bash scripts/coin++/run_all_textvqa_clean_llava.sh
 ```
 
 ## Smoke Run
@@ -51,7 +77,7 @@ Alternatively, provide its interpreter explicitly with
 Run a small inference check before the complete evaluation:
 
 ```bash
-LIMIT=20 RESULT_ROOT=results/coin++/evidence_complexity/eval_smoke \
+LIMIT=20 RESULT_ROOT=results/coin++_textvqa_clean/evidence_complexity/eval_smoke \
   bash scripts/coin++/run_evidence_complexity_eval_llava.sh
 ```
 
@@ -70,7 +96,7 @@ PARALLEL_STAGES=1 EVAL_GPUS=0,1,2,3 \
 
 Completed stage results are skipped by default. Set `SKIP_COMPLETED=0` to
 force re-evaluation. Summary matrices and forgetting results are written under
-`results/coin++/evidence_complexity/eval/summary/`.
+`results/coin++_textvqa_clean/evidence_complexity/eval/summary/`.
 
 ## Skill + Visual End-to-End Run
 
@@ -82,9 +108,9 @@ conda activate ETrain
 bash scripts/coin++/run_skill_visual_train_eval_llava.sh
 ```
 
-Training uses GPUs `0-7`. Evaluation also uses GPUs `0-7` and schedules one
-checkpoint per GPU in batches. Skill evaluation runs its 10 checkpoints as an
-`8 + 2` schedule, while Visual evaluates all 6 checkpoints in one batch.
+Training uses GPUs `0-3`. Evaluation also uses GPUs `0-3` and schedules one
+checkpoint per GPU in batches. Skill evaluation runs its 10 checkpoints as a
+`4 + 4 + 2` schedule, while Visual runs as `4 + 2`.
 
 Useful controls include `RUN_SKILL_TRAIN`, `RUN_SKILL_EVAL`,
 `RUN_VISUAL_TRAIN`, `RUN_VISUAL_EVAL`, `SKILL_RESUME_FROM_STAGE`,
@@ -94,7 +120,7 @@ Useful controls include `RUN_SKILL_TRAIN`, `RUN_SKILL_EVAL`,
 ## Trainable-Module Study
 
 Run the Visual-only, Projector-only, and LLM-only regimes sequentially on the
-same Visual Substrate transition:
+same Skill Requirement transition by default:
 
 ```bash
 conda activate ETrain
@@ -112,7 +138,7 @@ MODULE_MODES="vision_only projector_only llm_only llm_projector all_modules" \
   bash scripts/coin++/run_trainable_modules_llava.sh
 ```
 
-The default effective batch size is kept at 256 on eight GPUs. Vision-bearing
+The default effective batch size is 128 on four GPUs. Vision-bearing
 regimes use batch/accumulation `2/16`; the others use `4/8`. Default learning
 rates are `2e-6` for Vision, `2e-5` for Projector, and `2e-4` for LLM LoRA.
 Every checkpoint records the exact trainable-parameter count and retains the
@@ -121,8 +147,8 @@ fixed pretrained projector for reproducible continuation and evaluation.
 Module-study checkpoints and logs are written to:
 
 ```bash
-checkpoints/LLaVA/Instruction/CoIN++_TrainableModules/<factor>/<mode>/
-results/coin++_trainable_modules/<factor>/<mode>/logs/
+checkpoints/LLaVA/Instruction/CoIN++_TrainableModules_textvqa_clean/<factor>/<mode>/
+results/coin++_trainable_modules_textvqa_clean/<factor>/<mode>/logs/
 ```
 
 Evaluate every completed checkpoint from every module regime on the full task
@@ -143,16 +169,16 @@ PYTHON_BIN=/root/miniconda3/envs/ETrain/bin/python \
 Run a small validation first or evaluate a different factor/mode set:
 
 ```bash
-LIMIT=10 RESULT_BASE=results/coin++_trainable_modules_smoke \
+LIMIT=10 RESULT_BASE=results/coin++_trainable_modules_textvqa_clean_smoke \
   bash scripts/coin++/run_trainable_modules_eval_llava.sh
 FACTOR=skill_requirement MODULE_MODES="vision_only projector_only llm_only" \
   bash scripts/coin++/run_trainable_modules_eval_llava.sh
 ```
 
 Per-mode learning matrices and forgetting tables are written below
-`results/coin++_trainable_modules/<factor>/<mode>/eval/summary/`. The combined
+`results/coin++_trainable_modules_textvqa_clean/<factor>/<mode>/eval/summary/`. The combined
 comparison is written to
-`results/coin++_trainable_modules/<factor>/comparison/module_comparison.md`.
+`results/coin++_trainable_modules_textvqa_clean/<factor>/comparison/module_comparison.md`.
 
 Evaluation selects GPUs with at least 20 GB free memory by default and batches
 checkpoints when fewer GPUs are available. Override this behavior when needed:
@@ -183,13 +209,13 @@ STAGES_OVERRIDE="single_evidence multi_evidence"
 Default checkpoints:
 
 ```bash
-checkpoints/LLaVA/Instruction/CoIN++/<factor>/<stage_no>_<stage>/
+checkpoints/LLaVA/Instruction/CoIN++_textvqa_clean/<factor>/<stage_no>_<stage>/
 ```
 
 Default logs:
 
 ```bash
-results/coin++/<factor>/logs/<stage_no>_<stage>.log
+results/coin++_textvqa_clean/<factor>/logs/<stage_no>_<stage>.log
 ```
 
 The default mode is true continual learning: stage 2 uses `--previous_task_model_path` from stage 1, stage 3 uses stage 2, and so on. Set `RESET_EACH_STAGE=1` only for non-continual ablations.

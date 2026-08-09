@@ -1,0 +1,17 @@
+mode,task,score_at_learning,best_after_learning,final_score,forgetting,final_minus_learning
+vision_only,single_evidence,0.203000,0.222000,0.222000,0.000000,0.019000
+vision_only,multi_evidence,0.198000,0.221000,0.221000,0.000000,0.023000
+vision_only,cross_region_or_multihop,0.177000,0.181000,0.181000,0.000000,0.004000
+vision_only,cross_context,0.267000,0.267000,0.267000,0.000000,0.000000
+projector_only,single_evidence,0.223000,0.282000,0.282000,0.000000,0.059000
+projector_only,multi_evidence,0.226000,0.260000,0.260000,0.000000,0.034000
+projector_only,cross_region_or_multihop,0.207000,0.237000,0.237000,0.000000,0.030000
+projector_only,cross_context,0.330000,0.330000,0.330000,0.000000,0.000000
+llm_only,single_evidence,0.404000,0.404000,0.340000,0.064000,-0.064000
+llm_only,multi_evidence,0.364000,0.364000,0.325000,0.039000,-0.039000
+llm_only,cross_region_or_multihop,0.306000,0.311000,0.311000,0.000000,0.005000
+llm_only,cross_context,0.430000,0.430000,0.430000,0.000000,0.000000
+llm_projector,single_evidence,0.391000,0.391000,0.323000,0.068000,-0.068000
+llm_projector,multi_evidence,0.350000,0.350000,0.332000,0.018000,-0.018000
+llm_projector,cross_region_or_multihop,0.324000,0.324000,0.300000,0.024000,-0.024000
+llm_projector,cross_context,0.441000,0.441000,0.441000,0.000000,0.000000

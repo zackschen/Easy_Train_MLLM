@@ -1,5 +1,0 @@
-task,score_at_learning,best_after_learning,final_score,forgetting,final_minus_learning
-single_evidence,0.403515,0.403515,0.220767,0.182747,-0.182747
-multi_evidence,0.243570,0.243570,0.215390,0.028180,-0.028180
-cross_region_or_multihop,0.204436,0.204436,0.185258,0.019178,-0.019178
-cross_context,0.357951,0.357951,0.357951,0.000000,0.000000
