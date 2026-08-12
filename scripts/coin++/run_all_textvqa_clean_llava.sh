@@ -53,6 +53,10 @@ JUDGE_TIMEOUT="${JUDGE_TIMEOUT:-180}"
 JUDGE_RETRIES="${JUDGE_RETRIES:-3}"
 JUDGE_LIMIT="${JUDGE_LIMIT:-}"
 JUDGE_PROBE_TIMEOUT="${JUDGE_PROBE_TIMEOUT:-5}"
+# Leave this empty to keep one cache per factor. Setting JUDGE_CACHE makes all
+# factor and module Judge passes share the same append-only cache file.
+JUDGE_CACHE="${JUDGE_CACHE:-}"
+MODULE_JUDGE_CACHE="${MODULE_JUDGE_CACHE:-}"
 
 TRAIN_SCRIPT="$SCRIPT_DIR/run_factor1_cl_train_llava.sh"
 EVAL_SCRIPT="$SCRIPT_DIR/run_factor1_cl_eval_llava.sh"
@@ -191,6 +195,9 @@ CoIN++ clean TextVQA end-to-end pipeline
   factor train/eval:         $RUN_FACTOR_TRAIN / $RUN_FACTOR_EVAL
   module train/eval:         $RUN_MODULE_TRAIN / $RUN_MODULE_EVAL
   factor/module dual eval:   $RUN_DUAL_EVAL / $RUN_MODULE_DUAL_EVAL
+  judge API/model:           $JUDGE_BASE_URL / $JUDGE_MODEL
+  factor cache override:     ${JUDGE_CACHE:-<per-factor defaults>}
+  module cache override:     ${MODULE_JUDGE_CACHE:-${JUDGE_CACHE:-<per-factor defaults>}}
   auto resume:               $AUTO_RESUME
   dry run:                   $DRY_RUN
 EOF_SUMMARY
@@ -290,7 +297,7 @@ import urllib.request
 
 url, api_key, timeout = sys.argv[1], sys.argv[2], float(sys.argv[3])
 request = urllib.request.Request(url)
-if api_key and api_key != "EMPTY":
+if api_key:
     request.add_header("Authorization", f"Bearer {api_key}")
 with urllib.request.urlopen(request, timeout=timeout) as response:
     if response.status >= 400:
@@ -324,6 +331,7 @@ judge_phase_enabled() {
 if judge_phase_enabled "$RUN_DUAL_EVAL" "factor dual evaluation"; then
   safe_judge_model="${JUDGE_MODEL//\//_}"
   for factor in "${factor_list[@]}"; do
+    factor_judge_cache="${JUDGE_CACHE:-$RESULT_BASE/judge_cache/${factor}_${safe_judge_model}_all.jsonl}"
     echo
     echo "================ dual evaluation: $factor ================"
     FACTOR="$factor" \
@@ -337,7 +345,7 @@ if judge_phase_enabled "$RUN_DUAL_EVAL" "factor dual evaluation"; then
     JUDGE_WORKERS="$JUDGE_WORKERS" \
     JUDGE_TIMEOUT="$JUDGE_TIMEOUT" \
     JUDGE_RETRIES="$JUDGE_RETRIES" \
-    JUDGE_CACHE="$RESULT_BASE/judge_cache/${factor}_${safe_judge_model}_all.jsonl" \
+    JUDGE_CACHE="$factor_judge_cache" \
     LIMIT="$JUDGE_LIMIT" \
       bash "$DUAL_EVAL_SCRIPT"
   done
@@ -352,6 +360,7 @@ if judge_phase_enabled "$RUN_MODULE_DUAL_EVAL" "module dual evaluation"; then
   safe_judge_model="${JUDGE_MODEL//\//_}"
   for factor in "${module_factor_list[@]}"; do
     factor_module_modes="$(module_modes_for_factor "$factor")"
+    module_judge_cache="${MODULE_JUDGE_CACHE:-${JUDGE_CACHE:-$MODULE_RESULT_BASE/judge_cache/${factor}_${safe_judge_model}_all.jsonl}}"
     echo
     echo "================ module dual evaluation: $factor ================"
     FACTOR="$factor" \
@@ -366,7 +375,7 @@ if judge_phase_enabled "$RUN_MODULE_DUAL_EVAL" "module dual evaluation"; then
     JUDGE_WORKERS="$JUDGE_WORKERS" \
     JUDGE_TIMEOUT="$JUDGE_TIMEOUT" \
     JUDGE_RETRIES="$JUDGE_RETRIES" \
-    JUDGE_CACHE="$MODULE_RESULT_BASE/judge_cache/${factor}_${safe_judge_model}_all.jsonl" \
+    JUDGE_CACHE="$module_judge_cache" \
       bash "$MODULE_DUAL_EVAL_SCRIPT"
   done
 else
