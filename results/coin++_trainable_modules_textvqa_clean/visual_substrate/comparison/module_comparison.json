@@ -1,0 +1,357 @@
+{
+  "factor": "visual_substrate",
+  "metric": "relaxed_match",
+  "stages": [
+    "natural_photo",
+    "medical",
+    "document",
+    "infographic",
+    "diagram",
+    "chart"
+  ],
+  "summaries": [
+    {
+      "mode": "vision_only",
+      "final_average": 0.19216666666666665,
+      "mean_seen_accuracy": 0.23036944444444443,
+      "mean_score_at_learning": 0.18933333333333333,
+      "average_forgetting_old_tasks": 0.011799999999999995,
+      "bwt_old_tasks": 0.003400000000000003,
+      "final_task_score": 0.173
+    },
+    {
+      "mode": "projector_only",
+      "final_average": 0.20316666666666666,
+      "mean_seen_accuracy": 0.2533138888888889,
+      "mean_score_at_learning": 0.20733333333333334,
+      "average_forgetting_old_tasks": 0.015600000000000003,
+      "bwt_old_tasks": -0.004999999999999999,
+      "final_task_score": 0.171
+    },
+    {
+      "mode": "llm_only",
+      "final_average": 0.29733333333333334,
+      "mean_seen_accuracy": 0.3681916666666667,
+      "mean_score_at_learning": 0.31916666666666665,
+      "average_forgetting_old_tasks": 0.0274,
+      "bwt_old_tasks": -0.0262,
+      "final_task_score": 0.296
+    }
+  ],
+  "task_metrics": [
+    {
+      "mode": "vision_only",
+      "task": "natural_photo",
+      "score_at_learning": 0.251,
+      "best_after_learning": 0.298,
+      "final_score": 0.266,
+      "forgetting": 0.03199999999999997,
+      "final_minus_learning": 0.015000000000000013
+    },
+    {
+      "mode": "vision_only",
+      "task": "medical",
+      "score_at_learning": 0.299,
+      "best_after_learning": 0.299,
+      "final_score": 0.291,
+      "forgetting": 0.008000000000000007,
+      "final_minus_learning": -0.008000000000000007
+    },
+    {
+      "mode": "vision_only",
+      "task": "document",
+      "score_at_learning": 0.123,
+      "best_after_learning": 0.152,
+      "final_score": 0.152,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.028999999999999998
+    },
+    {
+      "mode": "vision_only",
+      "task": "infographic",
+      "score_at_learning": 0.156,
+      "best_after_learning": 0.156,
+      "final_score": 0.139,
+      "forgetting": 0.016999999999999987,
+      "final_minus_learning": -0.016999999999999987
+    },
+    {
+      "mode": "vision_only",
+      "task": "diagram",
+      "score_at_learning": 0.134,
+      "best_after_learning": 0.134,
+      "final_score": 0.132,
+      "forgetting": 0.0020000000000000018,
+      "final_minus_learning": -0.0020000000000000018
+    },
+    {
+      "mode": "vision_only",
+      "task": "chart",
+      "score_at_learning": 0.173,
+      "best_after_learning": 0.173,
+      "final_score": 0.173,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0
+    },
+    {
+      "mode": "projector_only",
+      "task": "natural_photo",
+      "score_at_learning": 0.293,
+      "best_after_learning": 0.323,
+      "final_score": 0.278,
+      "forgetting": 0.044999999999999984,
+      "final_minus_learning": -0.014999999999999958
+    },
+    {
+      "mode": "projector_only",
+      "task": "medical",
+      "score_at_learning": 0.309,
+      "best_after_learning": 0.309,
+      "final_score": 0.291,
+      "forgetting": 0.018000000000000016,
+      "final_minus_learning": -0.018000000000000016
+    },
+    {
+      "mode": "projector_only",
+      "task": "document",
+      "score_at_learning": 0.162,
+      "best_after_learning": 0.179,
+      "final_score": 0.172,
+      "forgetting": 0.007000000000000006,
+      "final_minus_learning": 0.009999999999999981
+    },
+    {
+      "mode": "projector_only",
+      "task": "infographic",
+      "score_at_learning": 0.159,
+      "best_after_learning": 0.165,
+      "final_score": 0.161,
+      "forgetting": 0.0040000000000000036,
+      "final_minus_learning": 0.0020000000000000018
+    },
+    {
+      "mode": "projector_only",
+      "task": "diagram",
+      "score_at_learning": 0.15,
+      "best_after_learning": 0.15,
+      "final_score": 0.146,
+      "forgetting": 0.0040000000000000036,
+      "final_minus_learning": -0.0040000000000000036
+    },
+    {
+      "mode": "projector_only",
+      "task": "chart",
+      "score_at_learning": 0.171,
+      "best_after_learning": 0.171,
+      "final_score": 0.171,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0
+    },
+    {
+      "mode": "llm_only",
+      "task": "natural_photo",
+      "score_at_learning": 0.474,
+      "best_after_learning": 0.474,
+      "final_score": 0.411,
+      "forgetting": 0.063,
+      "final_minus_learning": -0.063
+    },
+    {
+      "mode": "llm_only",
+      "task": "medical",
+      "score_at_learning": 0.463,
+      "best_after_learning": 0.463,
+      "final_score": 0.442,
+      "forgetting": 0.02100000000000002,
+      "final_minus_learning": -0.02100000000000002
+    },
+    {
+      "mode": "llm_only",
+      "task": "document",
+      "score_at_learning": 0.221,
+      "best_after_learning": 0.224,
+      "final_score": 0.199,
+      "forgetting": 0.024999999999999994,
+      "final_minus_learning": -0.021999999999999992
+    },
+    {
+      "mode": "llm_only",
+      "task": "infographic",
+      "score_at_learning": 0.205,
+      "best_after_learning": 0.205,
+      "final_score": 0.177,
+      "forgetting": 0.027999999999999997,
+      "final_minus_learning": -0.027999999999999997
+    },
+    {
+      "mode": "llm_only",
+      "task": "diagram",
+      "score_at_learning": 0.256,
+      "best_after_learning": 0.259,
+      "final_score": 0.259,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0030000000000000027
+    },
+    {
+      "mode": "llm_only",
+      "task": "chart",
+      "score_at_learning": 0.296,
+      "best_after_learning": 0.296,
+      "final_score": 0.296,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0
+    }
+  ],
+  "matrices": {
+    "vision_only": [
+      [
+        0.251,
+        0.277,
+        0.1,
+        0.13,
+        0.116,
+        0.065
+      ],
+      [
+        0.262,
+        0.299,
+        0.107,
+        0.142,
+        0.121,
+        0.061
+      ],
+      [
+        0.289,
+        0.293,
+        0.123,
+        0.144,
+        0.132,
+        0.083
+      ],
+      [
+        0.288,
+        0.294,
+        0.145,
+        0.156,
+        0.13,
+        0.101
+      ],
+      [
+        0.298,
+        0.298,
+        0.134,
+        0.15,
+        0.134,
+        0.09
+      ],
+      [
+        0.266,
+        0.291,
+        0.152,
+        0.139,
+        0.132,
+        0.173
+      ]
+    ],
+    "projector_only": [
+      [
+        0.293,
+        0.287,
+        0.135,
+        0.137,
+        0.128,
+        0.073
+      ],
+      [
+        0.31,
+        0.309,
+        0.142,
+        0.124,
+        0.135,
+        0.067
+      ],
+      [
+        0.307,
+        0.304,
+        0.162,
+        0.132,
+        0.124,
+        0.093
+      ],
+      [
+        0.315,
+        0.287,
+        0.174,
+        0.159,
+        0.122,
+        0.109
+      ],
+      [
+        0.323,
+        0.297,
+        0.179,
+        0.165,
+        0.15,
+        0.111
+      ],
+      [
+        0.278,
+        0.291,
+        0.172,
+        0.161,
+        0.146,
+        0.171
+      ]
+    ],
+    "llm_only": [
+      [
+        0.474,
+        0.295,
+        0.209,
+        0.181,
+        0.208,
+        0.116
+      ],
+      [
+        0.431,
+        0.463,
+        0.204,
+        0.161,
+        0.19,
+        0.116
+      ],
+      [
+        0.453,
+        0.462,
+        0.221,
+        0.168,
+        0.216,
+        0.109
+      ],
+      [
+        0.401,
+        0.437,
+        0.224,
+        0.205,
+        0.23,
+        0.107
+      ],
+      [
+        0.453,
+        0.361,
+        0.21,
+        0.197,
+        0.256,
+        0.116
+      ],
+      [
+        0.411,
+        0.442,
+        0.199,
+        0.177,
+        0.259,
+        0.296
+      ]
+    ]
+  }
+}

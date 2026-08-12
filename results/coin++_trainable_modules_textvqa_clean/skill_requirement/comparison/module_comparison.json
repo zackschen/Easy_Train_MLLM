@@ -1,0 +1,685 @@
+{
+  "factor": "skill_requirement",
+  "metric": "relaxed_match",
+  "stages": [
+    "recognition",
+    "counting",
+    "medical_reasoning",
+    "knowledge_reasoning",
+    "chart_reasoning",
+    "document_reasoning",
+    "text_reading",
+    "diagram_reasoning",
+    "relation",
+    "attribute"
+  ],
+  "summaries": [
+    {
+      "mode": "vision_only",
+      "final_average": 0.2616,
+      "mean_seen_accuracy": 0.23505218253968252,
+      "mean_score_at_learning": 0.2309,
+      "average_forgetting_old_tasks": 0.009222222222222218,
+      "bwt_old_tasks": 0.03411111111111111,
+      "final_task_score": 0.44
+    },
+    {
+      "mode": "projector_only",
+      "final_average": 0.2974,
+      "mean_seen_accuracy": 0.30185559523809524,
+      "mean_score_at_learning": 0.2992,
+      "average_forgetting_old_tasks": 0.01911111111111112,
+      "bwt_old_tasks": -0.002000000000000008,
+      "final_task_score": 0.481
+    },
+    {
+      "mode": "llm_only",
+      "final_average": 0.3569,
+      "mean_seen_accuracy": 0.4094690079365079,
+      "mean_score_at_learning": 0.3901,
+      "average_forgetting_old_tasks": 0.042444444444444444,
+      "bwt_old_tasks": -0.03688888888888889,
+      "final_task_score": 0.555
+    }
+  ],
+  "task_metrics": [
+    {
+      "mode": "vision_only",
+      "task": "recognition",
+      "score_at_learning": 0.285,
+      "best_after_learning": 0.357,
+      "final_score": 0.357,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.07200000000000001
+    },
+    {
+      "mode": "vision_only",
+      "task": "counting",
+      "score_at_learning": 0.142,
+      "best_after_learning": 0.224,
+      "final_score": 0.224,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.08200000000000002
+    },
+    {
+      "mode": "vision_only",
+      "task": "medical_reasoning",
+      "score_at_learning": 0.292,
+      "best_after_learning": 0.294,
+      "final_score": 0.261,
+      "forgetting": 0.032999999999999974,
+      "final_minus_learning": -0.030999999999999972
+    },
+    {
+      "mode": "vision_only",
+      "task": "knowledge_reasoning",
+      "score_at_learning": 0.223,
+      "best_after_learning": 0.289,
+      "final_score": 0.289,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.06599999999999998
+    },
+    {
+      "mode": "vision_only",
+      "task": "chart_reasoning",
+      "score_at_learning": 0.137,
+      "best_after_learning": 0.146,
+      "final_score": 0.096,
+      "forgetting": 0.04999999999999999,
+      "final_minus_learning": -0.04100000000000001
+    },
+    {
+      "mode": "vision_only",
+      "task": "document_reasoning",
+      "score_at_learning": 0.102,
+      "best_after_learning": 0.138,
+      "final_score": 0.138,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.03600000000000002
+    },
+    {
+      "mode": "vision_only",
+      "task": "text_reading",
+      "score_at_learning": 0.241,
+      "best_after_learning": 0.311,
+      "final_score": 0.311,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.07
+    },
+    {
+      "mode": "vision_only",
+      "task": "diagram_reasoning",
+      "score_at_learning": 0.124,
+      "best_after_learning": 0.131,
+      "final_score": 0.131,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.007000000000000006
+    },
+    {
+      "mode": "vision_only",
+      "task": "relation",
+      "score_at_learning": 0.323,
+      "best_after_learning": 0.369,
+      "final_score": 0.369,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.045999999999999985
+    },
+    {
+      "mode": "vision_only",
+      "task": "attribute",
+      "score_at_learning": 0.44,
+      "best_after_learning": 0.44,
+      "final_score": 0.44,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0
+    },
+    {
+      "mode": "projector_only",
+      "task": "recognition",
+      "score_at_learning": 0.347,
+      "best_after_learning": 0.442,
+      "final_score": 0.44,
+      "forgetting": 0.0020000000000000018,
+      "final_minus_learning": 0.09300000000000003
+    },
+    {
+      "mode": "projector_only",
+      "task": "counting",
+      "score_at_learning": 0.279,
+      "best_after_learning": 0.28,
+      "final_score": 0.24,
+      "forgetting": 0.040000000000000036,
+      "final_minus_learning": -0.039000000000000035
+    },
+    {
+      "mode": "projector_only",
+      "task": "medical_reasoning",
+      "score_at_learning": 0.306,
+      "best_after_learning": 0.306,
+      "final_score": 0.266,
+      "forgetting": 0.03999999999999998,
+      "final_minus_learning": -0.03999999999999998
+    },
+    {
+      "mode": "projector_only",
+      "task": "knowledge_reasoning",
+      "score_at_learning": 0.363,
+      "best_after_learning": 0.366,
+      "final_score": 0.344,
+      "forgetting": 0.02200000000000002,
+      "final_minus_learning": -0.019000000000000017
+    },
+    {
+      "mode": "projector_only",
+      "task": "chart_reasoning",
+      "score_at_learning": 0.168,
+      "best_after_learning": 0.168,
+      "final_score": 0.129,
+      "forgetting": 0.03900000000000001,
+      "final_minus_learning": -0.03900000000000001
+    },
+    {
+      "mode": "projector_only",
+      "task": "document_reasoning",
+      "score_at_learning": 0.134,
+      "best_after_learning": 0.162,
+      "final_score": 0.162,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.027999999999999997
+    },
+    {
+      "mode": "projector_only",
+      "task": "text_reading",
+      "score_at_learning": 0.338,
+      "best_after_learning": 0.361,
+      "final_score": 0.347,
+      "forgetting": 0.014000000000000012,
+      "final_minus_learning": 0.008999999999999952
+    },
+    {
+      "mode": "projector_only",
+      "task": "diagram_reasoning",
+      "score_at_learning": 0.15,
+      "best_after_learning": 0.154,
+      "final_score": 0.154,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0040000000000000036
+    },
+    {
+      "mode": "projector_only",
+      "task": "relation",
+      "score_at_learning": 0.426,
+      "best_after_learning": 0.426,
+      "final_score": 0.411,
+      "forgetting": 0.015000000000000013,
+      "final_minus_learning": -0.015000000000000013
+    },
+    {
+      "mode": "projector_only",
+      "task": "attribute",
+      "score_at_learning": 0.481,
+      "best_after_learning": 0.481,
+      "final_score": 0.481,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0
+    },
+    {
+      "mode": "llm_only",
+      "task": "recognition",
+      "score_at_learning": 0.581,
+      "best_after_learning": 0.581,
+      "final_score": 0.506,
+      "forgetting": 0.07499999999999996,
+      "final_minus_learning": -0.07499999999999996
+    },
+    {
+      "mode": "llm_only",
+      "task": "counting",
+      "score_at_learning": 0.353,
+      "best_after_learning": 0.356,
+      "final_score": 0.294,
+      "forgetting": 0.062,
+      "final_minus_learning": -0.059
+    },
+    {
+      "mode": "llm_only",
+      "task": "medical_reasoning",
+      "score_at_learning": 0.43,
+      "best_after_learning": 0.439,
+      "final_score": 0.398,
+      "forgetting": 0.04099999999999998,
+      "final_minus_learning": -0.03199999999999997
+    },
+    {
+      "mode": "llm_only",
+      "task": "knowledge_reasoning",
+      "score_at_learning": 0.458,
+      "best_after_learning": 0.458,
+      "final_score": 0.388,
+      "forgetting": 0.07,
+      "final_minus_learning": -0.07
+    },
+    {
+      "mode": "llm_only",
+      "task": "chart_reasoning",
+      "score_at_learning": 0.25,
+      "best_after_learning": 0.259,
+      "final_score": 0.181,
+      "forgetting": 0.07800000000000001,
+      "final_minus_learning": -0.069
+    },
+    {
+      "mode": "llm_only",
+      "task": "document_reasoning",
+      "score_at_learning": 0.172,
+      "best_after_learning": 0.195,
+      "final_score": 0.195,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.02300000000000002
+    },
+    {
+      "mode": "llm_only",
+      "task": "text_reading",
+      "score_at_learning": 0.383,
+      "best_after_learning": 0.389,
+      "final_score": 0.36,
+      "forgetting": 0.029000000000000026,
+      "final_minus_learning": -0.02300000000000002
+    },
+    {
+      "mode": "llm_only",
+      "task": "diagram_reasoning",
+      "score_at_learning": 0.263,
+      "best_after_learning": 0.263,
+      "final_score": 0.259,
+      "forgetting": 0.0040000000000000036,
+      "final_minus_learning": -0.0040000000000000036
+    },
+    {
+      "mode": "llm_only",
+      "task": "relation",
+      "score_at_learning": 0.456,
+      "best_after_learning": 0.456,
+      "final_score": 0.433,
+      "forgetting": 0.02300000000000002,
+      "final_minus_learning": -0.02300000000000002
+    },
+    {
+      "mode": "llm_only",
+      "task": "attribute",
+      "score_at_learning": 0.555,
+      "best_after_learning": 0.555,
+      "final_score": 0.555,
+      "forgetting": 0.0,
+      "final_minus_learning": 0.0
+    }
+  ],
+  "matrices": {
+    "vision_only": [
+      [
+        0.285,
+        0.124,
+        0.276,
+        0.211,
+        0.042,
+        0.06,
+        0.177,
+        0.104,
+        0.283,
+        0.278
+      ],
+      [
+        0.296,
+        0.142,
+        0.291,
+        0.223,
+        0.065,
+        0.081,
+        0.188,
+        0.12,
+        0.282,
+        0.305
+      ],
+      [
+        0.303,
+        0.171,
+        0.292,
+        0.228,
+        0.059,
+        0.07,
+        0.198,
+        0.118,
+        0.279,
+        0.298
+      ],
+      [
+        0.305,
+        0.206,
+        0.287,
+        0.223,
+        0.052,
+        0.078,
+        0.201,
+        0.108,
+        0.277,
+        0.307
+      ],
+      [
+        0.307,
+        0.172,
+        0.28,
+        0.221,
+        0.137,
+        0.097,
+        0.207,
+        0.113,
+        0.282,
+        0.303
+      ],
+      [
+        0.299,
+        0.171,
+        0.294,
+        0.253,
+        0.134,
+        0.102,
+        0.21,
+        0.121,
+        0.295,
+        0.319
+      ],
+      [
+        0.311,
+        0.201,
+        0.284,
+        0.245,
+        0.146,
+        0.107,
+        0.241,
+        0.12,
+        0.291,
+        0.34
+      ],
+      [
+        0.315,
+        0.192,
+        0.282,
+        0.255,
+        0.1,
+        0.121,
+        0.246,
+        0.124,
+        0.306,
+        0.329
+      ],
+      [
+        0.324,
+        0.193,
+        0.254,
+        0.254,
+        0.094,
+        0.13,
+        0.275,
+        0.119,
+        0.323,
+        0.363
+      ],
+      [
+        0.357,
+        0.224,
+        0.261,
+        0.289,
+        0.096,
+        0.138,
+        0.311,
+        0.131,
+        0.369,
+        0.44
+      ]
+    ],
+    "projector_only": [
+      [
+        0.347,
+        0.215,
+        0.277,
+        0.256,
+        0.047,
+        0.101,
+        0.251,
+        0.119,
+        0.331,
+        0.347
+      ],
+      [
+        0.374,
+        0.279,
+        0.292,
+        0.278,
+        0.089,
+        0.133,
+        0.276,
+        0.108,
+        0.349,
+        0.381
+      ],
+      [
+        0.391,
+        0.255,
+        0.306,
+        0.317,
+        0.079,
+        0.113,
+        0.275,
+        0.115,
+        0.35,
+        0.406
+      ],
+      [
+        0.438,
+        0.257,
+        0.266,
+        0.363,
+        0.075,
+        0.152,
+        0.319,
+        0.134,
+        0.401,
+        0.445
+      ],
+      [
+        0.437,
+        0.258,
+        0.285,
+        0.354,
+        0.168,
+        0.137,
+        0.305,
+        0.137,
+        0.367,
+        0.419
+      ],
+      [
+        0.423,
+        0.28,
+        0.283,
+        0.338,
+        0.165,
+        0.134,
+        0.308,
+        0.143,
+        0.381,
+        0.41
+      ],
+      [
+        0.441,
+        0.269,
+        0.271,
+        0.36,
+        0.163,
+        0.144,
+        0.338,
+        0.143,
+        0.406,
+        0.441
+      ],
+      [
+        0.44,
+        0.274,
+        0.286,
+        0.366,
+        0.099,
+        0.148,
+        0.352,
+        0.15,
+        0.396,
+        0.438
+      ],
+      [
+        0.442,
+        0.251,
+        0.26,
+        0.352,
+        0.13,
+        0.153,
+        0.361,
+        0.148,
+        0.426,
+        0.457
+      ],
+      [
+        0.44,
+        0.24,
+        0.266,
+        0.344,
+        0.129,
+        0.162,
+        0.347,
+        0.154,
+        0.411,
+        0.481
+      ]
+    ],
+    "llm_only": [
+      [
+        0.581,
+        0.278,
+        0.338,
+        0.375,
+        0.107,
+        0.165,
+        0.358,
+        0.214,
+        0.417,
+        0.519
+      ],
+      [
+        0.544,
+        0.353,
+        0.309,
+        0.38,
+        0.199,
+        0.24,
+        0.366,
+        0.255,
+        0.412,
+        0.493
+      ],
+      [
+        0.55,
+        0.354,
+        0.43,
+        0.393,
+        0.129,
+        0.142,
+        0.323,
+        0.232,
+        0.391,
+        0.503
+      ],
+      [
+        0.557,
+        0.332,
+        0.437,
+        0.458,
+        0.127,
+        0.141,
+        0.293,
+        0.243,
+        0.397,
+        0.477
+      ],
+      [
+        0.563,
+        0.34,
+        0.427,
+        0.439,
+        0.25,
+        0.138,
+        0.318,
+        0.24,
+        0.39,
+        0.474
+      ],
+      [
+        0.524,
+        0.356,
+        0.433,
+        0.434,
+        0.251,
+        0.172,
+        0.325,
+        0.23,
+        0.384,
+        0.464
+      ],
+      [
+        0.562,
+        0.329,
+        0.439,
+        0.425,
+        0.259,
+        0.18,
+        0.383,
+        0.214,
+        0.398,
+        0.456
+      ],
+      [
+        0.554,
+        0.328,
+        0.431,
+        0.433,
+        0.239,
+        0.164,
+        0.389,
+        0.263,
+        0.419,
+        0.45
+      ],
+      [
+        0.527,
+        0.279,
+        0.394,
+        0.369,
+        0.227,
+        0.166,
+        0.352,
+        0.235,
+        0.456,
+        0.492
+      ],
+      [
+        0.506,
+        0.294,
+        0.398,
+        0.388,
+        0.181,
+        0.195,
+        0.36,
+        0.259,
+        0.433,
+        0.555
+      ]
+    ]
+  }
+}
