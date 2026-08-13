@@ -1,0 +1,5 @@
+trained_until,single_evidence,multi_evidence,cross_region_or_multihop,cross_context
+single_evidence,0.121670,0.104834,0.087100,0.128151
+multi_evidence,0.113988,0.093972,0.083796,0.112752
+cross_region_or_multihop,0.109122,0.095088,0.081164,0.116103
+cross_context,0.115204,0.082988,0.063381,0.109593

@@ -1,0 +1,1683 @@
+[
+  {
+    "stage": "diagram",
+    "task": "chart",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final_textvqa_clean/splits/visual_substrate/trainable/eval/chart/eval.json",
+    "predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions/chart.jsonl",
+    "scored_predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions_dual/chart.jsonl",
+    "num_samples": 1000,
+    "num_standard_scored": 1000,
+    "num_judged": 1000,
+    "standard_score": 0.15282380952380953,
+    "llm_judge_score": 0.1537,
+    "standard_coverage": 1.0,
+    "judge_coverage": 1.0,
+    "official_metric_coverage": 1.0,
+    "direct_comparison_coverage": 0.0,
+    "standard_judge_agreement_at_0_5": 0.946,
+    "standard_judge_pearson": 0.8335322554539777,
+    "standard_judge_mean_absolute_gap": 0.047752380952380956,
+    "agreement_confusion_at_0_5": {
+      "both_incorrect": 815,
+      "both_correct": 131,
+      "standard_only_correct": 28,
+      "judge_only_correct": 26
+    },
+    "standard_protocol_counts": {
+      "official_metric": 1000
+    },
+    "standard_metric_counts": {
+      "multiple_choice_accuracy": 105,
+      "anls": 127,
+      "normalized_accuracy": 427,
+      "chartqa_relaxed_accuracy": 340,
+      "vqa_soft_accuracy": 1
+    },
+    "standard_dataset_macro_score": 0.194941884449775,
+    "llm_judge_dataset_macro_score": 0.19020787988216611,
+    "per_dataset": {
+      "chartqa": {
+        "num_samples": 116,
+        "num_standard_scored": 116,
+        "num_judged": 116,
+        "standard_score": 0.11206896551724138,
+        "llm_judge_score": 0.08362068965517241,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9224137931034483,
+        "standard_judge_pearson": 0.587246504938327,
+        "standard_judge_mean_absolute_gap": 0.07844827586206897,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 100,
+          "both_correct": 7,
+          "standard_only_correct": 6,
+          "judge_only_correct": 3
+        },
+        "standard_protocol_counts": {
+          "official_metric": 116
+        },
+        "standard_metric_counts": {
+          "chartqa_relaxed_accuracy": 116
+        }
+      },
+      "chartqa_eval": {
+        "num_samples": 114,
+        "num_standard_scored": 114,
+        "num_judged": 114,
+        "standard_score": 0.15789473684210525,
+        "llm_judge_score": 0.12894736842105264,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9035087719298246,
+        "standard_judge_pearson": 0.6073943722645967,
+        "standard_judge_mean_absolute_gap": 0.09912280701754386,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 92,
+          "standard_only_correct": 7,
+          "judge_only_correct": 4,
+          "both_correct": 11
+        },
+        "standard_protocol_counts": {
+          "official_metric": 114
+        },
+        "standard_metric_counts": {
+          "chartqa_relaxed_accuracy": 114
+        }
+      },
+      "docvqa": {
+        "num_samples": 27,
+        "num_standard_scored": 27,
+        "num_judged": 27,
+        "standard_score": 0.15308641975308643,
+        "llm_judge_score": 0.11481481481481481,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.8518518518518519,
+        "standard_judge_pearson": 0.7442878084758602,
+        "standard_judge_mean_absolute_gap": 0.08518518518518518,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 20,
+          "standard_only_correct": 3,
+          "both_correct": 3,
+          "judge_only_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 27
+        },
+        "standard_metric_counts": {
+          "anls": 27
+        }
+      },
+      "dvqa": {
+        "num_samples": 426,
+        "num_standard_scored": 426,
+        "num_judged": 426,
+        "standard_score": 0.19248826291079812,
+        "llm_judge_score": 0.20328638497652582,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9882629107981221,
+        "standard_judge_pearson": 0.9688000386941394,
+        "standard_judge_mean_absolute_gap": 0.0107981220657277,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 339,
+          "both_correct": 82,
+          "judge_only_correct": 5
+        },
+        "standard_protocol_counts": {
+          "official_metric": 426
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 426
+        }
+      },
+      "iconqa": {
+        "num_samples": 4,
+        "num_standard_scored": 4,
+        "num_judged": 4,
+        "standard_score": 0.0,
+        "llm_judge_score": 0.0,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 4
+        },
+        "standard_protocol_counts": {
+          "official_metric": 4
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 4
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 100,
+        "num_standard_scored": 100,
+        "num_judged": 100,
+        "standard_score": 0.1769047619047619,
+        "llm_judge_score": 0.156,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.88,
+        "standard_judge_pearson": 0.7788222524613228,
+        "standard_judge_mean_absolute_gap": 0.08052380952380953,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 75,
+          "both_correct": 13,
+          "judge_only_correct": 3,
+          "standard_only_correct": 9
+        },
+        "standard_protocol_counts": {
+          "official_metric": 100
+        },
+        "standard_metric_counts": {
+          "anls": 100
+        }
+      },
+      "mmmu": {
+        "num_samples": 101,
+        "num_standard_scored": 101,
+        "num_judged": 101,
+        "standard_score": 0.0297029702970297,
+        "llm_judge_score": 0.07722772277227723,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9504950495049505,
+        "standard_judge_pearson": 0.6116314269421161,
+        "standard_judge_mean_absolute_gap": 0.047524752475247525,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 93,
+          "judge_only_correct": 5,
+          "both_correct": 3
+        },
+        "standard_protocol_counts": {
+          "official_metric": 101
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 101
+        }
+      },
+      "pathvqa": {
+        "num_samples": 1,
+        "num_standard_scored": 1,
+        "num_judged": 1,
+        "standard_score": 0.0,
+        "llm_judge_score": 0.0,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 1
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 1
+        }
+      },
+      "textvqa": {
+        "num_samples": 1,
+        "num_standard_scored": 1,
+        "num_judged": 1,
+        "standard_score": 1.0,
+        "llm_judge_score": 1.0,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 1
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 1
+        }
+      },
+      "tqa": {
+        "num_samples": 110,
+        "num_standard_scored": 110,
+        "num_judged": 110,
+        "standard_score": 0.12727272727272726,
+        "llm_judge_score": 0.13818181818181818,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9272727272727272,
+        "standard_judge_pearson": 0.7185302091592893,
+        "standard_judge_mean_absolute_gap": 0.06909090909090909,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 91,
+          "both_correct": 11,
+          "judge_only_correct": 5,
+          "standard_only_correct": 3
+        },
+        "standard_protocol_counts": {
+          "official_metric": 110
+        },
+        "standard_metric_counts": {
+          "chartqa_relaxed_accuracy": 110
+        }
+      }
+    }
+  },
+  {
+    "stage": "diagram",
+    "task": "diagram",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final_textvqa_clean/splits/visual_substrate/trainable/eval/diagram/eval.json",
+    "predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions/diagram.jsonl",
+    "scored_predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions_dual/diagram.jsonl",
+    "num_samples": 1000,
+    "num_standard_scored": 1000,
+    "num_judged": 1000,
+    "standard_score": 0.198,
+    "llm_judge_score": 0.2387,
+    "standard_coverage": 1.0,
+    "judge_coverage": 1.0,
+    "official_metric_coverage": 1.0,
+    "direct_comparison_coverage": 0.0,
+    "standard_judge_agreement_at_0_5": 0.95,
+    "standard_judge_pearson": 0.8844095798506895,
+    "standard_judge_mean_absolute_gap": 0.044700000000000004,
+    "agreement_confusion_at_0_5": {
+      "both_correct": 196,
+      "both_incorrect": 754,
+      "judge_only_correct": 48,
+      "standard_only_correct": 2
+    },
+    "standard_protocol_counts": {
+      "official_metric": 1000
+    },
+    "standard_metric_counts": {
+      "multiple_choice_accuracy": 637,
+      "normalized_accuracy": 358,
+      "vqa_soft_accuracy": 5
+    },
+    "standard_dataset_macro_score": 0.1974167065306455,
+    "llm_judge_dataset_macro_score": 0.24875597898798804,
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 203,
+        "num_standard_scored": 203,
+        "num_judged": 203,
+        "standard_score": 0.2019704433497537,
+        "llm_judge_score": 0.28866995073891627,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.896551724137931,
+        "standard_judge_pearson": 0.7730917738861417,
+        "standard_judge_mean_absolute_gap": 0.09655172413793103,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 40,
+          "both_incorrect": 142,
+          "judge_only_correct": 20,
+          "standard_only_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 203
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 203
+        }
+      },
+      "geometry3k": {
+        "num_samples": 192,
+        "num_standard_scored": 192,
+        "num_judged": 192,
+        "standard_score": 0.07291666666666667,
+        "llm_judge_score": 0.07291666666666667,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 178,
+          "both_correct": 14
+        },
+        "standard_protocol_counts": {
+          "official_metric": 192
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 192
+        }
+      },
+      "iconqa": {
+        "num_samples": 226,
+        "num_standard_scored": 226,
+        "num_judged": 226,
+        "standard_score": 0.3495575221238938,
+        "llm_judge_score": 0.37168141592920356,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9778761061946902,
+        "standard_judge_pearson": 0.9531459512611733,
+        "standard_judge_mean_absolute_gap": 0.022123893805309734,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 79,
+          "both_incorrect": 142,
+          "judge_only_correct": 5
+        },
+        "standard_protocol_counts": {
+          "official_metric": 226
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 226
+        }
+      },
+      "mmmu": {
+        "num_samples": 208,
+        "num_standard_scored": 208,
+        "num_judged": 208,
+        "standard_score": 0.07692307692307693,
+        "llm_judge_score": 0.10384615384615385,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9615384615384616,
+        "standard_judge_pearson": 0.79547846149702,
+        "standard_judge_mean_absolute_gap": 0.03653846153846154,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 185,
+          "judge_only_correct": 7,
+          "both_correct": 15,
+          "standard_only_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 208
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 208
+        }
+      },
+      "pathvqa": {
+        "num_samples": 166,
+        "num_standard_scored": 166,
+        "num_judged": 166,
+        "standard_score": 0.28313253012048195,
+        "llm_judge_score": 0.35542168674698793,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9096385542168675,
+        "standard_judge_pearson": 0.8685417775738414,
+        "standard_judge_mean_absolute_gap": 0.07228915662650602,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 104,
+          "both_correct": 47,
+          "judge_only_correct": 15
+        },
+        "standard_protocol_counts": {
+          "official_metric": 166
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 166
+        }
+      },
+      "textvqa": {
+        "num_samples": 5,
+        "num_standard_scored": 5,
+        "num_judged": 5,
+        "standard_score": 0.2,
+        "llm_judge_score": 0.3,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.8,
+        "standard_judge_pearson": 0.8749999999999999,
+        "standard_judge_mean_absolute_gap": 0.1,
+        "agreement_confusion_at_0_5": {
+          "judge_only_correct": 1,
+          "both_incorrect": 3,
+          "both_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 5
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 5
+        }
+      }
+    }
+  },
+  {
+    "stage": "diagram",
+    "task": "document",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final_textvqa_clean/splits/visual_substrate/trainable/eval/document/eval.json",
+    "predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions/document.jsonl",
+    "scored_predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions_dual/document.jsonl",
+    "num_samples": 1000,
+    "num_standard_scored": 1000,
+    "num_judged": 1000,
+    "standard_score": 0.2403840898708119,
+    "llm_judge_score": 0.2009,
+    "standard_coverage": 1.0,
+    "judge_coverage": 1.0,
+    "official_metric_coverage": 1.0,
+    "direct_comparison_coverage": 0.0,
+    "standard_judge_agreement_at_0_5": 0.828,
+    "standard_judge_pearson": 0.7065452396407567,
+    "standard_judge_mean_absolute_gap": 0.12859774653183698,
+    "agreement_confusion_at_0_5": {
+      "standard_only_correct": 124,
+      "both_correct": 164,
+      "both_incorrect": 664,
+      "judge_only_correct": 48
+    },
+    "standard_protocol_counts": {
+      "official_metric": 1000
+    },
+    "standard_metric_counts": {
+      "anls": 557,
+      "multiple_choice_accuracy": 265,
+      "vqa_soft_accuracy": 166,
+      "count_accuracy": 8,
+      "normalized_accuracy": 4
+    },
+    "standard_dataset_macro_score": 0.2651808959929919,
+    "llm_judge_dataset_macro_score": 0.2943832094843234,
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 3,
+        "num_standard_scored": 3,
+        "num_judged": 3,
+        "standard_score": 0.6666666666666666,
+        "llm_judge_score": 0.6666666666666666,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0000000000000002,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 2,
+          "both_incorrect": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 3
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 3
+        }
+      },
+      "aokvqa": {
+        "num_samples": 12,
+        "num_standard_scored": 12,
+        "num_judged": 12,
+        "standard_score": 0.4166666666666667,
+        "llm_judge_score": 0.4166666666666667,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 5,
+          "both_incorrect": 7
+        },
+        "standard_protocol_counts": {
+          "official_metric": 12
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 12
+        }
+      },
+      "docvqa": {
+        "num_samples": 529,
+        "num_standard_scored": 529,
+        "num_judged": 529,
+        "standard_score": 0.2999699241414214,
+        "llm_judge_score": 0.18147448015122875,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.7504725897920604,
+        "standard_judge_pearson": 0.6308514188230028,
+        "standard_judge_mean_absolute_gap": 0.1818482921206748,
+        "agreement_confusion_at_0_5": {
+          "standard_only_correct": 119,
+          "both_incorrect": 309,
+          "both_correct": 88,
+          "judge_only_correct": 13
+        },
+        "standard_protocol_counts": {
+          "official_metric": 529
+        },
+        "standard_metric_counts": {
+          "anls": 529
+        }
+      },
+      "iconqa": {
+        "num_samples": 83,
+        "num_standard_scored": 83,
+        "num_judged": 83,
+        "standard_score": 0.04819277108433735,
+        "llm_judge_score": 0.04819277108433735,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0000000000000002,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 79,
+          "both_correct": 4
+        },
+        "standard_protocol_counts": {
+          "official_metric": 83
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 83
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 28,
+        "num_standard_scored": 28,
+        "num_judged": 28,
+        "standard_score": 0.20714285714285716,
+        "llm_judge_score": 0.225,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.7857142857142857,
+        "standard_judge_pearson": 0.6421170944401055,
+        "standard_judge_mean_absolute_gap": 0.14642857142857144,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 18,
+          "both_correct": 4,
+          "judge_only_correct": 3,
+          "standard_only_correct": 3
+        },
+        "standard_protocol_counts": {
+          "official_metric": 28
+        },
+        "standard_metric_counts": {
+          "anls": 28
+        }
+      },
+      "mmmu": {
+        "num_samples": 155,
+        "num_standard_scored": 155,
+        "num_judged": 155,
+        "standard_score": 0.01935483870967742,
+        "llm_judge_score": 0.05548387096774193,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9612903225806452,
+        "standard_judge_pearson": 0.5914087505551316,
+        "standard_judge_mean_absolute_gap": 0.03612903225806452,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 3,
+          "both_incorrect": 146,
+          "judge_only_correct": 6
+        },
+        "standard_protocol_counts": {
+          "official_metric": 155
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 155
+        }
+      },
+      "okvqa": {
+        "num_samples": 4,
+        "num_standard_scored": 4,
+        "num_judged": 4,
+        "standard_score": 0.25,
+        "llm_judge_score": 0.5,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.75,
+        "standard_judge_pearson": 0.5773502691896258,
+        "standard_judge_mean_absolute_gap": 0.25,
+        "agreement_confusion_at_0_5": {
+          "judge_only_correct": 1,
+          "both_incorrect": 2,
+          "both_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 4
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 4
+        }
+      },
+      "pathvqa": {
+        "num_samples": 2,
+        "num_standard_scored": 2,
+        "num_judged": 2,
+        "standard_score": 0.0,
+        "llm_judge_score": 0.0,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 2
+        },
+        "standard_protocol_counts": {
+          "official_metric": 2
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 2
+        }
+      },
+      "slake": {
+        "num_samples": 2,
+        "num_standard_scored": 2,
+        "num_judged": 2,
+        "standard_score": 0.0,
+        "llm_judge_score": 0.0,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 2
+        },
+        "standard_protocol_counts": {
+          "official_metric": 2
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 2
+        }
+      },
+      "tallyqa": {
+        "num_samples": 8,
+        "num_standard_scored": 8,
+        "num_judged": 8,
+        "standard_score": 0.25,
+        "llm_judge_score": 0.25,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0000000000000002,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 6,
+          "both_correct": 2
+        },
+        "standard_protocol_counts": {
+          "official_metric": 8
+        },
+        "standard_metric_counts": {
+          "count_accuracy": 8
+        }
+      },
+      "textvqa": {
+        "num_samples": 122,
+        "num_standard_scored": 122,
+        "num_judged": 122,
+        "standard_score": 0.28852459016393445,
+        "llm_judge_score": 0.3901639344262295,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.8442622950819673,
+        "standard_judge_pearson": 0.825111416209247,
+        "standard_judge_mean_absolute_gap": 0.11639344262295082,
+        "agreement_confusion_at_0_5": {
+          "judge_only_correct": 19,
+          "both_incorrect": 70,
+          "both_correct": 33
+        },
+        "standard_protocol_counts": {
+          "official_metric": 122
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 122
+        }
+      },
+      "visual7w": {
+        "num_samples": 12,
+        "num_standard_scored": 12,
+        "num_judged": 12,
+        "standard_score": 0.5833333333333334,
+        "llm_judge_score": 0.5833333333333334,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 7,
+          "both_incorrect": 5
+        },
+        "standard_protocol_counts": {
+          "official_metric": 12
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 12
+        }
+      },
+      "vqav2": {
+        "num_samples": 40,
+        "num_standard_scored": 40,
+        "num_judged": 40,
+        "standard_score": 0.4175,
+        "llm_judge_score": 0.51,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.8,
+        "standard_judge_pearson": 0.7036815184058832,
+        "standard_judge_mean_absolute_gap": 0.1875,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 17,
+          "both_correct": 15,
+          "judge_only_correct": 6,
+          "standard_only_correct": 2
+        },
+        "standard_protocol_counts": {
+          "official_metric": 40
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 40
+        }
+      }
+    }
+  },
+  {
+    "stage": "diagram",
+    "task": "infographic",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final_textvqa_clean/splits/visual_substrate/trainable/eval/infographic/eval.json",
+    "predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions/infographic.jsonl",
+    "scored_predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions_dual/infographic.jsonl",
+    "num_samples": 1000,
+    "num_standard_scored": 1000,
+    "num_judged": 1000,
+    "standard_score": 0.23059083480481507,
+    "llm_judge_score": 0.1989,
+    "standard_coverage": 1.0,
+    "judge_coverage": 1.0,
+    "official_metric_coverage": 1.0,
+    "direct_comparison_coverage": 0.0,
+    "standard_judge_agreement_at_0_5": 0.853,
+    "standard_judge_pearson": 0.749549985378099,
+    "standard_judge_mean_absolute_gap": 0.11011502114479088,
+    "agreement_confusion_at_0_5": {
+      "both_incorrect": 682,
+      "standard_only_correct": 111,
+      "both_correct": 171,
+      "judge_only_correct": 36
+    },
+    "standard_protocol_counts": {
+      "official_metric": 1000
+    },
+    "standard_metric_counts": {
+      "anls": 831,
+      "multiple_choice_accuracy": 135,
+      "vqa_soft_accuracy": 26,
+      "chartqa_relaxed_accuracy": 8
+    },
+    "standard_dataset_macro_score": 0.13067401862635208,
+    "llm_judge_dataset_macro_score": 0.24150789434496858,
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 2,
+        "num_standard_scored": 2,
+        "num_judged": 2,
+        "standard_score": 0.0,
+        "llm_judge_score": 0.4,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.5,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.4,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 1,
+          "judge_only_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 2
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 2
+        }
+      },
+      "iconqa": {
+        "num_samples": 117,
+        "num_standard_scored": 117,
+        "num_judged": 117,
+        "standard_score": 0.1794871794871795,
+        "llm_judge_score": 0.1794871794871795,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 21,
+          "both_incorrect": 96
+        },
+        "standard_protocol_counts": {
+          "official_metric": 117
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 117
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 831,
+        "num_standard_scored": 831,
+        "num_judged": 831,
+        "standard_score": 0.2411442055412937,
+        "llm_judge_score": 0.19951865222623347,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.8267148014440433,
+        "standard_judge_pearson": 0.7084599986940697,
+        "standard_judge_mean_absolute_gap": 0.1290192793559457,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 547,
+          "standard_only_correct": 111,
+          "both_correct": 140,
+          "judge_only_correct": 33
+        },
+        "standard_protocol_counts": {
+          "official_metric": 831
+        },
+        "standard_metric_counts": {
+          "anls": 831
+        }
+      },
+      "mmmu": {
+        "num_samples": 15,
+        "num_standard_scored": 15,
+        "num_judged": 15,
+        "standard_score": 0.0,
+        "llm_judge_score": 0.0,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 15
+        },
+        "standard_protocol_counts": {
+          "official_metric": 15
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 15
+        }
+      },
+      "okvqa": {
+        "num_samples": 2,
+        "num_standard_scored": 2,
+        "num_judged": 2,
+        "standard_score": 0.3,
+        "llm_judge_score": 0.9,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.5,
+        "standard_judge_pearson": -1.0,
+        "standard_judge_mean_absolute_gap": 0.6000000000000001,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 1,
+          "judge_only_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 2
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 2
+        }
+      },
+      "textvqa": {
+        "num_samples": 23,
+        "num_standard_scored": 23,
+        "num_judged": 23,
+        "standard_score": 0.33043478260869563,
+        "llm_judge_score": 0.3695652173913043,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9565217391304348,
+        "standard_judge_pearson": 0.9626896015664933,
+        "standard_judge_mean_absolute_gap": 0.0391304347826087,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 8,
+          "both_incorrect": 14,
+          "judge_only_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 23
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 23
+        }
+      },
+      "tqa": {
+        "num_samples": 8,
+        "num_standard_scored": 8,
+        "num_judged": 8,
+        "standard_score": 0.125,
+        "llm_judge_score": 0.125,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 7,
+          "both_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 8
+        },
+        "standard_metric_counts": {
+          "chartqa_relaxed_accuracy": 8
+        }
+      },
+      "visual7w": {
+        "num_samples": 1,
+        "num_standard_scored": 1,
+        "num_judged": 1,
+        "standard_score": 0.0,
+        "llm_judge_score": 0.0,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 1
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 1
+        }
+      },
+      "vqav2": {
+        "num_samples": 1,
+        "num_standard_scored": 1,
+        "num_judged": 1,
+        "standard_score": 0.0,
+        "llm_judge_score": 0.0,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 1
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 1
+        }
+      }
+    }
+  },
+  {
+    "stage": "diagram",
+    "task": "medical",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final_textvqa_clean/splits/visual_substrate/trainable/eval/medical/eval.json",
+    "predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions/medical.jsonl",
+    "scored_predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions_dual/medical.jsonl",
+    "num_samples": 1000,
+    "num_standard_scored": 1000,
+    "num_judged": 1000,
+    "standard_score": 0.337,
+    "llm_judge_score": 0.37965,
+    "standard_coverage": 1.0,
+    "judge_coverage": 1.0,
+    "official_metric_coverage": 1.0,
+    "direct_comparison_coverage": 0.0,
+    "standard_judge_agreement_at_0_5": 0.944,
+    "standard_judge_pearson": 0.9216797884625246,
+    "standard_judge_mean_absolute_gap": 0.04465,
+    "agreement_confusion_at_0_5": {
+      "both_incorrect": 608,
+      "both_correct": 336,
+      "judge_only_correct": 55,
+      "standard_only_correct": 1
+    },
+    "standard_protocol_counts": {
+      "official_metric": 1000
+    },
+    "standard_metric_counts": {
+      "multiple_choice_accuracy": 147,
+      "normalized_accuracy": 852,
+      "vqa_soft_accuracy": 1
+    },
+    "standard_dataset_macro_score": 0.2730688231155553,
+    "llm_judge_dataset_macro_score": 0.2946484749649559,
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 6,
+        "num_standard_scored": 6,
+        "num_judged": 6,
+        "standard_score": 0.5,
+        "llm_judge_score": 0.5,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0000000000000002,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 3,
+          "both_correct": 3
+        },
+        "standard_protocol_counts": {
+          "official_metric": 6
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 6
+        }
+      },
+      "gqa": {
+        "num_samples": 2,
+        "num_standard_scored": 2,
+        "num_judged": 2,
+        "standard_score": 0.5,
+        "llm_judge_score": 0.5,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 0.9999999999999998,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 1,
+          "both_incorrect": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 2
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 2
+        }
+      },
+      "iconqa": {
+        "num_samples": 1,
+        "num_standard_scored": 1,
+        "num_judged": 1,
+        "standard_score": 0.0,
+        "llm_judge_score": 0.0,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 1
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 1
+        }
+      },
+      "mmmu": {
+        "num_samples": 140,
+        "num_standard_scored": 140,
+        "num_judged": 140,
+        "standard_score": 0.05,
+        "llm_judge_score": 0.09107142857142857,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9357142857142857,
+        "standard_judge_pearson": 0.6347891858651404,
+        "standard_judge_mean_absolute_gap": 0.055357142857142855,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 125,
+          "standard_only_correct": 1,
+          "judge_only_correct": 8,
+          "both_correct": 6
+        },
+        "standard_protocol_counts": {
+          "official_metric": 140
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 140
+        }
+      },
+      "okvqa": {
+        "num_samples": 1,
+        "num_standard_scored": 1,
+        "num_judged": 1,
+        "standard_score": 0.0,
+        "llm_judge_score": 0.0,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": null,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 1
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 1
+        }
+      },
+      "pathvqa": {
+        "num_samples": 555,
+        "num_standard_scored": 555,
+        "num_judged": 555,
+        "standard_score": 0.3891891891891892,
+        "llm_judge_score": 0.4322522522522523,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9441441441441442,
+        "standard_judge_pearson": 0.9302831121354669,
+        "standard_judge_mean_absolute_gap": 0.04306306306306307,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 308,
+          "both_correct": 216,
+          "judge_only_correct": 31
+        },
+        "standard_protocol_counts": {
+          "official_metric": 555
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 555
+        }
+      },
+      "slake": {
+        "num_samples": 138,
+        "num_standard_scored": 138,
+        "num_judged": 138,
+        "standard_score": 0.3695652173913043,
+        "llm_judge_score": 0.4166666666666667,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9420289855072463,
+        "standard_judge_pearson": 0.9204406794509025,
+        "standard_judge_mean_absolute_gap": 0.04710144927536232,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 51,
+          "both_incorrect": 79,
+          "judge_only_correct": 8
+        },
+        "standard_protocol_counts": {
+          "official_metric": 138
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 138
+        }
+      },
+      "vqarad": {
+        "num_samples": 157,
+        "num_standard_scored": 157,
+        "num_judged": 157,
+        "standard_score": 0.37579617834394907,
+        "llm_judge_score": 0.4171974522292994,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9490445859872612,
+        "standard_judge_pearson": 0.9299495471611452,
+        "standard_judge_mean_absolute_gap": 0.04140127388535032,
+        "agreement_confusion_at_0_5": {
+          "judge_only_correct": 8,
+          "both_incorrect": 90,
+          "both_correct": 59
+        },
+        "standard_protocol_counts": {
+          "official_metric": 157
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 157
+        }
+      }
+    }
+  },
+  {
+    "stage": "diagram",
+    "task": "natural_photo",
+    "eval_file": "/mnt/hdd1/chencheng/Code/Easy_Train_MLLM/cl_dataset/coin_factor1_final_textvqa_clean/splits/visual_substrate/trainable/eval/natural_photo/eval.json",
+    "predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions/natural_photo.jsonl",
+    "scored_predictions_file": "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/visual_substrate/llm_only/eval/5_diagram/predictions_dual/natural_photo.jsonl",
+    "num_samples": 1000,
+    "num_standard_scored": 1000,
+    "num_judged": 1000,
+    "standard_score": 0.4113,
+    "llm_judge_score": 0.4663,
+    "standard_coverage": 1.0,
+    "judge_coverage": 1.0,
+    "official_metric_coverage": 1.0,
+    "direct_comparison_coverage": 0.0,
+    "standard_judge_agreement_at_0_5": 0.931,
+    "standard_judge_pearson": 0.8972104114633008,
+    "standard_judge_mean_absolute_gap": 0.06420000000000001,
+    "agreement_confusion_at_0_5": {
+      "both_correct": 412,
+      "both_incorrect": 519,
+      "judge_only_correct": 65,
+      "standard_only_correct": 4
+    },
+    "standard_protocol_counts": {
+      "official_metric": 1000
+    },
+    "standard_metric_counts": {
+      "count_accuracy": 103,
+      "vqa_soft_accuracy": 296,
+      "multiple_choice_accuracy": 389,
+      "normalized_accuracy": 204,
+      "anls": 8
+    },
+    "standard_dataset_macro_score": 0.40468642997927756,
+    "llm_judge_dataset_macro_score": 0.4632092918796237,
+    "per_dataset": {
+      "ai2d": {
+        "num_samples": 20,
+        "num_standard_scored": 20,
+        "num_judged": 20,
+        "standard_score": 0.4,
+        "llm_judge_score": 0.53,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.85,
+        "standard_judge_pearson": 0.7948425201098843,
+        "standard_judge_mean_absolute_gap": 0.13,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 8,
+          "judge_only_correct": 3,
+          "both_incorrect": 9
+        },
+        "standard_protocol_counts": {
+          "official_metric": 20
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 20
+        }
+      },
+      "aokvqa": {
+        "num_samples": 100,
+        "num_standard_scored": 100,
+        "num_judged": 100,
+        "standard_score": 0.25,
+        "llm_judge_score": 0.493,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.73,
+        "standard_judge_pearson": 0.6105540736129844,
+        "standard_judge_mean_absolute_gap": 0.243,
+        "agreement_confusion_at_0_5": {
+          "judge_only_correct": 27,
+          "both_correct": 25,
+          "both_incorrect": 48
+        },
+        "standard_protocol_counts": {
+          "official_metric": 100
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 100
+        }
+      },
+      "gqa": {
+        "num_samples": 119,
+        "num_standard_scored": 119,
+        "num_judged": 119,
+        "standard_score": 0.35294117647058826,
+        "llm_judge_score": 0.39327731092436974,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9495798319327731,
+        "standard_judge_pearson": 0.9281792923182609,
+        "standard_judge_mean_absolute_gap": 0.040336134453781515,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 42,
+          "both_incorrect": 71,
+          "judge_only_correct": 6
+        },
+        "standard_protocol_counts": {
+          "official_metric": 119
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 119
+        }
+      },
+      "iconqa": {
+        "num_samples": 83,
+        "num_standard_scored": 83,
+        "num_judged": 83,
+        "standard_score": 0.37349397590361444,
+        "llm_judge_score": 0.37349397590361444,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 31,
+          "both_incorrect": 52
+        },
+        "standard_protocol_counts": {
+          "official_metric": 83
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 83
+        }
+      },
+      "infographicvqa": {
+        "num_samples": 8,
+        "num_standard_scored": 8,
+        "num_judged": 8,
+        "standard_score": 0.5,
+        "llm_judge_score": 0.5,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 0.9999999999999998,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 4,
+          "both_incorrect": 4
+        },
+        "standard_protocol_counts": {
+          "official_metric": 8
+        },
+        "standard_metric_counts": {
+          "anls": 8
+        }
+      },
+      "mmmu": {
+        "num_samples": 77,
+        "num_standard_scored": 77,
+        "num_judged": 77,
+        "standard_score": 0.05194805194805195,
+        "llm_judge_score": 0.07272727272727272,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.974025974025974,
+        "standard_judge_pearson": 0.862850117394031,
+        "standard_judge_mean_absolute_gap": 0.02077922077922078,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 71,
+          "judge_only_correct": 2,
+          "both_correct": 4
+        },
+        "standard_protocol_counts": {
+          "official_metric": 77
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 77
+        }
+      },
+      "okvqa": {
+        "num_samples": 81,
+        "num_standard_scored": 81,
+        "num_judged": 81,
+        "standard_score": 0.5506172839506173,
+        "llm_judge_score": 0.6407407407407407,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.8641975308641975,
+        "standard_judge_pearson": 0.7641423670932137,
+        "standard_judge_mean_absolute_gap": 0.14938271604938272,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 46,
+          "judge_only_correct": 8,
+          "both_incorrect": 24,
+          "standard_only_correct": 3
+        },
+        "standard_protocol_counts": {
+          "official_metric": 81
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 81
+        }
+      },
+      "pathvqa": {
+        "num_samples": 9,
+        "num_standard_scored": 9,
+        "num_judged": 9,
+        "standard_score": 0.3333333333333333,
+        "llm_judge_score": 0.4444444444444444,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.8888888888888888,
+        "standard_judge_pearson": 0.7905694150420949,
+        "standard_judge_mean_absolute_gap": 0.1111111111111111,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 3,
+          "both_incorrect": 5,
+          "judge_only_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 9
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 9
+        }
+      },
+      "slake": {
+        "num_samples": 76,
+        "num_standard_scored": 76,
+        "num_judged": 76,
+        "standard_score": 0.40789473684210525,
+        "llm_judge_score": 0.40789473684210525,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 45,
+          "both_correct": 31
+        },
+        "standard_protocol_counts": {
+          "official_metric": 76
+        },
+        "standard_metric_counts": {
+          "normalized_accuracy": 76
+        }
+      },
+      "tallyqa": {
+        "num_samples": 103,
+        "num_standard_scored": 103,
+        "num_judged": 103,
+        "standard_score": 0.4854368932038835,
+        "llm_judge_score": 0.4854368932038835,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 0.9999999999999999,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 50,
+          "both_incorrect": 53
+        },
+        "standard_protocol_counts": {
+          "official_metric": 103
+        },
+        "standard_metric_counts": {
+          "count_accuracy": 103
+        }
+      },
+      "textvqa": {
+        "num_samples": 101,
+        "num_standard_scored": 101,
+        "num_judged": 101,
+        "standard_score": 0.3792079207920792,
+        "llm_judge_score": 0.4485148514851485,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9108910891089109,
+        "standard_judge_pearson": 0.9035622671276001,
+        "standard_judge_mean_absolute_gap": 0.06930693069306931,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 54,
+          "both_correct": 38,
+          "judge_only_correct": 9
+        },
+        "standard_protocol_counts": {
+          "official_metric": 101
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 101
+        }
+      },
+      "visual7w": {
+        "num_samples": 109,
+        "num_standard_scored": 109,
+        "num_judged": 109,
+        "standard_score": 0.7339449541284404,
+        "llm_judge_score": 0.7339449541284404,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 1.0,
+        "standard_judge_pearson": 1.0000000000000002,
+        "standard_judge_mean_absolute_gap": 0.0,
+        "agreement_confusion_at_0_5": {
+          "both_correct": 80,
+          "both_incorrect": 29
+        },
+        "standard_protocol_counts": {
+          "official_metric": 109
+        },
+        "standard_metric_counts": {
+          "multiple_choice_accuracy": 109
+        }
+      },
+      "vqav2": {
+        "num_samples": 114,
+        "num_standard_scored": 114,
+        "num_judged": 114,
+        "standard_score": 0.4421052631578947,
+        "llm_judge_score": 0.4982456140350877,
+        "standard_coverage": 1.0,
+        "judge_coverage": 1.0,
+        "official_metric_coverage": 1.0,
+        "direct_comparison_coverage": 0.0,
+        "standard_judge_agreement_at_0_5": 0.9122807017543859,
+        "standard_judge_pearson": 0.8685332561741231,
+        "standard_judge_mean_absolute_gap": 0.09473684210526316,
+        "agreement_confusion_at_0_5": {
+          "both_incorrect": 54,
+          "both_correct": 50,
+          "judge_only_correct": 9,
+          "standard_only_correct": 1
+        },
+        "standard_protocol_counts": {
+          "official_metric": 114
+        },
+        "standard_metric_counts": {
+          "vqa_soft_accuracy": 114
+        }
+      }
+    }
+  }
+]

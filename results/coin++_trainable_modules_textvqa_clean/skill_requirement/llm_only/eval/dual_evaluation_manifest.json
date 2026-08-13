@@ -1,0 +1,42 @@
+{
+  "evaluation_protocol": "independent_standard_and_llm_judge",
+  "standard_track": {
+    "registered_metric_first": true,
+    "fallback": "normalized_answer_match"
+  },
+  "llm_judge_track": {
+    "coverage": "all_predictions",
+    "model": "qwen3.6",
+    "prompt_version": "coinpp-all-results-judge-rubric-scalar-v4",
+    "raw_scale": "0_to_10",
+    "reported_scale": "0_to_1",
+    "image_provided_to_judge": false,
+    "output_transport": "scalar_primary_with_json_schema_recovery",
+    "reference_policy": "TextVQA annotation-control responses are excluded from Judge inputs when semantic references remain; standard metrics retain all original references."
+  },
+  "annotation_report": {
+    "sources": [
+      {
+        "path": "/data/chencheng/cl_dataset/coin_factor1_final_textvqa_clean/evaluation_annotations_skill.jsonl",
+        "kind": "cache",
+        "matched_rows": 10000,
+        "malformed_rows": 0
+      }
+    ],
+    "needed_ids": 10000,
+    "resolved_ids": 10000,
+    "missing_ids": 0
+  },
+  "stages": [
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/skill_requirement/llm_only/eval/10_attribute",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/skill_requirement/llm_only/eval/1_recognition",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/skill_requirement/llm_only/eval/2_counting",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/skill_requirement/llm_only/eval/3_medical_reasoning",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/skill_requirement/llm_only/eval/4_knowledge_reasoning",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/skill_requirement/llm_only/eval/5_chart_reasoning",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/skill_requirement/llm_only/eval/6_document_reasoning",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/skill_requirement/llm_only/eval/7_text_reading",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/skill_requirement/llm_only/eval/8_diagram_reasoning",
+    "/home/chencheng/Code/Easy_Train_MLLM/results/coin++_trainable_modules_textvqa_clean/skill_requirement/llm_only/eval/9_relation"
+  ]
+}
